@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SCB — Data ontology map</title>
+  <link rel="stylesheet" href="https://unpkg.com/vis-network@9.1.9/styles/vis-network.min.css" crossorigin="anonymous" />
+  <style>
+    :root{
+      --bg:#05040f;
+      --panel:rgba(18,12,34,.95);
+      --stroke:rgba(255,255,255,.12);
+      --text:#f4f0ff;
+      --muted:rgba(244,240,255,.55);
+      --gold:#e8d5a0;
+      --good:#34d399;
+      --r:14px;
+      --font:"Segoe UI",system-ui,-apple-system,sans-serif;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;font-family:var(--font);font-size:13px;color:var(--text);
+      background:radial-gradient(900px 480px at 12% 0%,rgba(108,77,196,.22),transparent 50%),
+        radial-gradient(700px 400px at 92% 6%,rgba(201,168,76,.1),transparent 45%),
+        linear-gradient(185deg,#0b0618,var(--bg) 55%,#020108);}
+    .app{display:grid;grid-template-rows:auto 1fr;grid-template-columns:minmax(220px,280px) 1fr minmax(260px,320px);grid-template-areas:
+      "hdr hdr hdr"
+      "side graph detail";height:100vh;gap:0}
+    @media(max-width:1100px){
+      .app{grid-template-columns:1fr;grid-template-rows:auto auto 1fr auto;
+        grid-template-areas:"hdr" "side" "graph" "detail";height:auto;min-height:100vh}
+      .graph-stack{min-height:62vh}
+    }
+    header{grid-area:hdr;display:flex;flex-wrap:wrap;align-items:center;gap:12px 18px;padding:12px 18px;border-bottom:1px solid var(--stroke);background:rgba(0,0,0,.35)}
+    header h1{margin:0;font-size:15px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:rgba(201,168,76,.95)}
+    header p{margin:0;font-size:12px;color:var(--muted);max-width:720px;line-height:1.45}
+    header .actions{margin-left:auto;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+    header label{font-size:11px;font-weight:700;color:var(--muted);display:flex;align-items:center;gap:6px}
+    header input[type="range"]{width:120px}
+    header a{color:var(--gold);font-weight:700;font-size:12px}
+    aside{grid-area:side;border-right:1px solid var(--stroke);background:var(--panel);padding:14px 14px 18px;overflow:auto}
+    aside h2{margin:0 0 10px;font-size:11px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:rgba(201,168,76,.9)}
+    .stat{font-size:12px;color:var(--muted);margin:6px 0;line-height:1.4}
+    .stat b{color:#fff;font-weight:800}
+    .pill{display:inline-block;font-size:10px;font-weight:800;padding:4px 8px;border-radius:999px;border:1px solid rgba(255,255,255,.12);margin:3px 4px 0 0;background:rgba(0,0,0,.25)}
+    .graph-stack{grid-area:graph;position:relative;min-height:0;background:rgba(0,0,0,.2)}
+    #graphCatalog{position:absolute;inset:0}
+    #graphExp{position:absolute;inset:0;display:none;padding:12px}
+    #graphExp canvas{width:100%;height:100%;display:block}
+    .graph-stack .vis-network:focus{outline:none}
+    .detail{grid-area:detail;border-left:1px solid var(--stroke);background:var(--panel);padding:14px 14px 18px;overflow:auto}
+    .detail h2{margin:0 0 10px;font-size:11px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:rgba(201,168,76,.9)}
+    .detail pre{margin:0;font-size:11px;line-height:1.45;color:rgba(255,255,255,.82);white-space:pre-wrap;word-break:break-word;background:rgba(0,0,0,.35);border:1px solid var(--stroke);border-radius:var(--r);padding:12px;max-height:min(70vh,520px);overflow:auto}
+    .detail .empty{color:var(--muted);font-size:12px;line-height:1.5}
+    .tabs{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+    .tabs button{border:1px solid var(--stroke);background:rgba(255,255,255,.06);color:rgba(255,255,255,.82);padding:8px 12px;border-radius:999px;font-size:11px;font-weight:800;cursor:pointer}
+    .tabs button.on{background:rgba(201,168,76,.14);border-color:rgba(201,168,76,.35);color:#fff}
+    .layer2{display:none}
+    .layer2.show{display:block}
+    #expCanvas{width:100%;height:min(420px,50vh);border-radius:var(--r);border:1px solid var(--stroke);background:rgba(0,0,0,.3)}
+    .hint{margin-top:12px;font-size:11px;color:var(--muted);line-height:1.45}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div>
+        <h1>Data ontology map</h1>
+        <p>Interactive dataset → column graph from <code>data/scb_data_catalog.json</code> (same structure as the catalog export). Use a local server so the JSON can load.</p>
+      </div>
+      <div class="actions">
+        <label>Datasets <input id="dsMax" type="range" min="3" max="35" value="14" /></label>
+        <span id="dsMaxLab" style="font-size:11px;color:var(--muted);min-width:52px">14 / 35</span>
+        <button type="button" class="tabs" style="margin:0;padding:8px 14px;border-radius:10px" id="btnFit">Fit view</button>
+        <a href="index.html">Prototype hub</a>
+        <a href="SCB_CXO_Board_Dashboard.html">CXO dashboard</a>
+      </div>
+    </header>
+    <aside>
+      <div class="tabs" role="tablist">
+        <button type="button" class="on" data-layer="catalog">Catalog graph</button>
+        <button type="button" data-layer="experience">Experience map</button>
+      </div>
+      <div id="asideCatalog">
+        <h2>Legend</h2>
+        <div><span class="pill" style="border-color:rgba(201,168,76,.4);color:var(--gold)">DataSet</span></div>
+        <div style="margin-top:8px"><span class="pill" style="color:rgba(255,255,255,.65)">Column</span></div>
+        <h2 style="margin-top:18px">Graph stats</h2>
+        <p class="stat" id="statLine">Loading…</p>
+        <p class="stat" id="genLine"></p>
+        <h2 style="margin-top:18px">Search</h2>
+        <input id="q" type="search" placeholder="Filter by label…" style="width:100%;padding:9px 10px;border-radius:10px;border:1px solid var(--stroke);background:rgba(0,0,0,.35);color:#fff;font-size:12px" />
+        <p class="hint">Matching datasets and their columns stay visible; others hide until you clear the filter.</p>
+      </div>
+      <div id="asideExp" class="layer2">
+        <h2>Layers</h2>
+        <p class="stat">Personas and twin inputs drive the CXO board. Journeys embed HTML prototypes. The catalog ontology (other tab) grounds features in datasets.</p>
+        <h2 style="margin-top:14px">Open</h2>
+        <p class="stat"><a href="SCB_CXO_Board_Dashboard.html">CXO Board Dashboard</a><br /><a href="SCB_Morning_Briefing_Demo.html">Morning Briefing</a><br /><a href="SCB_AI_Demo_App.html">AI Banking</a></p>
+      </div>
+    </aside>
+    <div class="graph-stack">
+      <div id="graphCatalog"></div>
+      <div id="graphExp"><canvas id="expCanvas" width="800" height="480"></canvas></div>
+    </div>
+    <div class="detail">
+      <h2>Selection</h2>
+      <div id="selEmpty" class="empty">Click a dataset or column in the graph to inspect fields.</div>
+      <pre id="selJson" style="display:none"></pre>
+      <div id="expDetail" class="layer2 show" style="display:none">
+        <p class="empty" id="expHint">Switch to “Experience map” and click a node.</p>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/vis-network@9.1.9/standalone/umd/vis-network.min.js" crossorigin="anonymous"></script>
+  <script src="js/vera_hub_config.js"></script>
+  <script src="js/vera_hub_backend.js"></script>
+  <script>
+    const SA_COLORS = ["#c9a84c","#7b5ea7","#34d399","#60a5fa","#f472b6","#94a3b8","#fb923c","#2dd4bf"];
+    function hashStr(s){
+      let h = 0;
+      const str = String(s || "");
+      for (let i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) | 0;
+      return Math.abs(h);
+    }
+    function colorForSubjectArea(sa){
+      return SA_COLORS[hashStr(sa) % SA_COLORS.length];
+    }
+
+    let network = null;
+    let fullNodes = [];
+    let fullEdges = [];
+    let catalogMeta = { generatedAt: "", sourceFile: "" };
+
+    function escapeHtml(s){
+      return String(s).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
+    }
+
+    /** Catalog + vis use from→to; graph APIs often use source→target */
+    function edgeEndpoints(e){
+      if (!e || typeof e !== "object") return null;
+      const from = e.from != null ? e.from : e.source;
+      const to = e.to != null ? e.to : e.target;
+      if (from === undefined || from === null || to === undefined || to === null) return null;
+      return { from, to };
+    }
+
+    function sliceOntology(nodes, edges, maxDatasets){
+      const dsList = nodes.filter(n => n.type === "DataSet").slice(0, maxDatasets);
+      const dsId = new Set(dsList.map(n => n.id));
+      const allowed = new Set(dsId);
+      for (const n of nodes){
+        if (n.type === "Column" && n.parentDataSet && dsId.has("dataset:" + n.parentDataSet))
+          allowed.add(n.id);
+      }
+      return {
+        nodes: nodes.filter(n => allowed.has(n.id)),
+        edges: edges.filter(e => {
+          const ep = edgeEndpoints(e);
+          return ep && allowed.has(ep.from) && allowed.has(ep.to);
+        })
+      };
+    }
+
+    function buildVisData(ontologyNodes, ontologyEdges, query){
+      const q = (query || "").trim().toLowerCase();
+      let nodes = ontologyNodes;
+      let edges = ontologyEdges;
+      if (q){
+        const match = new Set();
+        for (const n of nodes){
+          const hay = (String(n.label || "") + " " + (n.businessAttributeName || "") + " " + (n.subjectArea || "")).toLowerCase();
+          if (hay.includes(q)) match.add(n.id);
+        }
+        for (const n of nodes){
+          if (n.type !== "Column") continue;
+          const pid = "dataset:" + n.parentDataSet;
+          if (match.has(n.id)) match.add(pid);
+        }
+        const keep = new Set();
+        for (const id of match){
+          keep.add(id);
+        }
+        for (const n of nodes){
+          if (n.type !== "Column") continue;
+          const pid = "dataset:" + n.parentDataSet;
+          if (keep.has(pid)) keep.add(n.id);
+        }
+        nodes = nodes.filter(n => keep.has(n.id));
+        const k = new Set(nodes.map(n => n.id));
+        edges = edges.filter(e => {
+          const ep = edgeEndpoints(e);
+          return ep && k.has(ep.from) && k.has(ep.to);
+        });
+      }
+
+      const visNodes = nodes.map(n => {
+        if (n.type === "DataSet"){
+          const bg = colorForSubjectArea(n.subjectArea);
+          return {
+            id: n.id,
+            label: n.label || String(n.id || ""),
+            title: [n.subjectArea, n.updateFrequency].filter(Boolean).join(" · ") || n.label,
+            group: "dataset",
+            shape: "box",
+            margin: 12,
+            font: { color: "#fff", size: 13, face: "Segoe UI, system-ui, sans-serif" },
+            color: { background: bg, border: "rgba(255,255,255,.25)", highlight: { background: bg, border: "#fff" } },
+            shadow: true
+          };
+        }
+        return {
+          id: n.id,
+          label: n.label || String(n.id || ""),
+          title: n.businessAttributeName || n.label || String(n.id || ""),
+          group: "column",
+          shape: "dot",
+          size: 11,
+          font: { color: "rgba(244,240,255,.88)", size: 11 },
+          color: { background: "#5b5270", border: "rgba(255,255,255,.2)", highlight: { background: "#7b5ea7", border: "#fff" } }
+        };
+      });
+      const visEdges = edges.map(e => {
+        const ep = edgeEndpoints(e);
+        if (!ep) return null;
+        return {
+          from: ep.from,
+          to: ep.to,
+          title: e.rel || e.label || "link",
+          arrows: "to",
+          color: { color: "rgba(201,168,76,.28)", highlight: "rgba(232,213,160,.75)" },
+          smooth: { type: "cubicVertical" }
+        };
+      }).filter(Boolean);
+      return { visNodes, visEdges, counts: { nodes: visNodes.length, edges: visEdges.length } };
+    }
+
+    function renderCatalog(maxDatasets, query){
+      const { nodes: on, edges: oe } = sliceOntology(fullNodes, fullEdges, maxDatasets);
+      const { visNodes, visEdges, counts } = buildVisData(on, oe, query);
+      const data = { nodes: visNodes, edges: visEdges };
+      const opts = {
+        layout: {
+          hierarchical: {
+            enabled: true,
+            direction: "UD",
+            sortMethod: "directed",
+            levelSeparation: 95,
+            nodeSpacing: 105,
+            treeSpacing: 42,
+            blockShifting: true,
+            edgeMinimization: true
+          }
+        },
+        physics: false,
+        interaction: { hover: true, tooltipDelay: 120, multiselect: false, navigationButtons: true },
+        nodes: { borderWidth: 1, chosen: true },
+        edges: { width: 1, selectionWidth: 2 }
+      };
+      const el = document.getElementById("graphCatalog");
+      if (network) network.destroy();
+      network = new vis.Network(el, data, opts);
+      network.on("click", p => {
+        if (p.nodes.length === 0){
+          document.getElementById("selEmpty").style.display = "block";
+          document.getElementById("selJson").style.display = "none";
+          return;
+        }
+        const id = p.nodes[0];
+        const raw = fullNodes.find(n => n.id === id) || on.find(n => n.id === id);
+        document.getElementById("selEmpty").style.display = "none";
+        document.getElementById("selJson").style.display = "block";
+        document.getElementById("selJson").textContent = JSON.stringify(raw, null, 2);
+      });
+      document.getElementById("statLine").innerHTML =
+        "<b>" + counts.nodes + "</b> nodes · <b>" + counts.edges + "</b> edges <span style='color:rgba(255,255,255,.4)'>(" + maxDatasets + " datasets max)</span>";
+    }
+
+    function drawExperienceMap(){
+      const c = document.getElementById("expCanvas");
+      if (!c) return;
+      const wrap = c.parentElement;
+      const rect = wrap.getBoundingClientRect();
+      const W = Math.max(320, Math.floor(rect.width - 24));
+      const H = Math.max(280, Math.floor(rect.height - 24));
+      const dpr = window.devicePixelRatio || 1;
+      c.width = Math.floor(W * dpr);
+      c.height = Math.floor(H * dpr);
+      c.style.width = W + "px";
+      c.style.height = H + "px";
+      const ctx = c.getContext("2d");
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.clearRect(0, 0, W, H);
+      ctx.font = "12px Segoe UI, system-ui, sans-serif";
+      const nodes = [
+        { x: W * 0.5, y: 36, t: "Customer & twin", sub: "Personas · attributes", r: 70 },
+        { x: W * 0.5, y: 118, t: "CXO cockpit", sub: "KPIs · OKRs · journeys", r: 78 },
+        { x: W * 0.22, y: 230, t: "Morning brief", sub: "J1", r: 58 },
+        { x: W * 0.40, y: 230, t: "Loan chat", sub: "J2", r: 52 },
+        { x: W * 0.58, y: 230, t: "Card block", sub: "J3", r: 52 },
+        { x: W * 0.76, y: 230, t: "Anomaly", sub: "J4", r: 50 },
+        { x: W * 0.30, y: 318, t: "Health score", sub: "J5", r: 56 },
+        { x: W * 0.50, y: 318, t: "Study abroad", sub: "J6", r: 56 },
+        { x: W * 0.70, y: 318, t: "Plan trip", sub: "J7", r: 54 },
+        { x: W * 0.28, y: 400, t: "Briefing demo", sub: "HTML", r: 62 },
+        { x: W * 0.72, y: 400, t: "AI banking demo", sub: "HTML", r: 64 },
+        { x: W * 0.5, y: 400, t: "Catalog ontology", sub: "JSON graph", r: 68 }
+      ];
+      function roundRect(x, y, rw, rh, rad, fill, stroke){
+        const x0 = x - rw / 2;
+        const y0 = y - rh / 2;
+        ctx.beginPath();
+        ctx.moveTo(x0 + rad, y0);
+        ctx.lineTo(x0 + rw - rad, y0);
+        ctx.quadraticCurveTo(x0 + rw, y0, x0 + rw, y0 + rad);
+        ctx.lineTo(x0 + rw, y0 + rh - rad);
+        ctx.quadraticCurveTo(x0 + rw, y0 + rh, x0 + rw - rad, y0 + rh);
+        ctx.lineTo(x0 + rad, y0 + rh);
+        ctx.quadraticCurveTo(x0, y0 + rh, x0, y0 + rh - rad);
+        ctx.lineTo(x0, y0 + rad);
+        ctx.quadraticCurveTo(x0, y0, x0 + rad, y0);
+        ctx.closePath();
+        ctx.fillStyle = fill;
+        ctx.fill();
+        ctx.strokeStyle = stroke;
+        ctx.lineWidth = 1;
+        ctx.stroke();
+      }
+      ctx.strokeStyle = "rgba(201,168,76,.35)";
+      ctx.lineWidth = 1.5;
+      function line(x1,y1,x2,y2){
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.stroke();
+      }
+      line(W * 0.5, 36 + 28, W * 0.5, 118 - 40);
+      for (const nx of [0.22, 0.40, 0.58, 0.76]){
+        line(W * 0.5, 118 + 40, W * nx, 230 - 32);
+      }
+      line(W * 0.5, 118 + 40, W * 0.30, 318 - 32);
+      line(W * 0.5, 118 + 40, W * 0.50, 318 - 32);
+      line(W * 0.5, 118 + 40, W * 0.70, 318 - 32);
+      line(W * 0.22, 230 + 32, W * 0.28, 400 - 36);
+      line(W * 0.58, 230 + 32, W * 0.72, 400 - 36);
+      line(W * 0.50, 318 + 32, W * 0.5, 400 - 36);
+      for (const n of nodes){
+        roundRect(n.x, n.y, n.r * 2.1, 46, 12, "rgba(0,0,0,.45)", "rgba(255,255,255,.14)");
+        ctx.fillStyle = "#f4f0ff";
+        ctx.textAlign = "center";
+        ctx.font = "700 12px Segoe UI, system-ui, sans-serif";
+        ctx.fillText(n.t, n.x, n.y - 4);
+        ctx.fillStyle = "rgba(244,240,255,.55)";
+        ctx.font = "600 10px Segoe UI, system-ui, sans-serif";
+        ctx.fillText(n.sub, n.x, n.y + 12);
+      }
+    }
+
+    function setLayer(which){
+      document.querySelectorAll(".tabs button").forEach(b => b.classList.toggle("on", b.getAttribute("data-layer") === which));
+      const cat = which === "catalog";
+      document.getElementById("asideCatalog").style.display = cat ? "block" : "none";
+      document.getElementById("asideExp").classList.toggle("show", !cat);
+      document.getElementById("graphCatalog").style.display = cat ? "block" : "none";
+      document.getElementById("graphExp").style.display = cat ? "none" : "flex";
+      document.getElementById("graphExp").style.alignItems = "center";
+      document.getElementById("graphExp").style.justifyContent = "center";
+      document.getElementById("selEmpty").style.display = cat ? "block" : "none";
+      document.getElementById("selJson").style.display = "none";
+      document.getElementById("expDetail").style.display = cat ? "none" : "block";
+      if (!cat){
+        document.getElementById("expHint").textContent = "Concept map: personas and twin inputs feed the CXO cockpit; seven journeys embed the HTML prototypes; datasets in the catalog ontology ground features.";
+        requestAnimationFrame(() => { drawExperienceMap(); });
+      } else if (network){
+        requestAnimationFrame(() => { network.fit({ animation: true }); });
+      }
+    }
+
+    document.querySelectorAll(".tabs button").forEach(btn => {
+      btn.addEventListener("click", () => setLayer(btn.getAttribute("data-layer")));
+    });
+
+    document.getElementById("btnFit").addEventListener("click", () => { if (network) network.fit({ animation: true }); });
+    document.getElementById("dsMax").addEventListener("input", e => {
+      document.getElementById("dsMaxLab").textContent = e.target.value + " / 35";
+      renderCatalog(+e.target.value, document.getElementById("q").value);
+    });
+    let qTimer = null;
+    document.getElementById("q").addEventListener("input", () => {
+      clearTimeout(qTimer);
+      qTimer = setTimeout(() => {
+        renderCatalog(+document.getElementById("dsMax").value, document.getElementById("q").value);
+      }, 200);
+    });
+
+    window.addEventListener("resize", () => {
+      if (document.getElementById("expCanvas")) drawExperienceMap();
+    });
+
+    (async function init(){
+      try{
+        const res = await fetch("data/scb_data_catalog.json", { cache: "no-store" });
+        if (!res.ok) throw new Error(res.status + " " + res.statusText);
+        const payload = await res.json();
+        catalogMeta.generatedAt = payload.generatedAt || "";
+        catalogMeta.sourceFile = payload.sourceFile || "";
+        document.getElementById("genLine").innerHTML =
+          catalogMeta.generatedAt ? "<b>Generated</b> " + escapeHtml(catalogMeta.generatedAt) : "";
+        const ont = payload.ontology || { nodes: [], edges: [] };
+        fullNodes = ont.nodes || [];
+        fullEdges = ont.edges || [];
+        if (typeof VeraHubBackend !== "undefined" && VeraHubBackend.resolveBase()){
+          try{
+            await VeraHubBackend.syncOntology();
+            const extra = VeraHubBackend.getOntologyOverlay && VeraHubBackend.getOntologyOverlay();
+            if (extra && Array.isArray(extra.nodes) && extra.nodes.length){
+              const nid = new Set(fullNodes.map(n => n.id));
+              for (const n of extra.nodes){
+                if (n && n.id != null && !nid.has(n.id)){
+                  fullNodes.push(n);
+                  nid.add(n.id);
+                }
+              }
+              const eKey = e => {
+                if (e && e.id != null) return String(e.id);
+                const ep = edgeEndpoints(e);
+                return ep ? String(ep.from) + "→" + String(ep.to) : "";
+              };
+              const eid = new Set(fullEdges.map(eKey));
+              for (const e of extra.edges || []){
+                const k = eKey(e);
+                if (k && !eid.has(k)){
+                  fullEdges.push(e);
+                  eid.add(k);
+                }
+              }
+              document.getElementById("genLine").innerHTML =
+                (document.getElementById("genLine").innerHTML || "") +
+                "<span style='color:rgba(52,211,153,.9);font-size:11px'> · Vera Hub ontology merged (deduped)</span>";
+            }
+          } catch (veraErr){
+            const gl = document.getElementById("genLine");
+            const msg = escapeHtml(String(veraErr && veraErr.message ? veraErr.message : veraErr));
+            if (gl){
+              gl.innerHTML = (gl.innerHTML || "") +
+                "<span style='color:#fca5a5;font-size:11px'> · Vera Hub: " + msg + "</span>";
+            }
+          }
+        }
+        const maxDs = Math.min(35, Math.max(3, document.getElementById("dsMax").valueAsNumber || 14));
+        document.getElementById("dsMax").value = String(maxDs);
+        document.getElementById("dsMaxLab").textContent = maxDs + " / 35";
+        renderCatalog(maxDs, "");
+      } catch (err){
+        document.getElementById("statLine").innerHTML =
+          "<b style='color:#fca5a5'>Could not load ontology JSON.</b> Run a local server from the repo folder (see Share_App_Readme.txt) so <code>data/scb_data_catalog.json</code> is reachable.";
+        document.getElementById("graphCatalog").innerHTML =
+          "<div style='display:flex;align-items:center;justify-content:center;height:100%;padding:24px;color:rgba(255,255,255,.65);font-size:13px;line-height:1.6;text-align:center'>"
+          + "Expected path: <code>data/scb_data_catalog.json</code><br /><br />" + escapeHtml(String(err)) + "</div>";
+      }
+    })();
+  </script>
+</body>
+</html>

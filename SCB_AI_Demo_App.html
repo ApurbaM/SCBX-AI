@@ -106,6 +106,62 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--
 .quick-btn{background:#f0e6ff;border:1px solid #d8c4f0;border-radius:20px;padding:6px 14px;font-size:12px;color:var(--scb-purple);cursor:pointer;transition:all .15s;font-weight:500}
 .quick-btn:hover{background:var(--scb-purple);color:#fff}
 
+/* UC1 · Purple Bank Master — Figma Jarvis conversational (e.g. node 4224:7940) */
+#uc1 .pb-jarvis.chat-container{
+  background:linear-gradient(180deg,#1c1428 0%,#0b0612 55%,#07050f 100%);
+  border:1px solid rgba(107,70,193,.22);
+  box-shadow:0 12px 48px rgba(0,0,0,.35);
+}
+#uc1 .pb-jarvis .chat-header{
+  background:transparent;
+  border-bottom:1px solid rgba(255,255,255,.08);
+}
+#uc1 .pb-jarvis .chat-header h3{font-weight:500;letter-spacing:.02em}
+#uc1 .pb-jarvis .chat-messages{background:transparent}
+#uc1 .pb-jarvis .msg-ai{
+  background:rgba(255,255,255,.08);
+  color:#f3f4f6;
+  border:1px solid rgba(255,255,255,.06);
+}
+#uc1 .pb-jarvis .msg-user{
+  background:rgba(255,255,255,.12);
+  color:#fff;
+  border:1px solid rgba(255,255,255,.12);
+}
+#uc1 .pb-jarvis .quick-actions{background:transparent;border-top:none}
+#uc1 .pb-jarvis .quick-btn{
+  background:linear-gradient(-41deg,rgba(6,2,1,.55) 21%,rgba(28,19,44,.55) 84%);
+  border:1px solid rgba(255,255,255,.35);
+  color:#fff;
+  box-shadow:0 2px 16px rgba(107,70,193,.08);
+  border-radius:16px;
+  font-size:11px;
+  font-weight:600;
+  letter-spacing:.04em;
+}
+#uc1 .pb-jarvis .quick-btn:hover{
+  border-color:rgba(224,187,137,.45);
+  color:#fff;
+}
+#uc1 .pb-jarvis .chat-input{
+  background:transparent;
+  border-top:1px solid rgba(255,255,255,.06);
+}
+#uc1 .pb-jarvis .chat-input input{
+  background:#433d4b;
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:40px;
+  color:#fff;
+}
+#uc1 .pb-jarvis .chat-input input::placeholder{color:rgba(255,255,255,.45)}
+#uc1 .pb-jarvis .chat-input input:focus{border-color:rgba(224,187,137,.35)}
+#uc1 .pb-jarvis .chat-input button{
+  border-radius:40px;
+  background:linear-gradient(163deg,#fce4d2,#e0bb89 28%,#ca8a04 78%,#a16207);
+  color:#422006;
+  font-weight:700;
+}
+
 /* WORKFLOW */
 .workflow{display:flex;gap:0;align-items:flex-start;overflow-x:auto;padding:8px 0}
 .wf-step{flex:0 0 160px;text-align:center;position:relative}
@@ -308,23 +364,23 @@ tr:hover td{background:#faf8ff}
   <div id="uc1" class="page">
     <div class="grid g2">
       <div>
-        <div class="chat-container">
+        <div class="chat-container pb-jarvis">
           <div class="chat-header">
-            <span style="font-size:20px">&#129302;</span>
-            <div><h3>SCB Card Dispute Agent</h3><div style="font-size:11px;opacity:.7">Thai Voice + Text AI &bull; Powered by Typhoon</div></div>
+            <span style="font-size:20px;opacity:.95">&#129302;</span>
+            <div><h3>Jarvis</h3><div style="font-size:11px;opacity:.65">Card security &amp; disputes &bull; Purple Bank pattern</div></div>
             <div class="chat-status"></div>
           </div>
           <div class="chat-messages" id="uc1Chat">
-            <div class="msg msg-ai">Hello! I'm your SCB AI assistant. I can help you with credit card disputes, balance inquiries, payment issues, and more. How can I help you today?</div>
+            <div class="msg msg-ai">Hi — I can help verify unusual charges, open disputes, and check your card. What would you like to do?</div>
           </div>
           <div class="quick-actions" id="uc1Quick">
-            <div class="quick-btn" onclick="uc1Send('I see a charge I don\'t recognize')">&#128269; Unknown charge</div>
-            <div class="quick-btn" onclick="uc1Send('I want to dispute a transaction')">&#9888; Dispute transaction</div>
-            <div class="quick-btn" onclick="uc1Send('Check my card balance')">&#128179; Card balance</div>
+            <div class="quick-btn" onclick="uc1Send('I see a charge I don\'t recognize')">Unknown charge</div>
+            <div class="quick-btn" onclick="uc1Send('I want to dispute a transaction')">Dispute transaction</div>
+            <div class="quick-btn" onclick="uc1Send('Check my card balance')">Card balance</div>
           </div>
           <div class="chat-input">
-            <input type="text" id="uc1Input" placeholder="Type your message..." onkeypress="if(event.key==='Enter')uc1Send()">
-            <button onclick="uc1Send()">Send</button>
+            <input type="text" id="uc1Input" placeholder="Ask Jarvis anything&hellip;" onkeypress="if(event.key==='Enter')uc1Send()">
+            <button type="button" onclick="uc1Send()">Send</button>
           </div>
         </div>
       </div>
@@ -899,6 +955,13 @@ function addTlItem(container, data) {
   div.innerHTML = `<div class="tl-time">${data.time}</div><div class="tl-title">${data.title}</div><div style="font-size:12px;color:var(--text2)">${data.desc}</div>`;
   container.appendChild(div);
 }
+
+// Deep-link for CXO dashboard embeds: SCB_AI_Demo_App.html?view=uc1
+(function deepLinkView(){
+  const v = (new URLSearchParams(location.search).get('view') || '').toLowerCase();
+  const ok = { home: 1, uc1: 1, uc2: 1, uc3: 1, personalization: 1, autonomous: 1, journey: 1 };
+  if (ok[v]) navigate(v);
+})();
 </script>
 </body>
 </html>

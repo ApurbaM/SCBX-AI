@@ -3,11 +3,47 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>(function(){try{if(new URLSearchParams(location.search).get("cxo_embed")==="1")document.documentElement.classList.add("cxo-embed");}catch(_){}})();</script>
 <title>SCBx — Morning brief &amp; Jarvis (demo)</title>
 <!-- Design reference: Figma «Conversational AI Components» — https://www.figma.com/design/tm0NHNANJawOqhs05SxNpS/Conversational-Ai-Components -->
 <script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
 <style>
 :root{--font-ui:'SF Pro Display','Segoe UI',system-ui,-apple-system,BlinkMacSystemFont,sans-serif;--scb-purple:#4e2a84;--scb-purple-light:#7b5ea7;--scb-purple-dark:#2d1654;--scb-purple-deep:#1a0d33;--app-bg-0:#0a0614;--app-bg-1:#140a22;--app-bg-2:#1e0f32;--scb-gold:#c9a84c;--scb-gold-light:#e8d5a0;--accent:#6c4dc4;--success:#16a34a;--success-bg:rgba(22,163,74,.15);--warning:#ea8c00;--warning-bg:rgba(234,140,0,.15);--danger:#ef4444;--danger-bg:rgba(239,68,68,.15);--card-bg:rgba(255,255,255,.06);--card-border:rgba(255,255,255,.08);--text:#fff;--text2:rgba(255,255,255,.55);--text3:rgba(255,255,255,.3);--glass:rgba(255,255,255,.05);--glass-border:rgba(255,255,255,.1);--radius:16px;--radius-sm:12px;--radius-pill:24px;--gold-glow:rgba(201,168,76,.2)}
+html{color-scheme:dark}
+/* CXO frames A/C + anomaly D: visible purple scrollbars (Win/Chrome overlay often ignores near-transparent 4px thumbs) */
+.cx-embed-scroll{
+  scrollbar-gutter:stable;
+  scrollbar-width:thin;
+  scrollbar-color:rgba(130,100,175,.88) rgba(18,10,32,.96);
+}
+.cx-embed-scroll::-webkit-scrollbar{width:6px}
+.cx-embed-scroll::-webkit-scrollbar-track{background:rgba(18,10,32,.92);border-radius:8px}
+.cx-embed-scroll::-webkit-scrollbar-thumb{
+  background:rgba(82,56,130,.94);
+  border-radius:8px;
+  border:1px solid rgba(255,255,255,.12);
+}
+.cx-embed-scroll::-webkit-scrollbar-thumb:hover{background:rgba(102,76,155,.98)}
+/* Frame D scrollport — same as .scroll in SCB_Anomaly_Jarvis_Prototype.html */
+.scroll{
+  flex:1;
+  min-height:0;
+  overflow-y:auto;
+  padding:14px 16px 8px;
+  -webkit-overflow-scrolling:touch;
+}
+/* CXO dashboard iframe: suppress inner document / briefing scroll */
+html.cxo-embed,html.cxo-embed body{overflow:hidden!important;height:100%;max-height:100%}
+html.cxo-embed #briefingScreen #briefingBody,
+html.cxo-embed #briefingScreen .scr-body,
+html.cxo-embed #briefingScreen .scroll{overflow-y:hidden!important}
+.briefing-layout{
+  display:flex;
+  flex-direction:column;
+  height:100%;
+  min-height:0;
+  position:relative;
+}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body{font-family:var(--font-ui);background:radial-gradient(ellipse 120% 80% at 50% 0%,#2a1548 0%,var(--app-bg-0) 55%);display:flex;justify-content:center;align-items:center;min-height:100vh;padding:20px;color:var(--text)}
 .phone{width:390px;height:844px;border-radius:44px;font-family:var(--font-ui);background:linear-gradient(168deg,#2e1a47 0%,var(--app-bg-2) 38%,var(--app-bg-1) 72%,var(--app-bg-0) 100%);position:relative;overflow:hidden;box-shadow:0 0 0 3px #111,0 0 0 6px #1a0d33,0 24px 64px rgba(0,0,0,.78)}
@@ -57,7 +93,11 @@ body{font-family:var(--font-ui);background:radial-gradient(ellipse 120% 80% at 5
 #briefingScreen .mb-brief-header .menu-btn:focus-visible{outline:2px solid rgba(201,168,76,.55);outline-offset:3px}
 #briefingScreen .mb-brief-header .greeting-text{font-family:var(--font-ui);font-size:26px;font-weight:500;letter-spacing:-.03em;color:#fff;line-height:1.2}
 #briefingScreen .mb-brief-header .greeting-sub{font-size:14px;line-height:1.55;color:rgba(255,255,255,.52);max-width:36em;margin-top:8px}
-#briefingScreen .mb-brief-body{padding-top:4px;padding-bottom:calc(188px + env(safe-area-inset-bottom, 0px))}
+/* Briefing scroll area: match D .scroll insets; keep bottom space for Jarvis strip */
+#briefingScreen .mb-brief-body.scroll.cx-embed-scroll,
+#briefingBody.scr-body.mb-brief-body.scroll.cx-embed-scroll{
+  padding:14px 16px calc(188px + env(safe-area-inset-bottom, 0px));
+}
 #briefingScreen .mb-sec{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.45);margin:20px 0 10px}
 #briefingScreen .mb-sec:first-of-type{margin-top:10px}
 .mb-task-stack{border-radius:16px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.045);overflow:hidden;margin-bottom:10px}
@@ -145,9 +185,14 @@ body{font-family:var(--font-ui);background:radial-gradient(ellipse 120% 80% at 5
 .mb-wh-title{font-size:15px;font-weight:700;color:#fff;line-height:1.3}
 .mb-wh-sub{font-size:13px;color:rgba(255,255,255,.6);margin-top:8px;line-height:1.45}
 
-/* Scrollable body */
-.scr-body{flex:1;overflow-y:auto;padding:0 20px 100px;-webkit-overflow-scrolling:touch;scroll-behavior:smooth}
-.scr-body::-webkit-scrollbar{display:none}
+/* Scrollable body — use .cx-embed-scroll on #briefingBody for CXO frame A scrollbar */
+.scr-body{
+  flex:1;
+  min-height:0;
+  overflow-y:auto;
+  padding:0 20px 100px;
+  -webkit-overflow-scrolling:touch;
+}
 
 /* Section titles */
 .section-title{font-size:13px;font-weight:600;color:var(--text2);margin:20px 0 8px;letter-spacing:.5px;text-transform:uppercase}
@@ -268,6 +313,10 @@ body{font-family:var(--font-ui);background:radial-gradient(ellipse 120% 80% at 5
 
 /* ===== IMMERSIVE AI HOME — hyper-personalized landing (ref: digital twin + nudges) ===== */
 .imm-home{display:flex;flex-direction:column;height:100%;position:relative;overflow:hidden;font-family:var(--font-ui);background:radial-gradient(ellipse 90% 55% at 50% 18%,rgba(78,42,132,.18) 0%,transparent 52%),linear-gradient(180deg,#12081f 0%,var(--app-bg-0) 42%,#06030c 100%)}
+/* Full-screen reference mockup (replaces composed header / hero / shortcuts / offers) */
+.imm-home-mockup{flex:1;min-height:0;overflow:hidden;display:flex;align-items:stretch;padding:0}
+/* Cover + top anchor: bottom of PNG (duplicate Jarvis strip) sits under the real .imm-bottom bar */
+.imm-home-mockup-img{width:100%;height:100%;object-fit:cover;object-position:center top;display:block}
 
 /* ─── Top bar: greeting + balance pill ─── */
 .imm-lp-top{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;padding:50px 18px 0;position:relative;z-index:4;flex-shrink:0}
@@ -348,9 +397,15 @@ body{font-family:var(--font-ui);background:radial-gradient(ellipse 120% 80% at 5
 .imm-act:hover .imm-act-circle,.imm-act:focus-visible .imm-act-circle{background:rgba(201,168,76,.1);border-color:rgba(201,168,76,.2)}
 .imm-act-label{font-size:9px;color:rgba(255,255,255,.5);font-weight:600;text-align:center;line-height:1.15;white-space:nowrap}
 
-/* ─── Scrollable body ─── */
-.imm-body{flex:1;overflow-y:auto;padding:0 0 calc(176px + env(safe-area-inset-bottom, 0px));-webkit-overflow-scrolling:touch}
-.imm-body::-webkit-scrollbar{display:none}
+/* ─── Scrollable body (App home) — match frame D scrollbar ─── */
+.imm-body{
+  flex:1;overflow-y:auto;padding:0 0 calc(176px + env(safe-area-inset-bottom, 0px));-webkit-overflow-scrolling:touch;
+  scrollbar-width:thin;
+  scrollbar-color:rgba(72,48,118,.22) transparent;
+}
+.imm-body::-webkit-scrollbar{width:4px}
+.imm-body::-webkit-scrollbar-thumb{background:rgba(72,48,118,.22);border-radius:4px}
+.imm-body::-webkit-scrollbar-track{background:transparent}
 
 /* ─── Financial context strip ─── */
 .imm-context{display:flex;gap:8px;padding:14px 20px 0}
@@ -712,72 +767,19 @@ body{font-family:var(--font-ui);background:radial-gradient(ellipse 120% 80% at 5
   <div class="screen" id="homeScreen">
     <div class="imm-home">
 
-      <div class="imm-lp-top">
-        <div class="imm-lp-top-left">
-          <div class="imm-lp-brand-row">
-            <div class="imm-scb-logo" aria-hidden="true">SCB</div>
-            <button type="button" class="imm-lp-profile" onclick="navigate('profile')" title="Profile" aria-label="Profile">&#128100;</button>
-          </div>
-          <h1 class="imm-lp-greet">Good morning, <span class="imm-name" id="immName">Eva</span>.</h1>
-          <p class="imm-lp-metaphor" id="immMetaphor">Light clouds on the financial horizon. Navigate wisely.</p>
-        </div>
-        <div class="imm-lp-top-right">
-          <button type="button" class="imm-bal-pill" onclick="navigate('chat','balances')" title="Total liquid balance" aria-label="View cash balances in Jarvis">
-            <span class="imm-bal-pill-val" id="immBalPill">&#3647;348,500.00</span>
-            <span class="imm-bal-pill-sub" id="immPtsLine">PointX · 18,750 pts</span>
-          </button>
-          <button type="button" class="imm-loot-btn" onclick="navigate('chat','pointx')" title="PointX &amp; rewards" aria-label="Rewards and PointX"><span aria-hidden="true">&#127873;</span></button>
-        </div>
+      <!-- Hidden nodes keep render() persona updates from throwing; home UI is the mockup image below -->
+      <div hidden aria-hidden="true">
+        <span id="immName">Eva</span>
+        <p id="immMetaphor">Light clouds on the financial horizon. Navigate wisely.</p>
+        <span id="immBalPill">&#3647;348,500.00</span>
+        <span id="immPtsLine">PointX · 18,750 pts</span>
+        <span id="immTwinInitial">E</span>
+        <span id="immLhInvestSub">Horizon, risk, and first steps</span>
+        <div id="immNudgeList"></div>
       </div>
 
-      <div class="imm-lp-hero" aria-hidden="true">
-        <div class="imm-twin-blobs">
-          <div class="imm-blob imm-blob--1"></div>
-          <div class="imm-blob imm-blob--2"></div>
-          <div class="imm-blob imm-blob--3"></div>
-        </div>
-        <div class="imm-twin-avatar" aria-hidden="true"><span class="imm-twin-initial" id="immTwinInitial">E</span></div>
-      </div>
-
-      <!-- Quick actions — immediately accessible -->
-      <div class="imm-actions" role="toolbar" aria-label="Banking shortcuts">
-        <button type="button" class="imm-act" onclick="navigate('chat','transfer')"><div class="imm-act-circle"><span class="imm-act-letter">T</span></div><span class="imm-act-label">Transfer</span></button>
-        <button type="button" class="imm-act" onclick="navigate('chat','paybills')"><div class="imm-act-circle"><span class="imm-act-letter">P</span></div><span class="imm-act-label">Pay Bills</span></button>
-        <button type="button" class="imm-act" onclick="navigate('chat','scanqr')"><div class="imm-act-circle"><span class="imm-act-letter">S</span></div><span class="imm-act-label">Scan QR</span></button>
-        <button type="button" class="imm-act" onclick="navigate('chat','blockcard')"><div class="imm-act-circle"><span class="imm-act-letter">B</span></div><span class="imm-act-label">Block Card</span></button>
-        <button type="button" class="imm-act" onclick="navigate('chat','topup')"><div class="imm-act-circle"><span class="imm-act-letter">U</span></div><span class="imm-act-label">Top Up</span></button>
-      </div>
-
-      <!-- Scrollable Body -->
-      <div class="imm-body">
-
-        <div class="imm-lh-wrap">
-          <div class="imm-lh-list imm-lh-list--precursor" role="list" aria-label="Investing and portfolio">
-            <button type="button" class="imm-lh-card" role="listitem" onclick="navigate('chat','lighthouse_investing')">
-              <div class="imm-lh-ico" aria-hidden="true">&#127974;</div>
-              <div class="imm-lh-copy">
-                <div class="imm-lh-title">Investing in plain words</div>
-                <div class="imm-lh-sub" id="immLhInvestSub">Horizon, risk, and first steps</div>
-              </div>
-              <div class="imm-lh-mark" aria-hidden="true">SCB</div>
-            </button>
-            <button type="button" class="imm-lh-card" role="listitem" onclick="navigate('portfolio')">
-              <div class="imm-lh-ico" aria-hidden="true">&#128176;</div>
-              <div class="imm-lh-copy">
-                <div class="imm-lh-title">My portfolio</div>
-                <div class="imm-lh-sub">Funds, allocation, and performance</div>
-              </div>
-              <div class="imm-lh-mark" aria-hidden="true">SCB</div>
-            </button>
-          </div>
-          <div class="imm-lh-offers" role="region" aria-labelledby="immOffersHeading">
-            <header class="imm-lh-heading">
-              <h2 class="imm-lh-heading-title" id="immOffersHeading">Offers for you</h2>
-            </header>
-            <div class="imm-nudges" id="immNudgeList" role="list" aria-label="Included under offers for you"></div>
-          </div>
-        </div>
-
+      <div class="imm-home-mockup" role="img" aria-label="My financial forecast — app home">
+        <img src="assets/app-home-mockup.png" alt="" class="imm-home-mockup-img" decoding="async" />
       </div>
 
       <!-- Jarvis — wavy strip + conversational entry -->
@@ -809,7 +811,7 @@ body{font-family:var(--font-ui);background:radial-gradient(ellipse 120% 80% at 5
 
   <!-- 3: Morning brief — layout inspired by reference (pulse, tasks, market, what’s happening, Jarvis) -->
   <div class="screen" id="briefingScreen">
-    <div style="display:flex;flex-direction:column;height:100%;position:relative">
+    <div class="briefing-layout">
       <div class="scr-header mb-brief-header">
         <div class="mb-brief-topbar">
           <button type="button" class="menu-btn" onclick="navigate('home')" title="Close" aria-label="Close morning brief">&#10005;</button>
@@ -817,7 +819,7 @@ body{font-family:var(--font-ui);background:radial-gradient(ellipse 120% 80% at 5
         <div class="greeting-text" id="greetingText">Good morning, Eva.</div>
         <div class="greeting-sub" id="greetingSub">Here&rsquo;s your hot macha for the day, and your personal briefing.</div>
       </div>
-      <div class="scr-body mb-brief-body" id="briefingBody">
+      <div class="scr-body mb-brief-body cx-embed-scroll scroll" id="briefingBody">
         <div class="mb-sec">Your Pulse</div>
         <div class="mb-pulse-wrap card-g" id="pulseCardWrap" tabindex="0" role="region" aria-label="Financial health pulse. Tap to expand or collapse details." onclick="onPulseCardPointer(event)" onkeydown="onPulseCardKeydown(event)">
           <div class="mb-pulse-head">
@@ -1079,9 +1081,12 @@ body{font-family:var(--font-ui);background:radial-gradient(ellipse 120% 80% at 5
 </div>
 
 <script>
-const B={
-  name:"Eva",fullName:"Khun Eva",
-  health:{score:75,label:"Good",peer:12,msg:"Eva — you’re doing fine on everyday money. A nudge on investing and insurance would make the picture even stronger.",pillars:{investment:{score:44,label:"Below Average"},borrowing:{score:85,label:"Average"},insurance:{score:55,label:"Average"},liquidity:{score:100,label:"Good"}}},
+function cloneData(o){ return JSON.parse(JSON.stringify(o)); }
+
+/** Baseline = CXO “Young Professional” (Ariya); other personas patch on load via ?persona= */
+const B_TEMPLATE={
+  name:"Ariya",fullName:"Khun Ariya",
+  health:{score:75,label:"Good",peer:12,pillars:{investment:{score:44,label:"Below Average"},borrowing:{score:85,label:"Average"},insurance:{score:55,label:"Average"},liquidity:{score:100,label:"Good"}}},
   nudges:[{icon:"fitness",text:"You haven't been to Pilates in 2 weeks? ClassPass is offering 30% off!"},{icon:"beauty",text:"Running out of sunscreen? Beautrium is having summer sales — up to 40% off!"},{icon:"travel",text:"Upcoming weekend in Singapore — see which airport lounges are available with your CardX!"},{icon:"wellness",text:"You've been working late 4 nights this week. Here are spa vouchers from PointX just for you!"},{icon:"rewards",text:"You have 18,750 PointX waiting! Redeem for your Singapore trip or convert to airline miles."}],
   tasks:[{text:"Review Q3 portfolio performance",done:true,flow:'portfolio'},{text:"Rebalance tech allocation",done:false,flow:'portfolio'},{text:"Review insurance coverage",done:false,flow:'insights'}],
   news:[{title:"Savings & deposit rates moved this week",sub:"If you keep a cash buffer, here’s a two-minute read on what changed for you",flow:'insights'},{title:"Watch out: fake “refund / parcel” links",sub:"We won’t ask for your PIN or OTP by SMS — here’s how to spot the latest scam pattern",flow:'insights'}],
@@ -1096,10 +1101,56 @@ const B={
   market:{set:1485.16,setChg:0.52,gold:44350,goldChg:1.8,usd:33.85,usdChg:-0.3},
   goals:[{name:"Emergency Fund",pct:84,current:163100,target:195000},{name:"Japan Trip 2027",pct:40,current:32000,target:80000},{name:"Condo Down Payment",pct:17,current:85000,target:500000}],
   pointx:18750,
-  home:{
-    metaphor:"Light clouds on the financial horizon. Navigate wisely."
+  home:{metaphor:"Light clouds on the financial horizon. Navigate wisely."}
+};
+
+const PERSONA_PATCH={
+  emerging_family:{
+    name:"Nattapong",fullName:"Khun Nattapong",
+    pointx:28400,
+    home:{metaphor:"Family milestones ahead — steady cash flow is your rudder."},
+    health:{score:78,label:"Good",peer:19,pillars:{investment:{score:52,label:"Average"},borrowing:{score:72,label:"Average"},insurance:{score:68,label:"Good"},liquidity:{score:92,label:"Good"}}},
+    accounts:[{name:"SCB Family Savings",num:"XXX-XXX412-2",bal:428600},{name:"SCB Kids Growth",num:"XXX-XXX903-8",bal:95200}],
+    goals:[{name:"Education fund (children)",pct:62,current:186000,target:300000},{name:"Home upgrade buffer",pct:48,current:720000,target:1500000},{name:"Emergency buffer",pct:91,current:455000,target:500000}],
+    investments:[{name:"SCB SET Index Fund",type:"Equity Fund",val:185000,ret:4.2},{name:"SCB Income Plus",type:"Bond Fund",val:92000,ret:3.4},{name:"SCB Gold Fund",type:"Commodity",val:28000,ret:11.8}],
+    nudges:[{icon:"wellness",text:"School fee season is 6 weeks away — automate the transfer now and earn bonus PointX."},{icon:"rewards",text:"Family dining merchants are 3x PointX this month — perfect for weekend outings."},{icon:"travel",text:"Your multi-city trip is booked — we pre-checked lounge access on your primary card."},{icon:"beauty",text:"Home insurance renewal is coming up; one tap to compare coverage vs. last year."},{icon:"fitness",text:"Kids’ sports club payment is due — set a Jarvis reminder so nothing bounces."}],
+    tasks:[{text:"Confirm education fund auto-debit",done:true,flow:'goals'},{text:"Review family health insurance riders",done:false,flow:'insights'},{text:"Lock in home loan rate review slot",done:false,flow:'loan_servicing'}],
+    news:[{title:"School savings: what changed for 2026",sub:"A short read on tax-advantaged options for families like yours",flow:'insights'},{title:"Phishing spike: “tuition payment” SMS",sub:"We never send payment links by SMS — here’s the latest pattern to avoid",flow:'insights'}],
+    offers:[{title:"Family protection bundle",sub:"Life + critical illness in one journey — see indicative premium for your profile",flow:'insights'},{title:"Refinance check — home loan",sub:"See if today’s indicative rate lowers your monthly outflow with no obligation",flow:'loan_servicing'}],
+    insights:[{icon:"warning",title:"Utilities +5% vs last month",sub:"Seasonal pattern — Jarvis can split bills across cards",s:"negative"},{icon:"up",title:"Education fund +6% (YTD)",sub:"On track vs. your target glide path",s:"positive"},{icon:"save",title:"Auto-debit avoided 2 late fees",sub:"~640 THB saved in Q1",s:"positive"}],
+    spending:[{name:"Family & home",pct:38,c:"#e74c3c"},{name:"Transport",pct:22,c:"#3498db"},{name:"Education",pct:16,c:"#9b59b6"}],
+    saveTip:"Bundle recurring school and club payments on one card to maximize family PointX multipliers."
+  },
+  emerging_affluent:{
+    name:"Siriporn",fullName:"Khun Siriporn",
+    pointx:89200,
+    home:{metaphor:"Clear skies with crosswinds in global markets — advisory is your co-pilot."},
+    health:{score:86,label:"Good",peer:7,pillars:{investment:{score:72,label:"Good"},borrowing:{score:58,label:"Average"},insurance:{score:78,label:"Good"},liquidity:{score:96,label:"Good"}}},
+    accounts:[{name:"SCB Private Wealth Current",num:"XXX-XXX221-9",bal:1840000},{name:"SCB FX Reserve",num:"XXX-XXX884-2",bal:620000}],
+    goals:[{name:"Legacy & estate plan",pct:54,current:4200000,target:7800000},{name:"Philanthropy 2026",pct:33,current:330000,target:1000000},{name:"Tax-efficient drawdown",pct:71,current:710000,target:1000000}],
+    investments:[{name:"SCB Global Equity (Hedged)",type:"Foreign Equity",val:920000,ret:9.1},{name:"SCB Thai Dividend Leaders",type:"Equity Fund",val:540000,ret:5.4},{name:"SCB Ultra Short Bond",type:"Bond Fund",val:310000,ret:3.8},{name:"SCB Gold & Commodities",type:"Commodity",val:125000,ret:13.2},{name:"Private Credit Sleeve",type:"Alternatives",val:280000,ret:7.6}],
+    nudges:[{icon:"rewards",text:"Your concierge slot opens Thursday — FX and cross-border moves in one sitting."},{icon:"wellness",text:"Estate documents were last synced 14 months ago; advisory suggests a light refresh."},{icon:"travel",text:"Bangkok–Singapore–Zurich: lounge and fast-track already matched to your tier."},{icon:"beauty",text:"Philanthropy match window closes in 10 days — deploy idle cash without breaking liquidity rules."},{icon:"fitness",text:"Margin utilisation ticked up — optional hedge ideas are queued in Jarvis."}],
+    tasks:[{text:"Review FX hedge vs. USD receipts",done:true,flow:'portfolio'},{text:"Quarterly advisory readout (Q1)",done:false,flow:'portfolio'},{text:"Sync beneficiary & trust schedules",done:false,flow:'insights'}],
+    news:[{title:"Global rates: what it means for THB portfolios",sub:"A 3-minute brief tuned to your offshore sleeve",flow:'insights'},{title:"Regulatory note: CRS reporting",sub:"No action needed — we surfaced this so you stay ahead of questions",flow:'insights'}],
+    offers:[{title:"SCB Private Wealth — structured sleeve",sub:"Indicative allocation for your risk band; discuss with your banker",flow:'s2s_card'},{title:"Cross-border liquidity line",sub:"See indicative terms for customers with your profile — no obligation",flow:'loan_servicing'}],
+    insights:[{icon:"up",title:"Portfolio +4.1% (3M)",sub:"Defensive tilt helped vs. benchmark in the tech drawdown",s:"positive"},{icon:"warning",title:"FX volatility watch",sub:"USD/THB moved more than your guardrail — optional rebalance",s:"negative"},{icon:"save",title:"Fee drag down 12 bps",sub:"After last quarter’s fund-line optimisation",s:"positive"}],
+    spending:[{name:"Travel & lifestyle",pct:28,c:"#e74c3c"},{name:"Investments & fees",pct:35,c:"#3498db"},{name:"Philanthropy",pct:12,c:"#9b59b6"}],
+    saveTip:"Route large FX flows through your pre-approved channel to preserve spreads and audit trails."
   }
 };
+
+function resolvePersonaId(){
+  const raw=(new URLSearchParams(location.search).get("persona")||"young_professional").toLowerCase().replace(/[^a-z_]/g,"");
+  return raw==="emerging_family"||raw==="emerging_affluent"?raw:"young_professional";
+}
+function buildPersonaData(){
+  const pid=resolvePersonaId();
+  const b=cloneData(B_TEMPLATE);
+  const patch=PERSONA_PATCH[pid];
+  if(patch) for(const k of Object.keys(patch)) b[k]=cloneData(patch[k]);
+  return b;
+}
+const B=buildPersonaData();
 
 function markJourney(){}
 
@@ -1273,7 +1324,7 @@ function render(){
   const pe=document.getElementById('pulseExpandInner');
   if(pe){
     const pn={investment:'Investment',borrowing:'Borrowing',insurance:'Insurance',liquidity:'Liquidity'};
-    let h='<p class="mb-pulse-peer">'+B.health.msg+'</p><p class="mb-pulse-peer">You are in the top <b>'+B.health.peer+'%</b> of people your age.</p><div class="mb-pulse-mini-grid">';
+    let h=(B.health.msg?'<p class="mb-pulse-peer">'+B.health.msg+'</p>':'')+'<p class="mb-pulse-peer">You are in the top <b>'+B.health.peer+'%</b> of people your age.</p><div class="mb-pulse-mini-grid">';
     for(const[k,v] of Object.entries(B.health.pillars)){h+='<div class="mb-pulse-mini-cell"><span>'+pn[k]+'</span><strong>'+v.score+'</strong><em>'+v.label+'</em></div>';}
     h+='</div><div class="mb-pulse-expand-actions">'+
       '<button type="button" class="mb-pulse-cta-journey" onclick="event.stopPropagation();navigate(\'chat\',\'improve_score\');">Improve score</button></div>';
@@ -2034,24 +2085,28 @@ updateTime();setInterval(updateTime,30000);
 render();
 
 // Deep-link screens for Figma / html-to-design capture (?screen= matches Figma frame names where possible)
+// Screens use opacity transitions (~350ms); start deep-links after first paint so Figma hash captures (figmadelay ~2800+, &figmaselector=.phone) see the final UI, not empty frames.
 (function(){
   const p=new URLSearchParams(window.location.search);
   const scr=(p.get('screen')||'').toLowerCase().replace(/-/g,'_');
   if(scr){
+    const start=900,t1=550,t2=650,t3=750;
     setTimeout(()=>{
       if(scr==='lock'){document.querySelectorAll('.phone > .screen').forEach(s=>s.classList.remove('active'));document.getElementById('lockScreen').classList.add('active');}
       else if(scr==='home') navigate('home');
-      else if(scr==='briefing'||scr==='morning_brief'){navigate('home');setTimeout(()=>navigate('briefing'),300);}
-      else if(scr==='chat'||scr==='jarvis'||scr==='conversational'){navigate('home');setTimeout(()=>navigate('chat'),300);}
-      else if(scr==='portfolio'){navigate('home');setTimeout(()=>navigate('portfolio'),300);}
-      else if(scr==='balances'||scr==='account_balances'){navigate('home');setTimeout(()=>navigate('chat','balances'),400);}
-      else if(scr==='profile'){navigate('home');setTimeout(()=>navigate('profile'),300);}
-      else if(scr==='wellness'||scr==='financial_wellness'){navigate('home');setTimeout(function(){showWellness();},400);}
-      else if(scr==='beyond_score'||scr==='improve_financial_score'){navigate('home');setTimeout(()=>openBeyondImproveScore(),400);}
-      else if(scr==='beyond_mba'||scr==='plan_mba'){navigate('home');setTimeout(()=>openBeyondMba(),400);}
-      else if(scr==='beyond_bali'||scr==='bali_trip'||scr==='plan_bali'){navigate('home');setTimeout(()=>openBeyondTrip(),400);}
-      else if(scr==='voice'||scr==='voice_input'){navigate('home');setTimeout(()=>openVoice(),450);}
-    },500);
+      else if(scr==='briefing'||scr==='morning_brief'){navigate('home');setTimeout(()=>navigate('briefing'),t1);}
+      else if(scr==='chat'||scr==='jarvis'||scr==='conversational'){navigate('home');setTimeout(()=>navigate('chat'),t1);}
+      else if(scr==='portfolio'){navigate('home');setTimeout(()=>navigate('portfolio'),t1);}
+      else if(scr==='balances'||scr==='account_balances'){navigate('home');setTimeout(()=>navigate('chat','balances'),t2);}
+      else if(scr==='profile'){navigate('home');setTimeout(()=>navigate('profile'),t1);}
+      else if(scr==='wellness'||scr==='financial_wellness'||scr==='wellness_0'){navigate('home');setTimeout(function(){showWellness();},t2);}
+      else if(/^wellness_([1-4])$/.test(scr)){const ws=parseInt(scr.split('_')[1],10);navigate('home');setTimeout(function(){var el=document.getElementById('wellnessModal');if(el){el.classList.add('active');setWellnessStep(ws);}},t2);}
+      else if(scr==='jarvis_fs'||scr==='jarvis_fullscreen'){navigate('home');setTimeout(function(){var fs=document.getElementById('jarvisFs');if(fs){fs.classList.add('active');blockCardStep(2);}},t2);}
+      else if(scr==='beyond_score'||scr==='improve_financial_score'){navigate('home');setTimeout(()=>openBeyondImproveScore(),t2);}
+      else if(scr==='beyond_mba'||scr==='plan_mba'){navigate('home');setTimeout(()=>openBeyondMba(),t2);}
+      else if(scr==='beyond_bali'||scr==='bali_trip'||scr==='plan_bali'){navigate('home');setTimeout(()=>openBeyondTrip(),t2);}
+      else if(scr==='voice'||scr==='voice_input'){navigate('home');setTimeout(()=>openVoice(),t3);}
+    },start);
   }
 })();
 </script>

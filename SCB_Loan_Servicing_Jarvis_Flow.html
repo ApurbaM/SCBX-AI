@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script>(function(){try{if(new URLSearchParams(location.search).get("cxo_embed")==="1")document.documentElement.classList.add("cxo-embed");}catch(_){}})();</script>
+  <title>SCB — Retail loan servicing · Jarvis (clickable flow)</title>
+  <style>
+    :root{
+      --bg:#0a0614;
+      --panel:rgba(22,14,42,.96);
+      --stroke:rgba(255,255,255,.12);
+      --text:#f4f0ff;
+      --muted:rgba(244,240,255,.62);
+      --gold:#e8d5a0;
+      --gold-dim:rgba(232,213,160,.35);
+      --jarvis:#6b4fc9;
+      --user:#1e3a4a;
+      --font:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+    }
+    html{color-scheme:dark}
+    /* Jarvis chat rail (step 1) — purple scrollbar; #stage stays unstyled to avoid nested purple scrollbars */
+    .cx-embed-scroll{
+      scrollbar-gutter:stable;
+      scrollbar-width:thin;
+      scrollbar-color:rgba(130,100,175,.88) rgba(18,10,32,.96);
+    }
+    .cx-embed-scroll::-webkit-scrollbar{width:6px}
+    .cx-embed-scroll::-webkit-scrollbar-track{background:rgba(18,10,32,.92);border-radius:8px}
+    .cx-embed-scroll::-webkit-scrollbar-thumb{
+      background:rgba(82,56,130,.94);
+      border-radius:8px;
+      border:1px solid rgba(255,255,255,.12);
+    }
+    .cx-embed-scroll::-webkit-scrollbar-thumb:hover{background:rgba(102,76,155,.98)}
+    /* CXO dashboard iframe: suppress inner scroll */
+    html.cxo-embed,html.cxo-embed body,html.cxo-embed .wrap{overflow:hidden!important;height:100%;max-height:100%}
+    html.cxo-embed .stage,
+    html.cxo-embed .ls-d-scroll{overflow-y:hidden!important}
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;font-family:var(--font);font-size:14px;color:var(--text);background:var(--bg);}
+    .wrap{min-height:100%;display:flex;flex-direction:column;align-items:center;padding:10px 8px 14px;}
+    .phone{
+      width:100%;
+      max-width:380px;
+      flex:1;
+      min-height:0;
+      display:flex;
+      flex-direction:column;
+      border-radius:20px;
+      border:1px solid var(--stroke);
+      background:linear-gradient(180deg,rgba(36,20,68,.9),rgba(8,6,18,.98));
+      box-shadow:0 16px 48px rgba(0,0,0,.45);
+      overflow:hidden;
+    }
+    .status{display:flex;align-items:center;justify-content:space-between;padding:10px 14px 6px;font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.04em;}
+    .stage{
+      flex:1;
+      min-height:0;
+      overflow-y:auto;
+      padding:0 0 12px;
+      -webkit-overflow-scrolling:touch;
+    }
+    .ls-j-hdr{
+      flex-shrink:0;
+      display:flex;align-items:center;justify-content:space-between;
+      padding:4px 14px 10px;
+      border-bottom:1px solid rgba(255,255,255,.06);
+    }
+    .ls-j-hdr-left{display:flex;align-items:center;gap:8px;min-width:0}
+    .ls-j-ico{
+      width:22px;height:22px;border-radius:50%;flex-shrink:0;
+      background:radial-gradient(circle at 30% 30%,#6b8cff,#4e2a84);
+      box-shadow:0 0 10px rgba(108,140,255,.35);
+    }
+    .ls-j-hdr h1{margin:0;font-size:15px;font-weight:500;letter-spacing:.02em;color:var(--text)}
+    .ls-j-x{
+      width:28px;height:28px;border:none;border-radius:8px;
+      background:rgba(255,255,255,.06);color:rgba(255,255,255,.65);
+      cursor:default;font-size:16px;line-height:1;flex-shrink:0;
+    }
+    .ls-d-scroll{
+      flex:1;
+      min-height:0;
+      max-height:min(52vh,420px);
+      overflow-y:auto;
+      padding:12px 14px 8px;
+      -webkit-overflow-scrolling:touch;
+    }
+    .ls-conv{display:flex;flex-direction:column;min-height:0;gap:0}
+    .step{display:none;animation:fade .22s ease;padding:12px 14px 14px}
+    .step.active{display:block;}
+    .step.step--jarvis{padding:0}
+    .step.step--jarvis.active{display:flex;flex-direction:column;min-height:0}
+    .step.step--jarvis .ls-conv{flex:1 1 auto;display:flex;flex-direction:column;min-height:0}
+    .step.step--jarvis .btnrow{padding:10px 14px 4px;flex-shrink:0}
+    @keyframes fade{from{opacity:.75;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+    .hero-card{
+      border-radius:16px;
+      border:1px solid rgba(201,168,76,.35);
+      background:linear-gradient(135deg,rgba(107,79,201,.25),rgba(201,168,76,.08));
+      padding:14px 14px 12px;
+      margin-bottom:14px;
+    }
+    .hero-card .k{font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);}
+    .hero-card .t{margin:6px 0 0;font-size:15px;font-weight:800;line-height:1.35;}
+    .hero-card .sub{margin:8px 0 0;font-size:12px;color:var(--muted);line-height:1.45;}
+    .btnrow{display:flex;flex-direction:column;gap:8px;margin-top:12px;}
+    button,.btn{
+      width:100%;
+      margin:0;
+      padding:12px 14px;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(0,0,0,.35);
+      color:var(--text);
+      font:inherit;
+      font-size:13px;
+      font-weight:700;
+      cursor:pointer;
+      text-align:left;
+      transition:border-color .15s,background .15s;
+    }
+    button:hover,.btn:hover{border-color:rgba(201,168,76,.45);background:rgba(201,168,76,.1)}
+    button:focus-visible,.btn:focus-visible{outline:2px solid rgba(201,168,76,.55);outline-offset:2px}
+    .btn-primary{border-color:rgba(201,168,76,.5);background:rgba(201,168,76,.14);color:var(--gold);}
+    .thread{display:flex;flex-direction:column;gap:10px;}
+    .bubble{max-width:92%;padding:10px 12px;border-radius:14px;font-size:13px;line-height:1.45;}
+    .bubble.jarvis{align-self:flex-start;background:rgba(107,79,201,.35);border:1px solid rgba(107,79,201,.45);}
+    .bubble.user{align-self:flex-end;background:rgba(30,58,74,.85);border:1px solid rgba(255,255,255,.1);}
+    .bubble .who{font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px;opacity:.85;}
+    .card{
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.1);
+      background:rgba(0,0,0,.32);
+      padding:12px 14px;
+      margin-top:10px;
+    }
+    .card h2{margin:0 0 8px;font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);}
+    .row{display:flex;justify-content:space-between;gap:10px;font-size:12px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.06);}
+    .row:last-child{border-bottom:none}
+    .row .lbl{color:var(--muted)}
+    .row .val{font-weight:800;font-variant-numeric:tabular-nums}
+    .checklist{margin:0;padding:0;list-style:none;}
+    .checklist li{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.06);cursor:pointer;font-size:13px;}
+    .checklist li:last-child{border-bottom:none}
+    .checklist .box{
+      width:22px;height:22px;border-radius:6px;border:2px solid var(--gold-dim);
+      flex-shrink:0;
+      display:flex;align-items:center;justify-content:center;
+      font-size:12px;font-weight:900;
+    }
+    .checklist li.done .box{border-color:#34d399;background:rgba(52,211,153,.15);color:#6ee7b7;}
+    .checklist li.done{opacity:.92}
+    .progress{font-size:11px;color:var(--muted);margin-top:10px;}
+    .bar{height:6px;border-radius:999px;background:rgba(255,255,255,.08);margin-top:6px;overflow:hidden;}
+    .bar > i{display:block;height:100%;width:0;background:linear-gradient(90deg,#c9a84c,#6b4fc9);border-radius:999px;transition:width .35s ease;}
+    footer{padding:8px 14px;font-size:11px;color:var(--muted);text-align:center;border-top:1px solid rgba(255,255,255,.06);}
+    footer button{width:auto;display:inline;padding:6px 12px;font-size:11px;margin:4px 4px 0;}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="phone">
+      <div class="status"><span>9:41</span><span>SCB · Demo</span><span>LTE</span></div>
+      <div class="stage" id="stage"></div>
+      <footer>
+        <span id="stepIx">Step 1 / 5</span>
+        <button type="button" id="btnRestart" class="btn">Restart flow</button>
+      </footer>
+    </div>
+  </div>
+  <script>
+    function resolvePersonaId(){
+      const raw=(new URLSearchParams(location.search).get("persona")||"young_professional").toLowerCase().replace(/[^a-z_]/g,"");
+      return raw==="emerging_family"||raw==="emerging_affluent"?raw:"young_professional";
+    }
+
+    /** Retail loan servicing copy — aligned with CXO personas (not SME / working capital). */
+    const RETAIL={
+      young_professional:{
+        badge:"Retail · Young professional",
+        heroK:"Jarvis · Retail banking",
+        heroT:"Personal loan — review before next payment",
+        heroSub:"Khun {name}, your next instalment posts in 5 days. I can walk through the payment split, partial prepayment, or income documents on your checklist.",
+        chatJarvis:"I'm here for your personal loan with SCB. Would you like to see the next payment breakdown, or upload the income document we requested?",
+        chatUser:"Show me the next payment and split.",
+        chatSummary:"Here's your next personal loan posting — principal and interest are on track for your retail facility.",
+        cardH:"Next instalment",
+        due:"18 Apr 2026",total:"฿ 18,240",prin:"฿ 12,100",int:"฿ 6,140",tenor:"32 mo",
+        btnPay:"Pay now (demo)",
+        btnDocs:"Upload income documents",
+        docLead:"Please tick each item as you upload — I'll update your retail application status for processing.",
+        docItems:["Salary / income proof (latest month)","Bank statements · primary account (90 days)","ID verification (if expired)"],
+        handoff:"Documents received. I've queued them for standard retail review with a same-day SLA. You'll get a push when your file is verified.",
+        handoffUser:"Thanks — notify me if anything is missing.",
+        handoffJarvis:"Will do. I'll pause non-essential offers until this servicing thread is closed.",
+        outro:"You moved from contextual entry → Jarvis thread → payment detail → retail document checklist → confirmation. Production would connect to LOS and e-docs."
+      },
+      emerging_family:{
+        badge:"Retail · Emerging family",
+        heroK:"Jarvis · Retail banking",
+        heroT:"Home loan — review before next payment",
+        heroSub:"Khun {name}, your home loan instalment posts in 3 days. I can review schedule, prepayment options, or the insurance renewal we flagged.",
+        chatJarvis:"I'm here for your home loan servicing. Do you want to check the payment split first, or upload the insurance certificate we requested?",
+        chatUser:"Show me the next payment and split.",
+        chatSummary:"Here's your next home loan posting — principal portion steps up slightly this period, within your retail agreement.",
+        cardH:"Next home loan instalment",
+        due:"20 Apr 2026",total:"฿ 34,900",prin:"฿ 22,600",int:"฿ 12,300",tenor:"156 mo",
+        btnPay:"Pay now (demo)",
+        btnDocs:"Upload insurance / income docs",
+        docLead:"Tick each item as you upload — I'll sync your retail mortgage file for the processor.",
+        docItems:["Home insurance renewal (current year)","Bank statements · joint account (90 days)","Income proof / salary slip (latest)"],
+        handoff:"Documents received. I've queued them for mortgage operations with same-day acknowledgement. You'll get a push when verification completes.",
+        handoffUser:"Thanks — notify me if anything is missing.",
+        handoffJarvis:"Understood. I'll keep servicing nudges focused on this loan until we're done.",
+        outro:"Retail home-loan servicing path from contextual entry through document handoff — illustrative only."
+      },
+      emerging_affluent:{
+        badge:"Retail · Emerging affluent",
+        heroK:"Jarvis · Private wealth",
+        heroT:"Structured facility — servicing check-in",
+        heroSub:"Khun {name}, your scheduled payment posts in 3 days. I can review covenant-friendly prepayment, or refresh income evidence on file.",
+        chatJarvis:"I'm here for your retail facility with SCB. Prefer the next payment breakdown, or upload updated income documentation?",
+        chatUser:"Show me the next payment and split.",
+        chatSummary:"Here's your next facility posting — principal and interest per your retail terms; liquidity buffers remain comfortable.",
+        cardH:"Next facility payment",
+        due:"17 Apr 2026",total:"฿ 52,600",prin:"฿ 38,200",int:"฿ 14,400",tenor:"48 mo",
+        btnPay:"Pay now (demo)",
+        btnDocs:"Upload income evidence",
+        docLead:"Please confirm each item — I'll route to wealth credit ops under retail SLA.",
+        docItems:["Updated income / tax summary","Bank statements · primary relationship (90 days)","Collateral / valuation refresh (if due)"],
+        handoff:"Package received. Queued for wealth retail review with priority handling. You'll be notified when status advances.",
+        handoffUser:"Thanks — notify me if anything is missing.",
+        handoffJarvis:"Noted. I'll align advisory prompts with this servicing thread.",
+        outro:"High-touch retail facility flow — demo screens only."
+      }
+    };
+
+    function retailProfile(){
+      const id=resolvePersonaId();
+      const r=RETAIL[id]||RETAIL.young_professional;
+      const names={young_professional:"Ariya",emerging_family:"Nattapong",emerging_affluent:"Siriporn"};
+      const name=names[id]||"Ariya";
+      const sub={};
+      for (const k of Object.keys(r)){
+        if(typeof r[k]==="string") sub[k]=r[k].replace(/\{name\}/g,name);
+        else sub[k]=r[k];
+      }
+      return sub;
+    }
+
+    const prof=retailProfile();
+
+    const steps=[];
+    const stage = document.getElementById("stage");
+    const stepIx = document.getElementById("stepIx");
+    let step = 0;
+    let docsDone = 0;
+
+    function setStep(n){
+      step = Math.max(0, Math.min(steps.length - 1, n));
+      stepIx.textContent = "Step " + (step + 1) + " / " + steps.length;
+      stage.querySelectorAll(".step").forEach((el, i) => el.classList.toggle("active", i === step));
+    }
+
+    function next(){ setStep(step + 1); }
+
+    steps.push({
+      html: `
+        <div class="step active step--jarvis">
+          <div class="ls-conv">
+            <header class="ls-j-hdr">
+              <div class="ls-j-hdr-left">
+                <div class="ls-j-ico" aria-hidden="true"></div>
+                <h1>Jarvis</h1>
+              </div>
+              <button type="button" class="ls-j-x" tabindex="-1" aria-hidden="true">×</button>
+            </header>
+            <div class="ls-d-scroll cx-embed-scroll">
+              <div class="thread">
+                <div class="bubble jarvis"><div class="who">Jarvis</div>${prof.heroSub}</div>
+                <div class="bubble user"><div class="who">You</div>${prof.chatUser}</div>
+                <div class="bubble jarvis"><div class="who">Jarvis</div>${prof.chatJarvis}</div>
+              </div>
+            </div>
+          </div>
+          <div class="btnrow">
+            <button type="button" class="btn-primary" data-next>Continue to payment detail</button>
+            <button type="button" data-jump="2">Skip to document checklist</button>
+          </div>
+        </div>`
+    });
+
+    steps.push({
+      html: `
+        <div class="step">
+          <div class="thread">
+            <div class="bubble jarvis"><div class="who">Jarvis</div>${prof.chatSummary}</div>
+          </div>
+          <div class="card">
+            <h2>${prof.cardH}</h2>
+            <div class="row"><span class="lbl">Due date</span><span class="val">${prof.due}</span></div>
+            <div class="row"><span class="lbl">Total due</span><span class="val">${prof.total}</span></div>
+            <div class="row"><span class="lbl">Principal</span><span class="val">${prof.prin}</span></div>
+            <div class="row"><span class="lbl">Interest</span><span class="val">${prof.int}</span></div>
+            <div class="row"><span class="lbl">Remaining tenor</span><span class="val">${prof.tenor}</span></div>
+          </div>
+          <div class="btnrow">
+            <button type="button" class="btn-primary" data-next>${prof.btnDocs}</button>
+            <button type="button" data-next>${prof.btnPay}</button>
+          </div>
+        </div>`
+    });
+
+    const docItemsHtml=prof.docItems.map(t=>`<li data-doc><span class="box"></span><span>${t}</span></li>`).join("");
+
+    steps.push({
+      html: `
+        <div class="step">
+          <div class="thread">
+            <div class="bubble jarvis"><div class="who">Jarvis</div>${prof.docLead}</div>
+          </div>
+          <ul class="checklist" id="docList">
+            ${docItemsHtml}
+          </ul>
+          <p class="progress" id="docProgress">0 of 3 documents marked ready</p>
+          <div class="bar"><i id="docBar"></i></div>
+          <div class="btnrow">
+            <button type="button" class="btn-primary" id="btnDocsContinue" disabled data-next-docs>Submit documents (demo)</button>
+          </div>
+        </div>`
+    });
+
+    steps.push({
+      html: `
+        <div class="step">
+          <div class="thread">
+            <div class="bubble jarvis"><div class="who">Jarvis</div>${prof.handoff}</div>
+            <div class="bubble user"><div class="who">You</div>${prof.handoffUser}</div>
+            <div class="bubble jarvis"><div class="who">Jarvis</div>${prof.handoffJarvis}</div>
+          </div>
+          <div class="btnrow">
+            <button type="button" class="btn-primary" data-next>View closure summary</button>
+          </div>
+        </div>`
+    });
+
+    steps.push({
+      html: `
+        <div class="step">
+          <div class="hero-card">
+            <div class="k">Flow complete</div>
+            <div class="t">Retail loan servicing · ${prof.badge.replace(/^Retail · /,"")}</div>
+            <div class="sub">${prof.outro}</div>
+            <div class="btnrow">
+              <button type="button" class="btn-primary" id="btnAgain">Run again</button>
+            </div>
+          </div>
+        </div>`
+    });
+
+    function mount(){
+      stage.innerHTML = steps.map(s => s.html).join("");
+      stage.querySelectorAll("[data-next]").forEach(b => b.addEventListener("click", next));
+      stage.querySelectorAll("[data-jump]").forEach(b => b.addEventListener("click", ()=>{
+        const j = parseInt(b.getAttribute("data-jump"), 10);
+        if (Number.isFinite(j)) setStep(j);
+      }));
+      const docList = stage.querySelector("#docList");
+      if (docList){
+        docsDone = 0;
+        docList.querySelectorAll("[data-doc]").forEach(li => {
+          li.addEventListener("click", ()=>{
+            li.classList.toggle("done");
+            li.querySelector(".box").textContent = li.classList.contains("done") ? "✓" : "";
+            docsDone = docList.querySelectorAll("li.done").length;
+            document.getElementById("docProgress").textContent = docsDone + " of 3 documents marked ready";
+            document.getElementById("docBar").style.width = (docsDone / 3 * 100) + "%";
+            const c = document.getElementById("btnDocsContinue");
+            c.disabled = docsDone < 3;
+          });
+        });
+        document.getElementById("btnDocsContinue").addEventListener("click", ()=>{ if (docsDone >= 3) next(); });
+      }
+      const again = stage.querySelector("#btnAgain");
+      if (again) again.addEventListener("click", ()=>{ step = 0; docsDone = 0; mount(); });
+      setStep(step);
+    }
+
+    document.getElementById("btnRestart").addEventListener("click", ()=>{ step = 0; docsDone = 0; mount(); });
+    mount();
+  </script>
+</body>
+</html>
