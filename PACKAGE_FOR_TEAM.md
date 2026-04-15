@@ -9,9 +9,9 @@
 
 1. Install **Python 3.10+**.  
 2. Unzip / clone into a folder and open a terminal **in that folder**.  
-3. Run a local server on port **8844** — easiest: double-click **`serve-demo.bat`** (Windows) or **`serve-demo.sh`** (Mac/Linux), **or** run `python -m http.server 8844` / `python3 -m http.server 8844`.  
-4. Open **`http://localhost:8844/index.html`** or **`http://localhost:8844/SCB_CXO_Board_Dashboard.html`**.  
-5. *(Optional)* Second terminal: `python server/seed.py` then `python server/cxo_api.py`, then open the CXO URL with **`?veraHub=http://127.0.0.1:8765`**.
+3. Start the local server — easiest: double-click **`serve-demo.bat`** (Windows) or **`serve-demo.sh`** (Mac/Linux). That runs **`serve_local.py`**, which picks a free port (starts at **8844**), binds **127.0.0.1**, and opens your browser. Alternatives: `py serve_local.py` / `python3 serve_local.py`, or `python -m http.server 8844 -b 127.0.0.1`.  
+4. If the browser did not open, use the URL printed in the terminal — usually **`http://127.0.0.1:8844/index.html`** or **`http://127.0.0.1:8844/SCB_CXO_Board_Dashboard.html`**.  
+5. *(Optional)* Second terminal: `python server/seed.py` then `python server/cxo_api.py`, then add **`?veraHub=http://127.0.0.1:8765`** to the CXO URL (same port as step 4).
 
 ## Create the zip (Windows / Mac / Linux — recommended)
 

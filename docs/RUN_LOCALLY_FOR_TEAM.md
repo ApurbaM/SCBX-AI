@@ -20,16 +20,19 @@ No Node.js is required unless you want to use your own static server instead of 
    ```bash
    cd path/to/SCBX
    ```
-3. **Start a local static server** on port **8844**:
-   - **Windows:** double-click **`serve-demo.bat`** in the project folder, **or** run:
+3. **Start a local static server** (recommended: picks a free port, binds **127.0.0.1**, opens your browser):
+   - **Windows:** double-click **`serve-demo.bat`**, **or** run:
      ```bash
-     python -m http.server 8844
+     py serve_local.py
      ```
-   - **Mac/Linux:** `chmod +x serve-demo.sh && ./serve-demo.sh` **or** `python3 -m http.server 8844`
-4. Open a browser and go to:
-   - **Hub:** [http://localhost:8844/index.html](http://localhost:8844/index.html)  
-   - **CXO journey board:** [http://localhost:8844/SCB_CXO_Board_Dashboard.html](http://localhost:8844/SCB_CXO_Board_Dashboard.html)  
-   - **Ontology map:** [http://localhost:8844/SCB_Ontology_Map.html](http://localhost:8844/SCB_Ontology_Map.html)  
+     (or `python serve_local.py` if you do not have `py`.)
+   - **Mac/Linux:** `chmod +x serve-demo.sh && ./serve-demo.sh` **or** `python3 serve_local.py`
+   - **Manual one-liner** (fixed port): `python -m http.server 8844 -b 127.0.0.1`
+4. Open a browser using the **URL printed in the terminal** (often **8844**). Typical links:
+   - **Hub:** `http://127.0.0.1:8844/index.html`  
+   - **CXO journey board:** `http://127.0.0.1:8844/SCB_CXO_Board_Dashboard.html`  
+   - **Ontology map:** `http://127.0.0.1:8844/SCB_Ontology_Map.html`  
+   Use **127.0.0.1** instead of **localhost** if the page does not load (some Windows setups resolve `localhost` to IPv6 only).
 5. When finished, go back to the terminal and press **Ctrl+C** to stop the server.
 
 ---
@@ -45,12 +48,12 @@ Use this if you want the board to pull **metrics / ontology** from a tiny backen
    ```
    The API listens on **http://127.0.0.1:8765** by default.
 
-2. Open the CXO board with a query parameter (same static server on 8844 still running):
+2. Open the CXO board with a query parameter (same static server still running — use the **port** from the terminal):
    ```
-   http://localhost:8844/SCB_CXO_Board_Dashboard.html?veraHub=http://127.0.0.1:8765
+   http://127.0.0.1:8844/SCB_CXO_Board_Dashboard.html?veraHub=http://127.0.0.1:8765
    ```
 
-3. **Windows shortcut:** you can double-click **`run-cxo-api.bat`** in the project root to start the API (still start `python -m http.server 8844` separately for the HTML).
+3. **Windows shortcut:** double-click **`run-cxo-api.bat`** to start the API (keep **`serve-demo.bat`** / `serve_local.py` running for the HTML).
 
 ---
 
@@ -65,10 +68,11 @@ Use this if you want the board to pull **metrics / ontology** from a tiny backen
 
 | Issue | What to try |
 |--------|-------------|
-| Ontology map is blank / errors | Serve over **http://localhost:8844** (not `file://`). |
-| Port 8844 already in use | Run `python -m http.server 8090` and open `http://localhost:8090/...` |
-| **localhost:8080** shows 404 for SCB files | **8080 is often used by Docker or other apps**, not this repo. Use **`serve-demo.bat`** (port **8844**) or pick another free port. |
-| `python` not found | Install Python, or try `py -m http.server 8844` (Windows) / `python3` (Mac). |
+| Ontology map is blank / errors | Serve over **http://127.0.0.1:…** (not `file://`). |
+| Port 8844 already in use | **`serve_local.py`** tries **8845, 8846, …** automatically. Or run `python -m http.server 8090 -b 127.0.0.1` and open `http://127.0.0.1:8090/...` |
+| **localhost** does not open | Use **http://127.0.0.1:PORT/...** instead (IPv6 / DNS issue on some PCs). |
+| **localhost:8080** shows 404 for SCB files | **8080 is often used by Docker**, not this repo. Use **`serve-demo.bat`** or **`serve_local.py`**. |
+| `python` not found | Install Python, or use **`py serve_local.py`** on Windows. |
 | CXO + API not talking | Same machine: use `?veraHub=http://127.0.0.1:8765` and ensure **both** static server and `cxo_api.py` are running. |
 
 ---

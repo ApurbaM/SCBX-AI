@@ -1,16 +1,23 @@
 @echo off
 cd /d "%~dp0"
+set PYTHONUNBUFFERED=1
+
 echo.
 echo  SCBx local demo server
 echo  ----------------------
-echo  Port 8844 avoids Docker and other tools that often bind 8080.
-echo  After this starts, open:
-echo    http://localhost:8844/index.html
-echo    http://localhost:8844/SCB_CXO_Board_Dashboard.html
-echo.
+echo  Serves this folder on 127.0.0.1 and tries ports 8844, 8845, ...
+echo  Your browser should open the CXO dashboard automatically.
+echo  If it does not, copy the http://127.0.0.1:PORT/... line from below.
 echo  Press Ctrl+C to stop the server.
 echo.
-python -m http.server 8844
-if errorlevel 1 (
-  py -m http.server 8844
+
+where py >nul 2>nul
+if %errorlevel%==0 (
+  py serve_local.py
+) else (
+  python serve_local.py
 )
+
+echo.
+echo Server stopped.
+pause
