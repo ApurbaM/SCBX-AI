@@ -18,29 +18,46 @@
       --warn:#fbbf24;
       --r:18px;
       --font: Arial, "Helvetica Neue", Helvetica, sans-serif;
+      --board-font:13px;
+      --board-lh:1.3;
+      --board-ls:.09em;
+      /* A–D Figma phones: crop embed chrome; pull up + zoom so purple fills. Defaults match node D; A–C use .journey-frame--figma-abc */
+      --journey-figma-embed-scale:1.28;
+      --journey-figma-embed-top:-20%;
+      --journey-figma-embed-height:138%;
     }
     *{box-sizing:border-box}
-    html{font-family:var(--font);font-size:14px;-webkit-font-smoothing:antialiased}
-    body{margin:0;min-height:100vh;font-family:inherit;font-size:1rem;line-height:1.45;color:var(--text);background:
+    html{font-family:var(--font);font-size:12px;-webkit-font-smoothing:antialiased;height:100%;overflow:hidden}
+    body{margin:0;height:100%;min-height:0;max-height:100%;overflow:hidden;font-family:inherit;font-size:1rem;line-height:1.28;color:var(--text);background:
       radial-gradient(1000px 520px at 18% 0%, rgba(108,77,196,.28), transparent 55%),
       radial-gradient(800px 480px at 92% 8%, rgba(201,168,76,.12), transparent 50%),
       linear-gradient(185deg,#0b0618,var(--bg) 55%,#020108);}
     a{color:var(--gold)}
-    .app{width:100%;max-width:none;margin:0;padding:14px 16px 28px;display:grid;grid-template-columns:minmax(320px,420px) minmax(0,1fr);grid-template-rows:minmax(0,1fr);gap:18px;align-items:stretch;min-height:100vh;box-sizing:border-box}
-    @media(max-width:1040px){.app{grid-template-columns:1fr;min-height:0}}
+    .app{width:100%;max-width:none;margin:0;padding:6px 8px 8px;display:grid;grid-template-columns:minmax(260px,360px) minmax(0,1fr);grid-template-rows:minmax(0,1fr);gap:8px;align-items:stretch;align-content:stretch;height:100vh;height:100dvh;max-height:100vh;max-height:100dvh;min-height:0;overflow:hidden;box-sizing:border-box}
+    .app > .panel{min-height:0;min-width:0}
+    @media(max-width:1040px){
+      html,body{overflow:auto;height:auto;min-height:100%}
+      .app{grid-template-columns:1fr;height:auto;max-height:none;min-height:100dvh;overflow:visible}
+    }
     .app-panel-head{
       flex-shrink:0;
-      padding:14px 18px 12px;
+      padding:8px 10px 6px;
       border-bottom:1px solid rgba(255,255,255,.1);
     }
     .app-panel-head > .persona-block-label,
-    .app-panel-head--journey .dash-top-title{
+    .dash-top-title,
+    .dash-journey-head h3,
+    .twin-head-title,
+    .persona-record-kicker,
+    .journey-block .cap b{
       margin:0;
-      font-size:14px;
+      font-family:inherit;
+      font-size:var(--board-font);
       font-weight:900;
-      letter-spacing:.1em;
+      letter-spacing:var(--board-ls);
       text-transform:uppercase;
-      color:rgba(201,168,76,.95);
+      line-height:var(--board-lh);
+      color:rgba(201,168,76,.96);
     }
     .app-panel-head--journey{
       display:flex;
@@ -68,26 +85,34 @@
       flex-shrink:0;
       font-family:inherit;
     }
-    .panel.app-left{display:flex;flex-direction:column;min-height:0;align-self:stretch}
-    .panel.app-left > .pb{flex:1;min-height:0}
+    .panel.app-left{display:flex;flex-direction:column;min-height:0;align-self:stretch;overflow:hidden}
+    .panel.app-left > .pb{
+      flex:1;
+      min-height:0;
+      overflow:hidden;
+      -webkit-overflow-scrolling:touch;
+      display:flex;
+      flex-direction:column;
+    }
 
     .panel{background:var(--panel);border:1px solid var(--stroke);border-radius:var(--r);box-shadow:0 24px 70px rgba(0,0,0,.45);overflow:hidden;min-width:0;font-family:inherit;font-size:1rem}
-    .ph{padding:16px 18px;border-bottom:1px solid var(--stroke);display:flex;align-items:center;justify-content:space-between;gap:10px}
-    .ph h1{margin:0;font-size:15px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.55)}
+    .panel.exec-panel{overflow:hidden;display:flex;flex-direction:column}
+    .ph{padding:8px 10px;border-bottom:1px solid var(--stroke);display:flex;align-items:center;justify-content:space-between;gap:8px}
+    .ph h1{margin:0;font-size:13px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.55)}
     .ph .ph-personas-title{color:var(--gold);text-shadow:0 0 28px rgba(201,168,76,.22)}
-    .ph span{font-size:13px;color:var(--muted)}
-    .pb{padding:16px 18px 18px}
+    .ph span{font-size:12px;color:var(--muted)}
+    .pb{padding:8px 10px 10px}
 
-    .persona{display:grid;grid-template-columns:64px minmax(0,1fr);gap:12px;align-items:center;padding:12px;border-radius:14px;border:1px solid rgba(255,255,255,.08);cursor:pointer;background:rgba(255,255,255,.03);transition:border-color .15s,transform .15s,background .15s}
+    .persona{display:grid;grid-template-columns:52px minmax(0,1fr);gap:8px;align-items:center;padding:8px;border-radius:12px;border:1px solid rgba(255,255,255,.08);cursor:pointer;background:rgba(255,255,255,.03);transition:border-color .15s,transform .15s,background .15s}
     .persona:hover{transform:translateY(-1px);border-color:rgba(201,168,76,.22)}
     .persona.active{border-color:rgba(201,168,76,.45);background:linear-gradient(135deg,rgba(78,42,132,.35),rgba(201,168,76,.10))}
-    .persona-block{margin-bottom:6px}
-    .persona-block .stack{margin-top:0}
-    .persona-block-label{margin:0 0 8px;font-size:12px;font-weight:900;letter-spacing:.11em;text-transform:uppercase;color:var(--gold)}
+    .persona-block{margin-bottom:4px;min-width:0;max-width:100%;flex-shrink:0}
+    .persona-block .stack{margin-top:0;min-width:0;max-width:100%}
+    .persona-block-label{margin:0 0 6px}
     .persona--solo{cursor:default;transform:none;border:2px solid rgba(232,213,160,.55);box-shadow:0 0 0 1px rgba(201,168,76,.28),0 0 28px rgba(201,168,76,.12),0 14px 44px rgba(0,0,0,.42);background:linear-gradient(145deg,rgba(95,58,175,.55),rgba(201,168,76,.22))}
     .persona--solo:hover{transform:none;border-color:rgba(232,213,160,.72)}
     .persona--solo .n{color:var(--gold);text-shadow:0 0 20px rgba(201,168,76,.2)}
-    .persona-switch-hint{margin:10px 0 6px;font-size:13px;color:var(--muted);line-height:1.4}
+    .persona-switch-hint{margin:8px 0 4px;font-size:13px;color:var(--muted);line-height:1.35}
     .persona-switch{display:flex;flex-direction:row;flex-wrap:nowrap;gap:8px;margin-top:2px;overflow-x:auto;padding-bottom:2px;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
     .persona-swatch{
       flex:1 1 0;
@@ -95,39 +120,41 @@
       max-width:100%;
       display:flex;
       align-items:center;
-      gap:8px;
+      justify-content:center;
+      gap:0;
       padding:8px 10px;
       border-radius:12px;
-      border:1px solid rgba(255,255,255,.12);
-      background:rgba(0,0,0,.22);
-      color:rgba(255,255,255,.88);
-      font-size:clamp(11px,2.4vw,12px);
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(0,0,0,.28);
+      color:rgba(255,255,255,.95);
+      font-size:var(--board-font);
       font-weight:800;
+      letter-spacing:.04em;
+      line-height:var(--board-lh);
+      text-transform:none;
       cursor:pointer;
       font-family:inherit;
-      text-align:left;
+      text-align:center;
       transition:border-color .15s,background .15s;
     }
     .persona-swatch:hover{border-color:rgba(232,213,160,.45);background:rgba(201,168,76,.1)}
     .persona-swatch:focus-visible{outline:2px solid rgba(201,168,76,.55);outline-offset:2px}
-    .persona-swatch img{width:30px;height:30px;border-radius:10px;object-fit:cover;border:1px solid rgba(255,255,255,.12);flex-shrink:0}
     .persona-swatch span{
-      flex:1 1 0;
+      flex:1 1 auto;
       min-width:0;
-      line-height:1.25;
-      overflow:hidden;
-      display:-webkit-box;
-      -webkit-box-orient:vertical;
-      -webkit-line-clamp:2;
-      line-clamp:2;
-      word-break:break-word;
-      hyphens:auto;
+      display:block;
+      line-height:1.35;
+      overflow:visible;
+      white-space:normal;
+      word-break:normal;
+      overflow-wrap:anywhere;
+      hyphens:manual;
     }
     .persona > div:last-of-type{min-width:0;overflow:hidden}
-    .persona img{width:64px;height:64px;border-radius:18px;object-fit:cover;border:1px solid rgba(255,255,255,.12);background:#1a1028;flex-shrink:0}
+    .persona img{width:52px;height:52px;border-radius:14px;object-fit:cover;border:1px solid rgba(255,255,255,.12);background:#1a1028;flex-shrink:0}
     .persona .n{
       font-weight:800;
-      font-size:clamp(12px,3.2vw,14px);
+      font-size:clamp(14px,3.2vw,16px);
       margin:0 0 4px;
       line-height:1.2;
       overflow-wrap:anywhere;
@@ -135,7 +162,7 @@
     }
     .persona .s{
       margin:0;
-      font-size:clamp(11px,2.8vw,12px);
+      font-size:clamp(13px,2.8vw,14px);
       color:var(--muted);
       line-height:1.35;
       display:-webkit-box;
@@ -146,41 +173,112 @@
       overflow-wrap:anywhere;
       word-break:break-word;
     }
-    .stack{display:flex;flex-direction:column;gap:10px;margin-top:12px}
+    .stack{display:flex;flex-direction:column;gap:6px;margin-top:6px}
 
-    .fld{margin-top:12px}
+    .fld{margin-top:8px}
     .fld label{display:block;font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.38);margin-bottom:6px}
     .fld input,.fld select{width:100%;padding:10px 11px;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.25);color:var(--text);font-size:13px;outline:none}
     .fldgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 
-    .twin-wrap{margin-top:18px;padding-top:16px;border-top:1px solid rgba(255,255,255,.08)}
-    .twin-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:14px}
-    .twin-head-title{margin:0;font-size:11px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:rgba(201,168,76,.9)}
-    .twin-field{margin-top:14px}
-    .twin-field:first-of-type{margin-top:0}
-    .twin-dc-inline{
-      margin:16px 0 10px;
-      padding-top:14px;
+    .twin-wrap{
+      flex:1;
+      min-height:0;
+      display:flex;
+      flex-direction:column;
+      margin-top:6px;
+      padding-top:6px;
       border-top:1px solid rgba(255,255,255,.08);
-      font-size:13px;
-      font-weight:600;
-      color:rgba(244,240,255,.72);
-      line-height:1.45;
+      gap:clamp(4px, 1dvh, 14px);
+    }
+    .twin-head{
+      flex-shrink:0;
+      display:flex;
+      align-items:baseline;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:0;
+    }
+    .twin-fields{
+      flex:1;
+      min-height:0;
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+      gap:clamp(2px, 0.5dvh, 10px);
+    }
+    .twin-field{margin-top:0;flex-shrink:0}
+    .app-left .twin-wrap .twin-field-label{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:8px;
+      margin-bottom:6px;
+      font-family:inherit;
+      font-size:var(--board-font);
+      font-weight:800;
+      letter-spacing:var(--board-ls);
+      text-transform:uppercase;
+      line-height:var(--board-lh);
+      color:rgba(244,240,255,.68);
+    }
+    .app-left .twin-wrap .twin-slider-val{
+      font-variant-numeric:tabular-nums;
+      color:rgba(255,255,255,.88);
+      font-weight:800;
+      font-size:var(--board-font);
+      letter-spacing:.04em;
+      line-height:var(--board-lh);
+    }
+    .twin-dc-inline{
+      margin:0;
+      padding-top:8px;
+      border-top:1px solid rgba(255,255,255,.08);
+      font-family:inherit;
+      font-size:var(--board-font);
+      font-weight:800;
+      letter-spacing:.04em;
+      line-height:var(--board-lh);
+      color:rgba(244,240,255,.78);
+      flex-shrink:0;
     }
     .twin-dc-inline strong{color:var(--gold);font-weight:800;font-variant-numeric:tabular-nums}
-    .twin-field-label{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px;font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.42)}
-    .twin-slider-val{font-variant-numeric:tabular-nums;color:var(--gold);font-weight:900;font-size:13px}
     input[type="range"].twin-range{width:100%;height:6px;margin:6px 0 0;-webkit-appearance:none;appearance:none;background:linear-gradient(90deg,rgba(201,168,76,.45),rgba(123,94,167,.35));border-radius:999px;outline:none}
+    .app-left .twin-wrap input[type="range"].twin-range{
+      height:clamp(6px, 0.85dvh, 10px);
+      margin:clamp(4px, 0.5dvh, 10px) 0 0;
+    }
     input[type="range"].twin-range::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:linear-gradient(145deg,#f2e6c2,#a8893a);border:2px solid rgba(18,12,34,.9);box-shadow:0 2px 10px rgba(0,0,0,.4);cursor:pointer}
     input[type="range"].twin-range::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:linear-gradient(145deg,#f2e6c2,#a8893a);border:2px solid rgba(18,12,34,.9);cursor:pointer}
-    .chip-row{display:flex;flex-wrap:wrap;gap:6px}
+    .app-left .twin-wrap input[type="range"].twin-range::-webkit-slider-thumb{
+      width:clamp(16px, 2.15dvh, 22px);
+      height:clamp(16px, 2.15dvh, 22px);
+    }
+    .app-left .twin-wrap input[type="range"].twin-range::-moz-range-thumb{
+      width:clamp(16px, 2.15dvh, 22px);
+      height:clamp(16px, 2.15dvh, 22px);
+    }
+    .chip-row{display:flex;flex-wrap:wrap;gap:5px}
     .chip{border:1px solid rgba(255,255,255,.14);background:rgba(0,0,0,.22);color:rgba(255,255,255,.78);font-size:11px;font-weight:700;padding:7px 11px;border-radius:999px;cursor:pointer;transition:background .15s,border-color .15s,color .15s,transform .12s;font-family:inherit}
+    .app-left .twin-wrap .chip{
+      font-size:var(--board-font);
+      font-weight:800;
+      letter-spacing:.04em;
+      line-height:var(--board-lh);
+      padding:6px 10px;
+    }
     .chip:hover{border-color:rgba(201,168,76,.35);color:#fff}
     .chip.is-on{background:rgba(201,168,76,.14);border-color:rgba(201,168,76,.42);color:var(--gold);box-shadow:0 0 0 1px rgba(201,168,76,.12) inset}
     .chip:focus-visible{outline:2px solid rgba(201,168,76,.5);outline-offset:2px}
     .chip-multi-wrap .chip.is-on{background:linear-gradient(135deg,rgba(78,42,132,.35),rgba(201,168,76,.12))}
-    .btnrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+    .btnrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+    .app-left .twin-wrap .btnrow{margin-top:0;flex-shrink:0}
     .btn{border:none;border-radius:12px;padding:10px 14px;font-size:12px;font-weight:800;cursor:pointer}
+    .app-left .twin-wrap .btn{
+      font-size:var(--board-font);
+      font-weight:800;
+      letter-spacing:var(--board-ls);
+      padding:8px 12px;
+    }
     .btn-ghost{background:rgba(255,255,255,.06);color:#fff;border:1px solid rgba(255,255,255,.14)}
     .btn-gold{background:linear-gradient(135deg,#f2e6c2,#c9a84c);color:#1a0d33}
 
@@ -293,7 +391,7 @@
     .jm-vs b{color:var(--gold)}
 
     /* RHS journey tabs · top band (KPIs + OKR snapshot) · mid OKRs · right prototype */
-    .exec-panel{display:flex;flex-direction:column;min-height:calc(100vh - 28px);min-width:0;font-size:1rem;font-family:inherit}
+    .exec-panel{display:flex;flex-direction:column;flex:1;min-height:0;min-width:0;font-size:1rem;font-family:inherit}
     .exec-panel > .tabs{flex-shrink:0}
     .exec-panel > .pane{flex:1;min-height:0;display:none;overflow:hidden}
     .exec-panel > .pane.pane-main.active{display:block;overflow:auto}
@@ -682,45 +780,27 @@
     details.disclosure--okr > summary{font-size:12px}
 
     .exec-panel--single{display:flex;flex-direction:column;min-width:0;min-height:0;height:100%}
-    .dash-top{display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:space-between;gap:12px;padding:14px 16px 12px;border-bottom:1px solid rgba(255,255,255,.08);background:rgba(0,0,0,.14)}
-    .dash-top-title{margin:0;font-size:14px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:rgba(201,168,76,.95)}
+    .dash-top{display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:space-between;gap:10px;padding:10px 12px 8px;border-bottom:1px solid rgba(255,255,255,.08);background:rgba(0,0,0,.14)}
     .dash-top select{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:#fff;border-radius:12px;padding:9px 12px;font-size:13px;flex-shrink:0}
     .kpi .kpi-mom{margin-top:4px;padding-top:2px;font-size:10px;font-weight:800;letter-spacing:.02em;display:flex;align-items:center;gap:4px;line-height:1.2}
     .kpi .kpi-mom.good{color:var(--good)}
     .kpi .kpi-mom.bad{color:#fca5a5}
-    .dash-journey-kpis .kpi--board .d{display:none}
-    /* Monday demo: de-prioritize top metrics (journey-first). */
-    .dash-journey-kpis{display:none}
-    .dash-journey-kpis .kpirow-exec{padding:8px 8px 10px;margin:0;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;grid-auto-rows:auto}
-    @media(max-width:520px){.dash-journey-kpis .kpirow-exec{grid-template-columns:1fr}}
-    .exec-panel--single .dash-journey-kpis .kpirow-exec .kpi{min-height:0;padding:7px 8px 8px;border-radius:12px}
-    .exec-panel--single .dash-journey-kpis .kpirow-exec .kpi .k{
-      font-size:9px;
-      letter-spacing:.07em;
-      min-height:0;
-      max-height:3.9em;
-      display:-webkit-box;
-      -webkit-line-clamp:3;
-      -webkit-box-orient:vertical;
-      overflow:hidden;
-      line-height:1.25;
-    }
-    .exec-panel--single .dash-journey-kpis .kpirow-exec .kpi .v{margin-top:4px;min-height:0;font-size:clamp(14px,2.1vw,17px)}
     /* Two journey panels (J1 | J2); each panel holds A–B or C–D in a row */
     .dash-journeys{
       display:grid;
       grid-template-columns:1fr 1fr;
-      gap:14px;
-      padding:12px 14px 18px;
+      gap:8px;
+      padding:6px 8px 8px;
       flex:1 1 0;
       min-height:0;
       align-items:stretch;
+      overflow:hidden;
     }
     @media(max-width:1180px){.dash-journeys{grid-template-columns:1fr}}
     .dash-journey-col{display:flex;flex-direction:column;min-width:0;min-height:0;height:100%;background:rgba(0,0,0,.2);border:1px solid rgba(255,255,255,.1);border-radius:16px;overflow:hidden}
-    .dash-journey-head{flex-shrink:0;padding:12px 14px;border-bottom:1px solid rgba(255,255,255,.08);background:rgba(0,0,0,.22)}
-    .dash-journey-head h3{margin:0;font-size:13px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:#fff;line-height:1.35}
-    .dash-journey-embed{flex:1;min-height:0;display:flex;flex-direction:column;padding:10px 12px 12px;gap:10px}
+    .dash-journey-head{flex-shrink:0;padding:6px 8px;border-bottom:1px solid rgba(255,255,255,.08);background:rgba(0,0,0,.22)}
+    .dash-journey-head h3{margin:0}
+    .dash-journey-embed{flex:1;min-height:0;display:flex;flex-direction:column;padding:6px;gap:6px;overflow:hidden}
     .dash-journey-pair{
       display:grid;
       grid-template-columns:1fr 1fr;
@@ -743,13 +823,13 @@
     .dash-tile-cap,
     .dash-embed-step-label{
       flex-shrink:0;
-      padding:8px 10px;
-      font-size:11px;
+      padding:6px 8px;
+      font-size:var(--board-font);
       font-weight:800;
       letter-spacing:.08em;
       text-transform:uppercase;
       color:rgba(201,168,76,.9);
-      line-height:1.3;
+      line-height:var(--board-lh);
       border-bottom:1px solid rgba(255,255,255,.06);
       background:rgba(0,0,0,.18);
     }
@@ -855,8 +935,8 @@
       display:flex;
       flex-direction:row;
       flex-wrap:nowrap;
-      gap:10px;
-      padding:12px 12px 14px;
+      gap:6px;
+      padding:6px;
       align-items:stretch;
       align-self:stretch;
       flex:1 1 0;
@@ -864,6 +944,7 @@
       min-height:0;
       min-width:0;
       overflow-x:auto;
+      overflow-y:hidden;
       -webkit-overflow-scrolling:touch;
       scrollbar-color:rgba(201,168,76,.35) rgba(0,0,0,.2);
     }
@@ -883,51 +964,149 @@
     }
     .journey-block .cap{
       flex-shrink:0;
-      padding:10px 12px;
+      min-height:2.85em;
+      padding:6px 8px 8px;
       border-bottom:1px solid rgba(255,255,255,.08);
       background:rgba(0,0,0,.18);
       display:flex;
-      align-items:flex-start;
-      justify-content:space-between;
-      gap:10px;
+      flex-direction:column;
+      align-items:stretch;
+      justify-content:flex-start;
+      gap:6px;
     }
-    .journey-block .cap b{
-      font-size:11px;
-      font-weight:900;
-      letter-spacing:.1em;
-      text-transform:uppercase;
-      color:rgba(201,168,76,.92);
-      line-height:1.25;
-    }
-    .journey-block .cap .metrics{
-      font-size:11px;
-      color:rgba(244,240,255,.55);
-      font-weight:800;
+    .journey-block .cap-title-row{flex-shrink:0}
+    .journey-cap-metrics{
       display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      justify-content:flex-end;
-      text-align:right;
-      line-height:1.25;
+      flex-direction:column;
+      gap:4px;
+      width:100%;
+      min-width:0;
     }
-    .journey-block .body{flex:1;min-height:0;display:flex;flex-direction:column;align-items:stretch}
-    /* Portrait phone chrome (~9 : 19.5, same class as recent iPhones). Width drives height; max-height caps “screen” length. */
+    /* Metrics band under phone / iframe (A–D) */
+    .journey-block > .journey-cap-metrics.journey-metrics-foot{
+      flex-shrink:0;
+      min-height:calc(2 * (1em * var(--board-lh) + 4px) + 12px);
+      padding:6px 8px 8px;
+      border-top:1px solid rgba(255,255,255,.08);
+      background:rgba(0,0,0,.26);
+    }
+    .journey-metric-row{
+      display:flex;
+      align-items:baseline;
+      justify-content:space-between;
+      gap:8px;
+      font-family:inherit;
+      font-size:var(--board-font);
+      line-height:var(--board-lh);
+    }
+    .journey-metric-label{
+      font-weight:800;
+      letter-spacing:var(--board-ls);
+      text-transform:uppercase;
+      color:rgba(244,240,255,.68);
+      flex:1;
+      min-width:0;
+    }
+    .journey-metric-num{
+      font-weight:800;
+      letter-spacing:.04em;
+      font-variant-numeric:tabular-nums;
+      color:rgba(255,255,255,.88);
+      text-align:right;
+      flex-shrink:0;
+      max-width:52%;
+    }
+    .journey-metric-delta{
+      font-weight:800;
+      font-size:var(--board-font);
+      letter-spacing:.04em;
+      color:rgba(201,168,76,.92);
+      margin-left:5px;
+    }
+    .journey-block .body{
+      flex:1;
+      min-height:0;
+      min-width:0;
+      display:flex;
+      flex-direction:column;
+      align-items:stretch;
+      gap:6px;
+    }
+    /* Slot fills space between title cap and metrics foot. */
+    .journey-block .journey-phone-slot{
+      flex:1;
+      min-height:0;
+      min-width:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:2px 4px;
+      overflow:hidden;
+      container-type:size;
+      container-name:jphone;
+    }
+    /* iPhone-class portrait (~9 : 19.5). Size = largest rectangle that fits the slot at that ratio. */
     .journey-block .frame{
       position:relative;
       flex:0 0 auto;
-      width:min(100%,320px);
+      width:min(100cqw, calc(100cqh * 9 / 19.5));
       aspect-ratio:9 / 19.5;
-      max-height:min(70dvh,780px);
+      height:auto;
+      max-width:100%;
+      max-height:100cqh;
       margin-inline:auto;
+      min-width:0;
       min-height:0;
       background:#07050f;
       overflow:hidden;
-      border-radius:14px;
-      border:1px solid rgba(255,255,255,.12);
-      box-shadow:0 10px 28px rgba(0,0,0,.35);
+      border-radius:16px;
+      border:1px solid rgba(255,255,255,.14);
+      box-shadow:0 12px 36px rgba(0,0,0,.42), inset 0 1px 0 rgba(255,255,255,.06);
     }
-    .journey-block .frame iframe,.journey-block .frame img{position:absolute;inset:0;width:100%;height:100%;border:0;object-fit:contain;object-position:top center}
-    .journey-block .note{flex-shrink:0;padding:10px 12px;font-size:12px;color:rgba(244,240,255,.62);border-top:1px solid rgba(255,255,255,.06)}
+    @supports not (container-type: size){
+      .journey-block .journey-phone-slot{display:block}
+      .journey-block .frame{
+        width:min(100%,320px);
+        max-height:min(72dvh,680px);
+        margin-inline:auto;
+      }
+    }
+    .journey-block .frame iframe:not(.journey-figma-embed),
+    .journey-block .frame img{position:absolute;inset:0;width:100%;height:100%;border:0;object-fit:contain;object-position:top center}
+    /* Figma embed: clip chrome, zoom so purple phone fills frame — same treatment for A–D */
+    .journey-block .frame.journey-frame--figma{
+      background:var(--deep);
+    }
+    .journey-block .frame.journey-frame--figma .journey-figma-clip{
+      position:absolute;
+      inset:0;
+      overflow:hidden;
+      border-radius:inherit;
+      background:#2d1654;
+    }
+    .journey-block .frame.journey-frame--figma .journey-figma-clip iframe.journey-figma-embed{
+      position:absolute;
+      left:50%;
+      top:var(--journey-figma-embed-top);
+      width:100%;
+      min-width:100%;
+      height:var(--journey-figma-embed-height);
+      min-height:var(--journey-figma-embed-height);
+      max-width:none;
+      margin:0;
+      border:0;
+      background:#2d1654;
+      transform:translate(-50%,0) scale(var(--journey-figma-embed-scale));
+      transform-origin:top center;
+      pointer-events:auto;
+    }
+    /* Figma nodes A–C sit lower in the embed than D; stronger crop removes the dead band */
+    .journey-block .frame.journey-frame--figma.journey-frame--figma-abc{
+      --journey-figma-embed-top:-40%;
+      --journey-figma-embed-scale:1.34;
+      --journey-figma-embed-height:148%;
+    }
+    .journey-block .note{flex-shrink:0;padding:5px 6px;font-size:var(--board-font);color:rgba(244,240,255,.62);border-top:1px solid rgba(255,255,255,.06);line-height:var(--board-lh)}
 
     .offers-grid{display:grid;grid-template-columns:1fr;gap:10px;padding:12px;flex:1;min-height:0;overflow:auto}
     .offer{
@@ -945,9 +1124,9 @@
     .offer .d{font-size:12px;color:rgba(244,240,255,.62);line-height:1.35}
     .offer .why{margin-top:auto;font-size:11px;color:rgba(201,168,76,.82);font-weight:900;letter-spacing:.02em}
 
-    /* Persona strip (single row; scroll if needed) */
-    .persona-strip{display:flex;flex-direction:row;flex-wrap:nowrap;gap:8px;overflow-x:auto;padding-bottom:2px;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
-    .persona-strip .persona-swatch{flex:1 1 0;min-width:0}
+    /* Persona strip (LHS) */
+    .persona-strip{display:flex;flex-direction:row;flex-wrap:wrap;gap:10px;align-items:stretch;padding-bottom:2px}
+    .persona-strip .persona-swatch{flex:1 1 auto;min-width:0;max-width:100%}
     .persona-swatch.is-selected{
       border-color:rgba(232,213,160,.85) !important;
       background:linear-gradient(145deg, rgba(232,213,160,.22), rgba(201,168,76,.10)) !important;
@@ -955,18 +1134,57 @@
     }
     .persona-swatch.is-selected span{color:rgba(232,213,160,.98)}
     .persona-record-card{
-      margin-top:12px;
-      padding:12px 12px 14px;
+      margin-top:6px;
+      padding:8px 8px 10px;
       border-radius:14px;
-      border:1px solid rgba(255,255,255,.10);
-      background:rgba(0,0,0,.22);
+      border:1px solid rgba(201,168,76,.45);
+      background:linear-gradient(165deg, rgba(201,168,76,.18), rgba(95,58,175,.12) 45%, rgba(20,14,8,.35));
+      box-shadow:0 0 0 1px rgba(232,213,160,.12) inset, 0 10px 28px rgba(201,168,76,.08);
+      min-width:0;
+      max-width:100%;
+      box-sizing:border-box;
     }
-    .persona-record-kicker{margin:0 0 8px;font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.38)}
-    .persona-record-main{display:grid;grid-template-columns:64px minmax(0,1fr);gap:10px;align-items:start}
-    .persona-record-main img{width:64px;height:64px;border-radius:16px;object-fit:cover;border:1px solid rgba(255,255,255,.12);background:#1a1028}
-    .persona-record-name{margin:0 0 2px;font-size:15px;font-weight:900;color:var(--gold);line-height:1.2}
-    .persona-record-ref{margin:0 0 6px;font-size:11px;font-weight:700;letter-spacing:.04em;color:rgba(244,240,255,.55);font-variant-numeric:tabular-nums}
-    .persona-record-meta{margin:0;font-size:12px;color:rgba(244,240,255,.68);line-height:1.35}
+    .persona-record-kicker{margin:0 0 6px}
+    .persona-record-main{display:grid;grid-template-columns:48px minmax(0,1fr);gap:8px;align-items:start;min-width:0}
+    .persona-record-main > div:last-child{min-width:0}
+    .persona-record-main img{width:48px;height:48px;border-radius:14px;object-fit:cover;border:1px solid rgba(201,168,76,.5);background:rgba(26,16,40,.6);box-shadow:0 0 0 1px rgba(232,213,160,.15) inset}
+    .persona-record-name{
+      margin:0 0 2px;
+      font-family:inherit;
+      font-size:var(--board-font);
+      font-weight:800;
+      letter-spacing:.04em;
+      line-height:var(--board-lh);
+      color:rgba(255,255,255,.88);
+      overflow-wrap:anywhere;
+      word-break:break-word;
+      text-transform:none;
+    }
+    .persona-record-ref{
+      margin:0 0 6px;
+      font-family:inherit;
+      font-size:var(--board-font);
+      font-weight:800;
+      letter-spacing:.04em;
+      line-height:var(--board-lh);
+      color:rgba(244,240,255,.72);
+      font-variant-numeric:tabular-nums;
+      overflow-wrap:anywhere;
+      word-break:break-all;
+      text-transform:none;
+    }
+    .persona-record-meta{
+      margin:0;
+      font-family:inherit;
+      font-size:var(--board-font);
+      font-weight:800;
+      letter-spacing:.04em;
+      line-height:var(--board-lh);
+      color:rgba(244,240,255,.72);
+      overflow-wrap:anywhere;
+      word-break:break-word;
+      text-transform:none;
+    }
     .dash-frame-static-img{
       position:absolute;
       inset:0;
@@ -1001,7 +1219,7 @@
   <div class="app">
     <aside class="panel app-left">
       <div class="app-panel-head">
-        <p class="persona-block-label">Persona category</p>
+        <p class="persona-block-label">Persona type</p>
       </div>
       <div class="pb">
         <div class="persona-block">
@@ -1012,39 +1230,41 @@
           <div class="twin-head">
             <h2 class="twin-head-title">Phoenix profile</h2>
           </div>
-          <div class="twin-field">
-            <div class="twin-field-label"><span>Age</span><span class="twin-slider-val" id="pAgeOut">26</span></div>
-            <input class="twin-range" id="pAge" type="range" min="18" max="75" step="1" aria-valuemin="18" aria-valuemax="75" />
+          <div class="twin-fields" aria-label="Profile attributes">
+            <div class="twin-field">
+              <div class="twin-field-label"><span>Age</span><span class="twin-slider-val" id="pAgeOut">26</span></div>
+              <input class="twin-range" id="pAge" type="range" min="18" max="75" step="1" aria-valuemin="18" aria-valuemax="75" />
+            </div>
+            <div class="twin-field">
+              <div class="twin-field-label"><span>Income THB / mo</span><span class="twin-slider-val" id="pIncomeOut">28,000</span></div>
+              <input class="twin-range" id="pIncome" type="range" min="5000" max="500000" step="5000" aria-label="Income per month in THB" />
+            </div>
+            <div class="twin-field">
+              <div class="twin-field-label">Life stage</div>
+              <div class="chip-row" id="lifeStageChips" role="radiogroup" aria-label="Life stage"></div>
+            </div>
+            <div class="twin-field">
+              <div class="twin-field-label">Primary banking channel</div>
+              <div class="chip-row" id="channelChips" role="radiogroup" aria-label="Primary banking channel"></div>
+            </div>
+            <div class="twin-field">
+              <div class="twin-field-label"><span>Priorities</span></div>
+              <div class="chip-row chip-multi-wrap" id="goalChips" aria-label="Priorities"></div>
+            </div>
+            <div class="twin-field">
+              <div class="twin-field-label">Risk appetite</div>
+              <div class="chip-row" id="riskChips" role="radiogroup" aria-label="Risk appetite"></div>
+            </div>
+            <div class="twin-field">
+              <div class="twin-field-label">Language preference</div>
+              <div class="chip-row" id="langChips" role="radiogroup" aria-label="Language preference"></div>
+            </div>
+            <div class="twin-field">
+              <div class="twin-field-label"><span>Interests</span></div>
+              <div class="chip-row chip-multi-wrap" id="interestChips" aria-label="Interests"></div>
+            </div>
           </div>
-          <div class="twin-field">
-            <div class="twin-field-label"><span>Income THB / mo</span><span class="twin-slider-val" id="pIncomeOut">28,000</span></div>
-            <input class="twin-range" id="pIncome" type="range" min="5000" max="500000" step="5000" aria-label="Income per month in THB" />
-          </div>
-          <div class="twin-field">
-            <div class="twin-field-label">Life stage</div>
-            <div class="chip-row" id="lifeStageChips" role="radiogroup" aria-label="Life stage"></div>
-          </div>
-          <div class="twin-field">
-            <div class="twin-field-label">Primary banking channel</div>
-            <div class="chip-row" id="channelChips" role="radiogroup" aria-label="Primary banking channel"></div>
-          </div>
-          <div class="twin-field">
-            <div class="twin-field-label"><span>Priorities</span></div>
-            <div class="chip-row chip-multi-wrap" id="goalChips" aria-label="Priorities"></div>
-          </div>
-          <div class="twin-field">
-            <div class="twin-field-label">Risk appetite</div>
-            <div class="chip-row" id="riskChips" role="radiogroup" aria-label="Risk appetite"></div>
-          </div>
-          <div class="twin-field">
-            <div class="twin-field-label">Language preference</div>
-            <div class="chip-row" id="langChips" role="radiogroup" aria-label="Language preference"></div>
-          </div>
-          <div class="twin-field">
-            <div class="twin-field-label"><span>Interests (demo)</span></div>
-            <div class="chip-row chip-multi-wrap" id="interestChips" aria-label="Interests"></div>
-          </div>
-          <p class="twin-dc-inline" id="pContextInline" aria-live="polite" title="Read-only · Phoenix demo context for the selected persona"></p>
+          <p class="twin-dc-inline" id="pContextInline" aria-live="polite" title="Read-only · Phoenix context for the selected persona"></p>
           <div class="btnrow">
             <button class="btn btn-ghost" type="button" id="btnReset">Reset</button>
           </div>
@@ -1055,7 +1275,7 @@
     <section class="panel exec-panel exec-panel--single app-right">
       <div class="app-panel-head app-panel-head--journey">
         <div class="dash-brand">
-          <h2 class="dash-top-title">Phoenix Dashboard</h2>
+          <h2 class="dash-top-title">Journey board</h2>
         </div>
       </div>
       <div class="dash-journeys">
@@ -1063,39 +1283,38 @@
           <div class="dash-journey-head">
             <h3>Journey 1 · Daily engagement</h3>
           </div>
-          <div class="dash-journey-kpis exec-kpi-stack" id="kpiJourney1" aria-label="Journey 1 metrics"></div>
           <div class="dash-journey-embed">
             <div class="journey-blocks" aria-label="Journey 1 · A and B">
-              <div class="journey-block" aria-label="A · Morning brief">
+              <div class="journey-block" aria-label="A. Morning Brief">
                 <div class="cap">
-                  <b>A · Morning brief</b>
-                  <div class="metrics" aria-label="Success metrics (placeholders)">
-                    <span>Click rate</span>
-                    <span>Engagement time</span>
-                  </div>
+                  <div class="cap-title-row"><b>A. Morning Brief</b></div>
                 </div>
                 <div class="body">
-                  <div class="frame">
-                    <iframe id="briefProtoIframe" class="dash-proto-iframe" title="A · Morning brief — clickable prototype" src="about:blank" loading="lazy"></iframe>
+                  <div class="journey-phone-slot">
+                    <div class="frame journey-frame--figma journey-frame--figma-abc">
+                      <div class="journey-figma-clip">
+                        <iframe id="briefProtoIframe" class="journey-figma-embed" title="A. Morning brief — Figma (welcome message expansion)" src="https://www.figma.com/embed?embed_host=share&amp;url=https%3A%2F%2Fwww.figma.com%2Fdesign%2FYR3MbEnTJ7d20tVgG4sarq%2F%F0%9F%9F%A3--Purple-Bank--Master%3Fnode-id%3D4465-8619%26footer%3Dfalse" loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade"></iframe>
+                      </div>
+                    </div>
                   </div>
-                  <div class="note">Persona-driven surface (content modules vary by segment).</div>
                 </div>
+                <div class="journey-cap-metrics journey-metrics-foot" id="journeyMetricsA" aria-label="Key metrics"></div>
               </div>
 
-              <div class="journey-block" aria-label="B · App homepage">
+              <div class="journey-block" aria-label="B. App Home Page">
                 <div class="cap">
-                  <b>B · App homepage</b>
-                  <div class="metrics" aria-label="Success metrics (placeholders)">
-                    <span>Time spent</span>
-                    <span>Feature adoption</span>
-                  </div>
+                  <div class="cap-title-row"><b>B. App Home Page</b></div>
                 </div>
                 <div class="body">
-                  <div class="frame">
-                    <img src="assets/journey-b-jarvis-app-home.png" alt="App home page reference" loading="lazy" decoding="async" />
+                  <div class="journey-phone-slot">
+                    <div class="frame journey-frame--figma journey-frame--figma-abc">
+                      <div class="journey-figma-clip">
+                        <iframe id="journeyBFigmaEmbed" class="journey-figma-embed" title="B. App home — Figma (6 Apr - 2 Eve - home)" src="https://www.figma.com/embed?embed_host=share&amp;url=https%3A%2F%2Fwww.figma.com%2Fdesign%2FYR3MbEnTJ7d20tVgG4sarq%2F%F0%9F%9F%A3--Purple-Bank--Master%3Fnode-id%3D4465-8117%26footer%3Dfalse" loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade"></iframe>
+                      </div>
+                    </div>
                   </div>
-                  <div class="note">Static reference (PNG; interactivity de-scoped).</div>
                 </div>
+                <div class="journey-cap-metrics journey-metrics-foot" id="journeyMetricsB" aria-label="Key metrics"></div>
               </div>
             </div>
           </div>
@@ -1105,39 +1324,38 @@
           <div class="dash-journey-head">
             <h3>Journey 2 · Conversational-led servicing and service to sales</h3>
           </div>
-          <div class="dash-journey-kpis exec-kpi-stack" id="kpiJourney2" aria-label="Journey 2 metrics"></div>
           <div class="dash-journey-embed">
             <div class="journey-blocks" aria-label="Journey 2 · C and D">
-              <div class="journey-block" aria-label="C · Conversational servicing">
+              <div class="journey-block" aria-label="C. Servicing">
                 <div class="cap">
-                  <b>C · Conversational start / servicing</b>
-                  <div class="metrics" aria-label="Success metrics (placeholders)">
-                    <span>Resolution rate</span>
-                    <span>FCR</span>
-                  </div>
+                  <div class="cap-title-row"><b>C. Servicing</b></div>
                 </div>
                 <div class="body">
-                  <div class="frame">
-                    <iframe id="j2LoanServicingFlowIframe" title="C · Loan servicing — Jarvis flow" src="SCB_Loan_Servicing_Jarvis_Flow.html?persona=young_professional&cxo_embed=1"></iframe>
+                  <div class="journey-phone-slot">
+                    <div class="frame journey-frame--figma journey-frame--figma-abc">
+                      <div class="journey-figma-clip">
+                        <iframe id="j2LoanServicingFlowIframe" class="journey-figma-embed" title="C. Jarvis chat — Figma (starting screen)" src="https://www.figma.com/embed?embed_host=share&amp;url=https%3A%2F%2Fwww.figma.com%2Fdesign%2FYR3MbEnTJ7d20tVgG4sarq%2F%F0%9F%9F%A3--Purple-Bank--Master%3Fnode-id%3D4524-1320%26footer%3Dfalse" loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade"></iframe>
+                      </div>
+                    </div>
                   </div>
-                  <div class="note">Context-aware servicing (persona changes copy/flow).</div>
                 </div>
+                <div class="journey-cap-metrics journey-metrics-foot" id="journeyMetricsC" aria-label="Key metrics"></div>
               </div>
 
-              <div class="journey-block" aria-label="D · Post-servicing offers">
+              <div class="journey-block" aria-label="D. Post servicing sales · next best offers">
                 <div class="cap">
-                  <b>D · Post-servicing offers (service → sales)</b>
-                  <div class="metrics" aria-label="Success metrics (placeholders)">
-                    <span>Offer CTR</span>
-                    <span>Conversion</span>
-                  </div>
+                  <div class="cap-title-row"><b>D. Post servicing sales</b></div>
                 </div>
                 <div class="body">
-                  <div class="frame">
-                    <img src="assets/jarvis-post-service-four-cards.png" alt="Jarvis: follow-up chat with four offer cards after servicing" loading="lazy" decoding="async" />
+                  <div class="journey-phone-slot">
+                    <div class="frame journey-frame--figma">
+                      <div class="journey-figma-clip">
+                        <iframe id="journeyDFigmaEmbed" class="journey-figma-embed" title="D. Next best offers — Figma (New loan offers)" src="https://www.figma.com/embed?embed_host=share&amp;url=https%3A%2F%2Fwww.figma.com%2Fdesign%2FYR3MbEnTJ7d20tVgG4sarq%2F%F0%9F%9F%A3--Purple-Bank--Master%3Fnode-id%3D4524-1376%26footer%3Dfalse" loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade"></iframe>
+                      </div>
+                    </div>
                   </div>
-                  <div class="note">Reference UI: single static capture (full frame). Dynamic offer mart paused.</div>
                 </div>
+                <div class="journey-cap-metrics journey-metrics-foot" id="journeyMetricsD" aria-label="Key metrics"></div>
               </div>
             </div>
           </div>
@@ -1147,8 +1365,8 @@
   </div>
 
   <script>
-    /** One anchored retail-banking customer per persona category (demo “database”). */
-    const PhoenixCustomerRecords = {
+    /** One anchored retail-banking customer per persona category (demo “database”); replaced when CXO API loads. */
+    let PhoenixCustomerRecords = {
       young_professional: {
         customerRef: "EASY-2847193",
         fullName: "Ms. Ariya Klaimongkol",
@@ -1216,38 +1434,59 @@
         {
           personaId: "young_professional",
           name: "Young Professional",
-          short: "Early career · mobile-first · starter products",
-          avatar: PhoenixCustomerRecords.young_professional.avatar
+          short: "Early career · mobile-first · starter products"
         },
         {
           personaId: "emerging_family",
           name: "Emerging Family",
-          short: "Mid-life builder · omnichannel · protection & goals",
-          avatar: PhoenixCustomerRecords.emerging_family.avatar
+          short: "Mid-life builder · omnichannel · protection & goals"
         },
         {
           personaId: "emerging_affluent",
           name: "Emerging Affluent",
-          short: "Wealth builder · advisory-led · complex needs",
-          avatar: PhoenixCustomerRecords.emerging_affluent.avatar
+          short: "Wealth builder · advisory-led · complex needs"
         }
       ]
     };
+
+    /** When set, personas + twins were loaded from SQLite via server/cxo_api.py */
+    const CxoApi = { baseUrl: null };
+
+    function applyCxApiPersonas(rows){
+      if (!Array.isArray(rows) || !rows.length) return;
+      Mock.personas.length = 0;
+      const nextRecords = {};
+      for (const p of rows){
+        Mock.personas.push({
+          personaId: p.personaId,
+          name: p.name,
+          short: p.short || ""
+        });
+        const twin = hydrateTwin(JSON.parse(JSON.stringify(p.twin || p.defaults || {})));
+        State.twins[p.personaId] = twin;
+        nextRecords[p.personaId] = {
+          customerRef: p.customerRef || "",
+          fullName: p.fullName || "",
+          lineOfWork: p.lineOfWork || "",
+          avatar: p.avatar || "",
+          defaults: JSON.parse(JSON.stringify(twin))
+        };
+      }
+      PhoenixCustomerRecords = nextRecords;
+      if (!Mock.personas.some(x => x.personaId === State.personaId)){
+        State.personaId = Mock.personas[0].personaId;
+      }
+    }
 
     const LIFE_STAGE_OPTS = [
       { v: "early_career", l: "Early career" },
       { v: "midlife_builder", l: "Mid-life builder" },
       { v: "wealth_builder", l: "Wealth builder" }
     ];
-    const CHANNEL_OPTS = [
-      { v: "mobile_first", l: "Mobile app / digital-first" },
-      { v: "web_portal", l: "Web / browser banking" },
-      { v: "branch_network", l: "Branch network" },
-      { v: "phone_ivr", l: "Phone / IVR" },
-      { v: "social_messaging", l: "Social & messaging" },
-      { v: "atm_self_serve", l: "ATM & self-serve kiosks" },
-      { v: "omnichannel", l: "Full omnichannel mix" },
-      { v: "advisory_led", l: "RM / advisory-led" }
+    const CHANNEL_UI_OPTS = [
+      { v: "mobile_first", l: "Digital-first" },
+      { v: "omnichannel", l: "Omnichannel" },
+      { v: "advisory_led", l: "Advisory-led" }
     ];
     const GOAL_OPTS = [
       { v: "ease_of_banking", l: "Ease of banking" },
@@ -1271,15 +1510,11 @@
       { v: "high", l: "High" }
     ];
 
-    const J1_METRIC_DEFS = [
-      { key: "contain", label: "Brief containment" },
-      { key: "task", label: "Notify → action rate" },
-      { key: "nps", label: "Morning experience NPS" }
-    ];
-    const J2_METRIC_DEFS = [
-      { key: "task", label: "Servicing task completion" },
-      { key: "fcr", label: "Conversation FCR" },
-      { key: "nps", label: "Post-interaction NPS" }
+    const JOURNEY_BLOCK_METRICS = [
+      { id: "journeyMetricsA", journeyIdx: 1, defs: [{ key: "a_ctr", label: "CTR" }, { key: "a_time", label: "Average time spent" }] },
+      { id: "journeyMetricsB", journeyIdx: 1, defs: [{ key: "b_logins", label: "Weekly logins" }, { key: "b_nba_ctr", label: "CTR on next best action" }] },
+      { id: "journeyMetricsC", journeyIdx: 2, defs: [{ key: "c_csat", label: "CSAT" }, { key: "c_res_no_hum", label: "Resolution rate (no human transfer)" }] },
+      { id: "journeyMetricsD", journeyIdx: 2, defs: [{ key: "d_offer_ctr", label: "CTR on offers" }, { key: "d_monthly_leads", label: "Monthly leads generated" }] }
     ];
 
     const State = {
@@ -1287,6 +1522,23 @@
       twins: {},
       previewEpoch: 0
     };
+
+    async function bootstrapCxApiIfAvailable(){
+      const raw = new URLSearchParams(location.search).get("cxo_api");
+      const base = (raw || window.CXO_API_BASE || "").replace(/\/$/, "");
+      if (!base) return;
+      try{
+        const h = await fetch(`${base}/health`, { cache: "no-store" });
+        if (!h.ok) return;
+        const pr = await fetch(`${base}/api/v1/personas`, { cache: "no-store" });
+        if (!pr.ok) return;
+        const data = await pr.json();
+        applyCxApiPersonas(data.personas || []);
+        CxoApi.baseUrl = base;
+      }catch(_){
+        CxoApi.baseUrl = null;
+      }
+    }
 
     function escapeHtml(s){
       return String(s).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll("\"","&quot;");
@@ -1300,12 +1552,22 @@
       return [arr[0] || "mobile_first"];
     }
 
+    /** Collapse legacy channel tags to the three UI options (matches primaryChannel() buckets). */
+    function normalizeToUiChannel(chs){
+      const v = (Array.isArray(chs) && chs[0]) || "mobile_first";
+      if (v === "advisory_led") return ["advisory_led"];
+      if (v === "mobile_first" || v === "social_messaging") return ["mobile_first"];
+      if (v === "omnichannel" || v === "branch_network" || v === "phone_ivr" || v === "web_portal" || v === "atm_self_serve") return ["omnichannel"];
+      return ["mobile_first"];
+    }
+
     function hydrateTwin(def){
       const t = JSON.parse(JSON.stringify(def));
       if (!Array.isArray(t.channels) || !t.channels.length){
         t.channels = def.channel ? [def.channel] : ["mobile_first"];
       }
       else t.channels = pickSingleChannelFromDefaults(t.channels);
+      t.channels = normalizeToUiChannel(t.channels);
       if (!Array.isArray(t.goalTags) || !t.goalTags.length) t.goalTags = ["ease_of_banking"];
       else {
         t.goalTags = [...new Set(t.goalTags.map(g => (g === "everyday" ? "ease_of_banking" : g)).filter(g => g && g !== "protect"))];
@@ -1317,9 +1579,14 @@
       delete t.channel;
       return t;
     }
-    for (const p of Mock.personas) State.twins[p.personaId] = hydrateTwinFromCustomer(p.personaId);
+    function seedTwinsFromEmbeddedRecords(){
+      for (const p of Mock.personas){
+        if (!State.twins[p.personaId]) State.twins[p.personaId] = hydrateTwinFromCustomer(p.personaId);
+      }
+    }
 
     const fmtC = new Intl.NumberFormat("en-US", { notation: "compact", maximumFractionDigits: 1 });
+    const fmtInt = new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 });
     const fmtIncome = new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 });
     const clamp = (n,a,b)=>Math.max(a,Math.min(b,n));
     const el = id=>document.getElementById(id);
@@ -1356,8 +1623,11 @@
     }
 
     function formatOkrValue(k){
+      if (k.key === "d_monthly_leads") return String(Math.round(k.value));
+      if (k.key === "b_logins") return fmtInt.format(Math.round(k.value));
       if (k.key === "dau") return fmtC.format(k.value);
       if (k.unit === "Mn") return fmtC.format(k.value);
+      if (k.key === "c_csat") return k.value.toFixed(0);
       return k.value.toFixed(1);
     }
 
@@ -1381,7 +1651,21 @@
       let timeSpent = 6.2 + banker*7.2;
       let revenueUplift = clamp((income>80000? (banker*18 + butler*6) : (banker*10 + butler*4))*riskFactor * (1 + goalBoost), 0, 34);
       let nps = clamp(40 + banker*20 + receptionist*8 + goalBoost * 12, 25, 82);
-      const computed = { inquiryContain, avgRespSec, taskCompletion, callDeflect, fcr, dauUplift, timeSpent, revenueUplift, nps, receptionist, butler, banker };
+      const weeklyLoginsMn = clamp((320000 + Math.max(0, income - 25000) * 1.8 + receptionist * 95000 + butler * 70000) / 1e6, 0.32, 2.05);
+      const weeklyLoginsCount = Math.round(weeklyLoginsMn * 1e6);
+      const weeklyLoginsBaseline = 350000;
+      const computed = {
+        inquiryContain, avgRespSec, taskCompletion, callDeflect, fcr, dauUplift, timeSpent, revenueUplift, nps, receptionist, butler, banker,
+        briefCtr: clamp(5.5 + receptionist * 10.5, 4.2, 23.8),
+        briefAvgMin: clamp(2.35 + banker * 3.4, 1.55, 10.2),
+        weeklyLoginsMn,
+        weeklyLoginsCount,
+        nbaCtr: clamp(8.2 + butler * 12.5, 5.5, 30.5),
+        csatPts: clamp(76 + butler * 16.5 + receptionist * 4, 72, 96),
+        resNoHumanPct: clamp(73 + butler * 19 + receptionist * 5, 68, 98),
+        offerCtrPct: clamp(6.5 + banker * 14.5, 4.2, 29),
+        monthlyLeads: Math.round(clamp(480 + income / 3800 + goalN * 42 + banker * 95, 380, 3200))
+      };
       ({
         inquiryContain, avgRespSec, taskCompletion, callDeflect, fcr, dauUplift, timeSpent, revenueUplift, nps, receptionist, butler, banker
       } = computed);
@@ -1393,7 +1677,15 @@
         { key:"contain", label:"Inquiry containment", value: inquiryContain, unit:"%", d:`+${(inquiryContain-50).toFixed(0)}` },
         { key:"resp", label:"Avg response", value: avgRespSec, unit:"s", d:`-${(10-avgRespSec).toFixed(1)}s` },
         { key:"task", label:"Task completion", value: taskCompletion, unit:"%", d:`+${(taskCompletion-60).toFixed(0)}` },
-        { key:"fcr", label:"FCR", value: fcr, unit:"%", d:`+${(fcr-58).toFixed(0)}` }
+        { key:"fcr", label:"FCR", value: fcr, unit:"%", d:`+${(fcr-58).toFixed(0)}` },
+        { key:"a_ctr", label:"CTR · Morning Brief", value: computed.briefCtr, unit:"%", d:`+${(computed.briefCtr - 5.2).toFixed(1)}` },
+        { key:"a_time", label:"Average time spent", value: computed.briefAvgMin, unit:"min", d:`+${(computed.briefAvgMin - 2.35).toFixed(1)}` },
+        { key:"b_logins", label:"Weekly logins", value: computed.weeklyLoginsCount, unit:"", d:`+${(((computed.weeklyLoginsCount - weeklyLoginsBaseline) / weeklyLoginsBaseline) * 100).toFixed(1)}%` },
+        { key:"b_nba_ctr", label:"CTR · Next best action", value: computed.nbaCtr, unit:"%", d:`+${(computed.nbaCtr - 8).toFixed(1)}` },
+        { key:"c_csat", label:"CSAT", value: computed.csatPts, unit:"pts", d:`+${(computed.csatPts - 76).toFixed(0)}` },
+        { key:"c_res_no_hum", label:"Resolution (no human transfer)", value: computed.resNoHumanPct, unit:"%", d:`+${(computed.resNoHumanPct - 73).toFixed(0)}` },
+        { key:"d_offer_ctr", label:"CTR on offers", value: computed.offerCtrPct, unit:"%", d:`+${(computed.offerCtrPct - 6.5).toFixed(1)}` },
+        { key:"d_monthly_leads", label:"Monthly leads generated", value: computed.monthlyLeads, unit:"leads", d:`+${Math.round((computed.monthlyLeads - 480) / 12)}` }
       ];
       return { okrs, computed };
     }
@@ -1401,7 +1693,7 @@
     function buildTwinChipRows(){
       el("lifeStageChips").innerHTML = LIFE_STAGE_OPTS.map(o =>
         `<button type="button" class="chip" data-kind="lifeStage" data-value="${o.v}">${escapeHtml(o.l)}</button>`).join("");
-      el("channelChips").innerHTML = CHANNEL_OPTS.map(o =>
+      el("channelChips").innerHTML = CHANNEL_UI_OPTS.map(o =>
         `<button type="button" class="chip" data-kind="channel" data-value="${o.v}">${escapeHtml(o.l)}</button>`).join("");
       el("goalChips").innerHTML = GOAL_OPTS.map(o =>
         `<button type="button" class="chip" data-kind="goal" data-value="${o.v}">${escapeHtml(o.l)}</button>`).join("");
@@ -1419,8 +1711,7 @@
         b.classList.toggle("is-on", b.dataset.value === t.lifeStage);
         b.setAttribute("aria-checked", b.dataset.value === t.lifeStage ? "true" : "false");
       });
-      const curCh = (t.channels && t.channels[0]) || "mobile_first";
-      if (!CHANNEL_OPTS.some(o => o.v === curCh)) t.channels = ["mobile_first"];
+      t.channels = normalizeToUiChannel(t.channels);
       const chOn = (t.channels && t.channels[0]) || "mobile_first";
       el("channelChips").querySelectorAll(".chip").forEach(b=>{
         b.classList.toggle("is-on", b.dataset.value === chOn);
@@ -1568,30 +1859,39 @@
       });
     }
 
-    function kpiCardJourney(okr, journeyIdx, displayLabel){
-      const label = displayLabel || okr.label;
+    function journeyMetricDeltaBracket(personaId, journeyIdx, metricKey){
+      const raw = momSignedPct(personaId, journeyIdx, metricKey);
+      const sign = raw > 0 ? "+" : raw < 0 ? "" : "";
+      const body = raw === 0 ? "0.0%" : `${sign}${raw.toFixed(1)}%`;
+      return `(${body})`;
+    }
+
+    function journeyMetricRowHtml(okr, journeyIdx, rowLabel){
       const val = formatOkrValue(okr);
-      const invert = okr.key === "resp";
-      const mom = momLineHtml(State.personaId, journeyIdx, okr.key, invert);
-      return `<div class="kpi kpi--board kpi--journey-metric"><div class="k">${escapeHtml(label)}</div><div class="v">${val}<span> ${escapeHtml(okr.unit)}</span></div>${mom}</div>`;
+      const unitHtml = okr.unit ? ` ${escapeHtml(okr.unit)}` : "";
+      const delta = journeyMetricDeltaBracket(State.personaId, journeyIdx, okr.key);
+      return `<div class="journey-metric-row">
+        <span class="journey-metric-label">${escapeHtml(rowLabel)}</span>
+        <span class="journey-metric-num">${val}${unitHtml}<span class="journey-metric-delta">${escapeHtml(delta)}</span></span>
+      </div>`;
     }
 
     function renderJourneyKpis(){
       const { okrs } = computeBoardMetrics(State.personaId);
       const byKey = Object.fromEntries(okrs.map(o => [o.key, o]));
-      const row = (defs, jn) => {
-        const cards = defs.map(d=>{
+      for (const block of JOURNEY_BLOCK_METRICS){
+        const host = el(block.id);
+        if (!host) continue;
+        host.innerHTML = block.defs.map(d=>{
           const o = byKey[d.key];
-          return o ? kpiCardJourney(o, jn, d.label) : "";
-        }).filter(Boolean);
-        return `<div class="kpirow kpirow-exec">${cards.join("")}</div>`;
-      };
-      el("kpiJourney1").innerHTML = row(J1_METRIC_DEFS, 1);
-      el("kpiJourney2").innerHTML = row(J2_METRIC_DEFS, 2);
+          return o ? journeyMetricRowHtml(o, block.journeyIdx, d.label) : "";
+        }).filter(Boolean).join("");
+      }
     }
 
     function renderPersonas(){
       const list = el("personaList");
+      if (!list) return;
       list.innerHTML = "";
       if (!Mock.personas.length) return;
 
@@ -1608,7 +1908,7 @@
         if (selected) b.setAttribute("aria-current", "true");
         const rec = customerRecordFor(p.personaId);
         b.setAttribute("aria-label", selected ? `Selected category: ${p.name} · ${rec.fullName}` : `Show category ${p.name} · ${rec.fullName}`);
-        b.innerHTML = `<img src="${rec.avatar}" alt="" width="30" height="30" referrerpolicy="no-referrer" /><span>${escapeHtml(p.name)}</span>`;
+        b.innerHTML = `<span>${escapeHtml(p.name)}</span>`;
         b.onclick = ()=>{
           State.personaId = p.personaId;
           State.twins[State.personaId] = hydrateTwinFromCustomer(State.personaId);
@@ -1624,9 +1924,9 @@
       card.className = "persona-record-card";
       card.setAttribute("aria-label", `Database customer for ${escapeHtml(Mock.personas.find(x=>x.personaId===State.personaId)?.name || "segment")}`);
       card.innerHTML = `
-        <p class="persona-record-kicker">Profile customer (demo database · n=1 per category)</p>
+        <p class="persona-record-kicker">Customer profile</p>
         <div class="persona-record-main">
-          <img src="${cur.avatar}" alt="" width="64" height="64" referrerpolicy="no-referrer" />
+          <img src="${cur.avatar}" alt="${escapeHtml(cur.fullName)}" width="48" height="48" referrerpolicy="no-referrer" />
           <div>
             <p class="persona-record-name">${escapeHtml(cur.fullName)}</p>
             <p class="persona-record-ref">${escapeHtml(cur.customerRef)}</p>
@@ -1636,65 +1936,10 @@
       list.appendChild(card);
     }
 
-    function morningBriefHref(){
-      const pid = State.personaId;
-      const base = !Mock.personas.some(p => p.personaId === pid)
-        ? "SCB_Morning_Briefing_Demo.html?persona=young_professional"
-        : `SCB_Morning_Briefing_Demo.html?persona=${encodeURIComponent(pid)}`;
-      return `${base}&screen=briefing&cxo_embed=1`;
-    }
-
-    function anomalyProtoHref(){
-      const pid = State.personaId;
-      if (!Mock.personas.some(p => p.personaId === pid)) return "SCB_Anomaly_Jarvis_Prototype.html?persona=young_professional";
-      return `SCB_Anomaly_Jarvis_Prototype.html?persona=${encodeURIComponent(pid)}`;
-    }
-
-    function normalizePageHref(u){
-      try{
-        const abs = new URL(u, window.location.href);
-        return abs.href.split("#")[0];
-      }catch(_){
-        return String(u || "").split("#")[0];
-      }
-    }
-
-    function syncBriefIframePersona(){
-      const ifr = el("briefProtoIframe");
-      if (!ifr) return;
-      const href = morningBriefHref();
-      const cur = normalizePageHref(ifr.getAttribute("src") || ifr.src || "");
-      const next = normalizePageHref(href);
-      if (cur !== next) ifr.src = href;
-    }
-
-    // Transaction anomaly screen is de-scoped for Monday demo (replaced by post-servicing offers).
-
-    function loanServicingHref(){
-      const pid = State.personaId;
-      if (!Mock.personas.some(p => p.personaId === pid)) return "SCB_Loan_Servicing_Jarvis_Flow.html?persona=young_professional&cxo_embed=1";
-      return `SCB_Loan_Servicing_Jarvis_Flow.html?persona=${encodeURIComponent(pid)}&cxo_embed=1`;
-    }
-
-    function syncLoanServicingIframePersona(){
-      const ifr = el("j2LoanServicingFlowIframe");
-      if (!ifr) return;
-      const href = loanServicingHref();
-      const cur = normalizePageHref(ifr.getAttribute("src") || ifr.src || "");
-      const next = normalizePageHref(href);
-      if (cur !== next) ifr.src = href;
-    }
-
-    function syncJourneyEmbedHrefs(){
-      syncBriefIframePersona();
-      syncLoanServicingIframePersona();
-    }
-
     function renderAll(){
       renderPersonas();
       syncTwinUi();
       renderJourneyKpis();
-      syncJourneyEmbedHrefs();
       renderPostOffers();
     }
 
@@ -1704,10 +1949,14 @@
       renderAll();
     };
 
-    buildTwinChipRows();
-    bindTwinDock();
-    syncTwinUi();
-    renderAll();
+    (async function initBoard(){
+      await bootstrapCxApiIfAvailable();
+      seedTwinsFromEmbeddedRecords();
+      buildTwinChipRows();
+      bindTwinDock();
+      syncTwinUi();
+      renderAll();
+    })();
   </script>
 </body>
 </html>
