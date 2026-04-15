@@ -1,0 +1,2114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>(function(){try{if(new URLSearchParams(location.search).get("cxo_embed")==="1")document.documentElement.classList.add("cxo-embed");}catch(_){}})();</script>
+<title>SCBx — Morning brief &amp; Jarvis (demo)</title>
+<!-- Design reference: Figma «Conversational AI Components» — https://www.figma.com/design/tm0NHNANJawOqhs05SxNpS/Conversational-Ai-Components -->
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+:root{--font-ui:'SF Pro Display','Segoe UI',system-ui,-apple-system,BlinkMacSystemFont,sans-serif;--scb-purple:#4e2a84;--scb-purple-light:#7b5ea7;--scb-purple-dark:#2d1654;--scb-purple-deep:#1a0d33;--app-bg-0:#0a0614;--app-bg-1:#140a22;--app-bg-2:#1e0f32;--scb-gold:#c9a84c;--scb-gold-light:#e8d5a0;--accent:#6c4dc4;--success:#16a34a;--success-bg:rgba(22,163,74,.15);--warning:#ea8c00;--warning-bg:rgba(234,140,0,.15);--danger:#ef4444;--danger-bg:rgba(239,68,68,.15);--card-bg:rgba(255,255,255,.06);--card-border:rgba(255,255,255,.08);--text:#fff;--text2:rgba(255,255,255,.55);--text3:rgba(255,255,255,.3);--glass:rgba(255,255,255,.05);--glass-border:rgba(255,255,255,.1);--radius:16px;--radius-sm:12px;--radius-pill:24px;--gold-glow:rgba(201,168,76,.2)}
+html{color-scheme:dark}
+/* CXO frames A/C + anomaly D: visible purple scrollbars (Win/Chrome overlay often ignores near-transparent 4px thumbs) */
+.cx-embed-scroll{
+  scrollbar-gutter:stable;
+  scrollbar-width:thin;
+  scrollbar-color:rgba(130,100,175,.88) rgba(18,10,32,.96);
+}
+.cx-embed-scroll::-webkit-scrollbar{width:6px}
+.cx-embed-scroll::-webkit-scrollbar-track{background:rgba(18,10,32,.92);border-radius:8px}
+.cx-embed-scroll::-webkit-scrollbar-thumb{
+  background:rgba(82,56,130,.94);
+  border-radius:8px;
+  border:1px solid rgba(255,255,255,.12);
+}
+.cx-embed-scroll::-webkit-scrollbar-thumb:hover{background:rgba(102,76,155,.98)}
+/* Frame D scrollport — same as .scroll in SCB_Anomaly_Jarvis_Prototype.html */
+.scroll{
+  flex:1;
+  min-height:0;
+  overflow-y:auto;
+  padding:14px 16px 8px;
+  -webkit-overflow-scrolling:touch;
+}
+/* CXO dashboard iframe: suppress inner document / briefing scroll */
+html.cxo-embed,html.cxo-embed body{overflow:hidden!important;height:100%;max-height:100%}
+html.cxo-embed #briefingScreen #briefingBody,
+html.cxo-embed #briefingScreen .scr-body,
+html.cxo-embed #briefingScreen .scroll{overflow-y:hidden!important}
+.briefing-layout{
+  display:flex;
+  flex-direction:column;
+  height:100%;
+  min-height:0;
+  position:relative;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-ui);background:radial-gradient(ellipse 120% 80% at 50% 0%,#2a1548 0%,var(--app-bg-0) 55%);display:flex;justify-content:center;align-items:center;min-height:100vh;padding:20px;color:var(--text)}
+.phone{width:390px;height:844px;border-radius:44px;font-family:var(--font-ui);background:linear-gradient(168deg,#2e1a47 0%,var(--app-bg-2) 38%,var(--app-bg-1) 72%,var(--app-bg-0) 100%);position:relative;overflow:hidden;box-shadow:0 0 0 3px #111,0 0 0 6px #1a0d33,0 24px 64px rgba(0,0,0,.78)}
+.phone-notch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:160px;height:34px;background:#000;border-radius:0 0 20px 20px;z-index:1000}
+.status-bar{position:absolute;top:0;left:0;right:0;height:50px;display:flex;align-items:center;justify-content:space-between;padding:12px 28px 0;z-index:999;font-size:12px;font-weight:600}
+
+/* Screens */
+.screen{position:absolute;inset:0;transition:opacity .35s ease,transform .35s ease;opacity:0;pointer-events:none;overflow:hidden}
+.screen.active{opacity:1;pointer-events:all;transform:translateX(0)!important}
+
+/* Bottom Nav — REMOVED (conversational-first design) */
+
+/* Agent Badge */
+.agent-badge{display:inline-flex;align-items:center;gap:4px;background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.2);border-radius:20px;padding:3px 10px;font-size:10px;color:var(--scb-gold);font-weight:600;margin-bottom:8px;animation:badgePulse 2s ease infinite}
+@keyframes badgePulse{0%,100%{opacity:1}50%{opacity:.6}}
+.agent-badge .dot{width:6px;height:6px;border-radius:50%;background:var(--scb-gold);animation:dotBlink 1s ease infinite}
+@keyframes dotBlink{0%,100%{opacity:1}50%{opacity:.2}}
+
+/* Lock Screen */
+.lock-screen{display:flex;flex-direction:column;align-items:center;padding-top:80px;background:linear-gradient(168deg,#2e1a47 0%,var(--app-bg-2) 45%,var(--app-bg-0) 100%);height:100%;position:relative}
+.lock-screen::after{content:'';position:absolute;top:35%;left:50%;transform:translate(-50%,-50%);width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(201,168,76,.1) 0%,rgba(108,77,196,.06) 50%,transparent 70%);pointer-events:none}
+.lock-date{font-size:18px;color:var(--text2);font-weight:500;position:relative;z-index:1}
+.lock-time{font-size:72px;font-weight:200;letter-spacing:-2px;margin:4px 0 28px;color:rgba(255,255,255,.9);position:relative;z-index:1}
+.lock-notif-stack{width:100%;max-width:100%;padding:0 18px;display:flex;flex-direction:column;gap:12px;align-items:stretch;position:relative;z-index:1}
+.notification{margin:0;background:rgba(22,14,38,.72);backdrop-filter:blur(48px);border-radius:20px;padding:16px 18px;display:flex;gap:14px;align-items:flex-start;border:1px solid rgba(167,139,250,.18);box-shadow:0 16px 40px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.06);cursor:pointer;transition:transform .2s,background .2s,border-color .2s;animation:slideDown .5s ease .45s both;position:relative;z-index:1}
+.notification:hover{transform:scale(1.01);background:rgba(32,20,52,.85);border-color:rgba(201,168,76,.22)}
+.notif-avatar{width:40px;height:40px;border-radius:10px;background:var(--scb-gold);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.notif-app-row{display:flex;align-items:center;flex-wrap:wrap;gap:4px 8px;margin-bottom:3px}
+.notif-app{font-size:12px;font-weight:600;color:rgba(255,255,255,.6)}
+.notif-time{font-size:11px;color:var(--text3)}
+.notif-text{font-size:13px;line-height:1.4;color:rgba(255,255,255,.8)}
+@keyframes slideDown{from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:translateY(0)}}
+
+/* Shared header style */
+.scr-header{padding:58px 20px 8px;flex-shrink:0}
+.scr-nav{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.back-btn,.menu-btn{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.1);border:none;color:#fff;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s}
+.back-btn:hover,.menu-btn:hover{background:rgba(255,255,255,.2)}
+.scr-title{font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase}
+.greeting-text{font-size:24px;font-weight:300;line-height:1.2}
+.greeting-sub{font-size:13px;color:var(--text2);margin-top:4px;line-height:1.4}
+
+/* Morning brief — personalized brief (reference layout) */
+#briefingScreen .mb-brief-header{padding:52px 20px 12px}
+#briefingScreen .mb-brief-topbar{display:flex;justify-content:flex-end;align-items:center;margin-bottom:6px}
+#briefingScreen .mb-brief-header .menu-btn{width:44px;height:44px;min-width:44px;min-height:44px;font-size:20px}
+#briefingScreen .mb-brief-header .menu-btn:focus-visible{outline:2px solid rgba(201,168,76,.55);outline-offset:3px}
+#briefingScreen .mb-brief-header .greeting-text{font-family:var(--font-ui);font-size:26px;font-weight:500;letter-spacing:-.03em;color:#fff;line-height:1.2}
+#briefingScreen .mb-brief-header .greeting-sub{font-size:14px;line-height:1.55;color:rgba(255,255,255,.52);max-width:36em;margin-top:8px}
+/* Briefing scroll area: match D .scroll insets; keep bottom space for Jarvis strip */
+#briefingScreen .mb-brief-body.scroll.cx-embed-scroll,
+#briefingBody.scr-body.mb-brief-body.scroll.cx-embed-scroll{
+  padding:14px 16px calc(188px + env(safe-area-inset-bottom, 0px));
+}
+#briefingScreen .mb-sec{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.45);margin:20px 0 10px}
+#briefingScreen .mb-sec:first-of-type{margin-top:10px}
+.mb-task-stack{border-radius:16px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.045);overflow:hidden;margin-bottom:10px}
+#briefingScreen #tasksContainer .card-g{background:transparent;border:none;border-radius:0;margin:0;padding:16px 18px;border-bottom:1px solid rgba(255,255,255,.07)}
+#briefingScreen #tasksContainer .card-g:last-child{border-bottom:none}
+#briefingScreen #tasksContainer .card-g:hover{background:rgba(255,255,255,.05)}
+#briefingScreen #tasksContainer .task-item:focus-visible{outline:2px solid rgba(201,168,76,.45);outline-offset:-2px;z-index:1;position:relative}
+#briefingScreen #newsContainer .card-g,#briefingScreen #offersContainer .card-g{margin-bottom:8px}
+#briefingScreen #newsContainer .card-g:last-child,#briefingScreen #offersContainer .card-g:last-child{margin-bottom:0}
+#briefingScreen .insight-card{border-radius:18px!important;border:1px solid rgba(167,139,250,.16)!important;background:rgba(18,10,34,.72)!important;box-shadow:0 14px 36px rgba(0,0,0,.25),inset 0 1px 0 rgba(255,255,255,.04)}
+.mb-pulse-wrap{background:linear-gradient(155deg,rgba(72,42,118,.58),rgba(22,12,42,.88))!important;border:1px solid rgba(167,139,250,.22)!important;box-shadow:0 22px 56px rgba(0,0,0,.42),inset 0 1px 0 rgba(255,255,255,.07),0 0 0 1px rgba(0,0,0,.2) inset;border-radius:22px!important;margin-bottom:8px!important;overflow:hidden;position:relative;cursor:pointer;outline-offset:2px}
+#briefingScreen .mb-pulse-wrap.card-g:hover{background:linear-gradient(155deg,rgba(78,48,128,.62),rgba(26,14,48,.9))!important;border-color:rgba(180,150,255,.28)!important}
+.mb-pulse-wrap:focus-visible{outline:2px solid rgba(201,168,76,.45)}
+.mb-pulse-wrap::before{content:'';position:absolute;top:0;left:20px;right:20px;height:3px;border-radius:0 0 4px 4px;background:linear-gradient(90deg,transparent,rgba(201,168,76,.85),rgba(108,77,196,.6),transparent);opacity:.9;pointer-events:none}
+.mb-pulse-head{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;padding:22px 20px 16px;position:relative;z-index:1}
+.mb-pulse-kicker{font-size:11px;color:rgba(255,255,255,.48);font-weight:700;margin-bottom:10px;letter-spacing:.08em;text-transform:uppercase}
+.mb-pulse-score-cta{display:block;margin:0;padding:6px 4px 2px 0;border:none;background:transparent;font:inherit;font-size:64px;font-weight:200;line-height:1;letter-spacing:-5px;color:#fff;font-variant-numeric:tabular-nums;cursor:pointer;text-align:left;border-radius:16px;transition:color .2s,transform .2s,box-shadow .2s;text-shadow:0 4px 28px rgba(201,168,76,.15);position:relative;z-index:2}
+.mb-pulse-score-cta:hover{color:#fff;transform:scale(1.02);box-shadow:0 0 0 2px rgba(201,168,76,.35),0 12px 40px rgba(201,168,76,.12)}
+.mb-pulse-score-cta:focus-visible{outline:2px solid rgba(201,168,76,.65);outline-offset:4px}
+.mb-pulse-status-col{text-align:right;padding-bottom:2px;min-width:108px;display:flex;flex-direction:column;align-items:flex-end}
+.mb-pulse-expand-icon{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);margin-bottom:8px;flex-shrink:0}
+.mb-pulse-expand-icon .mb-pulse-chev{font-size:9px;color:rgba(201,168,76,.85);line-height:1;transition:transform .32s ease;display:block}
+.mb-pulse-status-label{font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.38);margin-bottom:8px}
+.mb-pulse-status-val{font-size:24px;font-weight:700;letter-spacing:-.02em;color:var(--success);line-height:1}
+.mb-pulse-status-val.warn{color:var(--warning)}
+.mb-pulse-status-val.risk{color:var(--danger)}
+.mb-pulse-expand-region{max-height:0;overflow:hidden;transition:max-height .42s cubic-bezier(.4,0,.2,1),opacity .28s ease;padding:0 18px;opacity:0}
+.mb-pulse-wrap.is-expanded .mb-pulse-expand-region{max-height:360px;padding:0 18px 16px;opacity:1}
+.mb-pulse-expand-inner{padding:4px 2px 0;border-top:1px solid rgba(255,255,255,.08);padding-top:14px}
+.mb-pulse-peer{font-size:12px;color:rgba(255,255,255,.55);line-height:1.45;margin:0 0 12px}
+.mb-pulse-peer b{color:rgba(255,255,255,.88)}
+.mb-pulse-mini-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.mb-pulse-mini-cell{background:rgba(0,0,0,.2);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:10px 12px}
+.mb-pulse-mini-cell span{display:block;font-size:9px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:rgba(255,255,255,.38);margin-bottom:4px}
+.mb-pulse-mini-cell strong{font-size:15px;font-weight:700;color:#fff}
+.mb-pulse-mini-cell em{font-style:normal;font-size:11px;color:rgba(255,255,255,.45);display:block;margin-top:2px}
+.mb-pulse-expand-actions{display:flex;flex-direction:column;gap:10px}
+.mb-pulse-cta-journey{width:100%;min-height:46px;border-radius:14px;border:none;background:linear-gradient(135deg,#f2e6c2,#c9a84c,#8a6520);color:#1a0d33;font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;box-shadow:0 8px 24px rgba(201,168,76,.32);transition:filter .2s,transform .2s}
+.mb-pulse-cta-journey:hover{filter:brightness(1.06);transform:translateY(-1px)}
+.mb-pulse-cta-journey:focus-visible{outline:2px solid rgba(253,230,138,.85);outline-offset:2px}
+.mb-pulse-link-well{width:100%;min-height:48px;border-radius:14px;border:1px solid rgba(201,168,76,.35);background:rgba(201,168,76,.1);color:var(--scb-gold-light);font-size:13px;font-weight:700;cursor:pointer;transition:background .2s,border-color .2s}
+.mb-pulse-link-well:hover{background:rgba(201,168,76,.16);border-color:rgba(201,168,76,.5)}
+.mb-pulse-link-well:focus-visible{outline:2px solid rgba(201,168,76,.5);outline-offset:2px}
+.mb-pulse-chev{font-size:10px;color:rgba(201,168,76,.7);transition:transform .32s ease}
+.mb-pulse-wrap.is-expanded .mb-pulse-expand-icon .mb-pulse-chev{transform:rotate(180deg)}
+.mb-wh-compact .mb-wh-body{display:flex;align-items:center;gap:14px}
+.mb-wh-compact .mb-wh-icon{width:44px;height:44px;border-radius:14px;background:rgba(139,92,246,.22);border:1px solid rgba(167,139,250,.35);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.mb-wh-compact .mb-wh-text{font-size:15px;font-weight:600;color:#fff;line-height:1.35}
+/* In-chat morning brief cards (reference: What's happening + Market Alert) */
+.mb-chat-rich{background:linear-gradient(165deg,rgba(36,22,58,.95),rgba(18,10,32,.92));border:1px solid rgba(167,139,250,.22);border-radius:18px;padding:16px 18px;margin-top:10px;box-shadow:0 12px 32px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.05)}
+.mb-chat-rich .jfc-line{font-size:13px;color:rgba(255,255,255,.92);line-height:1.85}
+.mb-chat-rich-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+.mb-chat-live{display:inline-flex;align-items:center;font-size:9px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#fff;background:linear-gradient(90deg,#ef4444,#fb7185);padding:4px 9px;border-radius:6px;box-shadow:0 0 16px rgba(251,113,133,.35)}
+.mb-chat-rich-title{font-size:15px;font-weight:700;color:#fff;line-height:1.25;margin:0}
+.mb-chat-rich-sub{font-size:12px;color:rgba(255,255,255,.52);line-height:1.45;margin-top:6px}
+.mb-chat-rich-asia{font-size:12px;color:rgba(255,255,255,.62);margin-top:10px;line-height:1.45}
+.mb-chat-bars{display:flex;align-items:flex-end;gap:4px;height:52px;margin:8px 0}
+.mb-chat-bar{flex:1;border-radius:4px 4px 0 0;background:linear-gradient(180deg,rgba(108,77,196,.85),rgba(78,42,132,.5));min-height:12px}
+.mb-chat-bar:nth-child(1){height:38%}.mb-chat-bar:nth-child(2){height:72%}.mb-chat-bar:nth-child(3){height:55%}.mb-chat-bar:nth-child(4){height:90%}.mb-chat-bar:nth-child(5){height:48%}
+.mb-chat-tickers{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.mb-chat-tick{font-size:11px;font-weight:700;padding:9px 12px;border-radius:12px;background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.9)}
+.mb-chat-tick span{color:#fb7185;margin-left:5px;font-variant-numeric:tabular-nums}
+.mb-chat-loss{background:rgba(239,68,68,.1);border:1px solid rgba(251,113,133,.28);border-radius:18px;padding:16px 18px;margin-top:10px}
+.mb-chat-loss strong{color:#fff;font-size:15px;display:block;margin-bottom:6px}
+.mb-chat-loss p{font-size:13px;color:rgba(255,255,255,.65);line-height:1.45;margin:0}
+.mb-chat-opt{display:flex;flex-direction:column;gap:10px;margin-top:12px}
+.mb-chat-opt-card{background:linear-gradient(165deg,rgba(30,20,48,.98),rgba(14,8,26,.95));border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:14px 16px}
+.mb-chat-opt-card .opt-num{font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:rgba(201,168,76,.85);margin-bottom:4px}
+.mb-chat-opt-card .opt-title{font-size:14px;font-weight:700;color:#fff;margin-bottom:6px}
+.mb-chat-opt-card .opt-body{font-size:12px;color:rgba(255,255,255,.58);line-height:1.45;margin-bottom:8px}
+.mb-chat-opt-card .opt-km{font-size:11px;font-weight:700;color:var(--scb-gold-light);letter-spacing:.06em;cursor:pointer}
+.chat-header .ch-sub:empty{display:none}
+.mb-market-alert{margin-bottom:10px;border-radius:18px!important;padding:18px 18px 16px!important;background:rgba(239,68,68,.08)!important;border:1px solid rgba(239,68,68,.2)!important;border-left:4px solid #f43f5e!important;cursor:pointer;transition:transform .2s,background .2s,border-color .2s,box-shadow .2s}
+.mb-market-alert:hover{background:rgba(239,68,68,.12)!important;transform:translateY(-1px)}
+.mb-market-alert:focus-visible{outline:2px solid #fb7185;outline-offset:3px;box-shadow:0 0 0 4px rgba(251,113,133,.12)}
+.mb-ma-head{display:flex;gap:14px;align-items:flex-start}
+.mb-ma-icon{width:40px;height:40px;border-radius:12px;background:rgba(239,68,68,.18);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.mb-ma-title{font-size:15px;font-weight:700;color:#fff;line-height:1.25}
+.mb-ma-body{font-size:13px;color:rgba(255,255,255,.62);margin-top:8px;line-height:1.5}
+.mb-ma-cta{margin-top:12px;font-size:12px;font-weight:700;color:#fb7185;display:inline-flex;align-items:center;gap:6px;letter-spacing:.02em}
+.mb-happening{margin-bottom:10px;border-radius:18px!important;padding:18px!important;background:rgba(108,77,196,.14)!important;border:1px solid rgba(167,139,250,.28)!important;cursor:pointer;box-shadow:0 12px 36px rgba(0,0,0,.25);transition:transform .2s,border-color .2s,box-shadow .2s}
+.mb-happening:hover{border-color:rgba(201,168,76,.35)!important;transform:translateY(-1px)}
+.mb-happening:focus-visible{outline:2px solid #c4b5fd;outline-offset:3px;box-shadow:0 0 0 4px rgba(196,181,253,.12)}
+.mb-wh-kicker{font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#c4b5fd;margin-bottom:6px}
+.mb-wh-title{font-size:15px;font-weight:700;color:#fff;line-height:1.3}
+.mb-wh-sub{font-size:13px;color:rgba(255,255,255,.6);margin-top:8px;line-height:1.45}
+
+/* Scrollable body — use .cx-embed-scroll on #briefingBody for CXO frame A scrollbar */
+.scr-body{
+  flex:1;
+  min-height:0;
+  overflow-y:auto;
+  padding:0 20px 100px;
+  -webkit-overflow-scrolling:touch;
+}
+
+/* Section titles */
+.section-title{font-size:13px;font-weight:600;color:var(--text2);margin:20px 0 8px;letter-spacing:.5px;text-transform:uppercase}
+.section-header{display:flex;justify-content:space-between;align-items:center}
+.view-all{font-size:12px;color:var(--scb-gold);cursor:pointer;border:none;background:none}
+
+/* Cards */
+.card-g{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:16px;margin-bottom:8px;cursor:pointer;transition:all .2s}
+.card-g:hover{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.18)}
+
+/* Pulse gauge (wellness / other screens) */
+.pulse-badge{display:inline-block;background:var(--success);color:#fff;font-size:11px;font-weight:700;padding:2px 10px;border-radius:12px;margin-top:4px}
+.pulse-gauge{position:relative;width:80px;height:80px;flex-shrink:0}
+.pulse-gauge svg{transform:rotate(-90deg)}
+.pulse-gauge .score{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:800}
+
+/* Nudge */
+.nudge-card{display:flex;gap:12px;align-items:center;padding:14px 16px}
+.nudge-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.nudge-icon.fitness{background:rgba(234,88,12,.2)}.nudge-icon.beauty{background:rgba(236,72,153,.2)}.nudge-icon.travel{background:rgba(59,130,246,.2)}.nudge-icon.wellness{background:rgba(139,92,246,.2)}.nudge-icon.rewards{background:rgba(201,168,76,.2)}
+.nudge-text{font-size:13px;line-height:1.45;color:rgba(255,255,255,.85)}
+
+/* Tasks */
+.task-item{display:flex;align-items:center;gap:12px;padding:14px 16px}
+.task-check{width:22px;height:22px;border-radius:50%;border:2px solid rgba(201,168,76,.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .3s;font-size:12px}
+.task-check.done{background:var(--scb-gold);border-color:var(--scb-gold)}
+.task-text{flex:1;font-size:13.5px}
+.task-text.done{text-decoration:none;color:rgba(255,255,255,.88)}
+
+/* Insights */
+.insight-card{display:flex;gap:12px;align-items:flex-start;padding:14px 16px}
+.insight-icon{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.insight-icon.negative{background:var(--danger-bg);color:var(--danger)}.insight-icon.positive{background:var(--success-bg);color:var(--success)}
+.insight-icon.offer{background:rgba(250,204,21,.14);color:#fde047;border:1px solid rgba(250,204,21,.28)}
+.insight-title{font-size:13.5px;font-weight:600}.insight-sub{font-size:12px;color:var(--text2);margin-top:2px}
+
+/* Spend bars */
+.spend-bars{display:flex;gap:6px;height:6px;margin:12px 0}
+.spend-bar{border-radius:3px}
+.see-recs{font-size:13px;color:var(--scb-gold);font-weight:600;margin-top:12px;display:block;cursor:pointer;text-decoration:none}
+
+/* Mic bar */
+.mic-bar{position:absolute;bottom:0;left:0;right:0;padding:6px 20px 24px;background:linear-gradient(transparent,rgba(26,13,51,.97) 40%);z-index:100}
+.mic-wave{height:30px;display:flex;align-items:center;justify-content:center;gap:2px;opacity:.35}
+.mic-wave span{width:3px;border-radius:2px;background:linear-gradient(var(--scb-gold),var(--accent));animation:wave 1.2s ease-in-out infinite alternate}
+.mic-wave span:nth-child(1){height:10px;animation-delay:0s}.mic-wave span:nth-child(2){height:20px;animation-delay:.1s}.mic-wave span:nth-child(3){height:28px;animation-delay:.2s}.mic-wave span:nth-child(4){height:16px;animation-delay:.3s}.mic-wave span:nth-child(5){height:24px;animation-delay:.4s}.mic-wave span:nth-child(6){height:12px;animation-delay:.5s}.mic-wave span:nth-child(7){height:30px;animation-delay:.6s}
+@keyframes wave{to{height:6px}}
+.mic-btn{width:44px;height:44px;border-radius:50%;background:var(--scb-gold);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 4px 20px rgba(201,168,76,.35);transition:transform .2s;margin:0 auto;color:#fff}
+.mic-btn:hover{transform:scale(1.1)}
+.mic-hint{text-align:center;font-size:11px;color:var(--text3);margin-top:4px}
+.mic-hint em{color:var(--text2);font-style:normal}
+
+/* Wellness flow (in-modal steps — conversational journey) */
+.wellness-modal{position:absolute;inset:0;background:linear-gradient(168deg,#1a1028 0%,var(--app-bg-2) 42%,var(--app-bg-0) 100%);z-index:700;display:flex;flex-direction:column;overflow:hidden;scrollbar-width:none}
+#wellnessModal .scr-header{padding:52px 16px 6px;flex-shrink:0}
+#wellnessModal .scr-nav .scr-title{flex:1;min-width:0;text-align:center;margin:0 6px}
+#wellnessModal .scr-title{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;line-height:1.35}
+#wellnessModal.well-title-soft .scr-title{text-transform:none;letter-spacing:.02em;font-size:12px;font-weight:600}
+.wellness-step-scroll{flex:1;overflow-y:auto;padding:0 16px calc(20px + env(safe-area-inset-bottom,0));-webkit-overflow-scrolling:touch}
+.well-step{display:none;padding-bottom:8px}
+.well-step.active{display:block}
+.wellness-title{font-size:11px;color:rgba(255,255,255,.5);font-weight:600;text-transform:uppercase;letter-spacing:.1em;text-align:center;margin-top:4px}
+.well-cta-wrap{padding:0 8px;margin-top:20px;display:flex;flex-direction:column;gap:14px;align-items:center}
+.well-link-accounts{font-size:11px;font-weight:700;color:rgba(255,255,255,.65);text-decoration:none;letter-spacing:.04em;text-align:center;cursor:pointer;border:none;background:none;padding:0;display:inline-flex;align-items:center;gap:6px}
+.well-link-accounts:hover{color:#fff;text-decoration:underline}
+.well-cta-gold{width:100%;max-width:320px;padding:15px 18px;border:none;border-radius:16px;background:linear-gradient(135deg,#f2e6c2,#c9a84c,#8a6520);color:#1a0d33;font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;box-shadow:0 8px 28px rgba(201,168,76,.35)}
+.well-cta-gold:hover{filter:brightness(1.06)}
+.well-cta-gold.outline{background:transparent;border:1.5px solid rgba(255,255,255,.35);color:#fff;box-shadow:none}
+.well-cta-gold.outline:hover{background:rgba(255,255,255,.06)}
+.well-voice-strip{margin-top:24px;padding:20px 14px 22px;border-radius:20px;background:linear-gradient(180deg,rgba(72,42,118,.45),rgba(12,6,22,.9));border:1px solid rgba(167,139,250,.2);text-align:center}
+.well-voice-strip .jarvis-mic-btn{margin:0 auto}
+.well-voice-strip p{font-size:11px;color:rgba(255,255,255,.45);margin-top:10px;line-height:1.45;max-width:280px;margin-left:auto;margin-right:auto}
+.wellness-msg{font-size:19px;font-weight:400;line-height:1.35;margin:14px 0;text-align:center;color:rgba(255,255,255,.92)}
+#wellnessModal #bigScore{color:#e8e4ff;font-variant-numeric:tabular-nums}
+.gauge-peer{font-size:13px;color:var(--text2);text-align:center;margin:8px 0 18px}
+.gauge-peer b{color:#fff}
+.pillar-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pillar-item{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:14px 10px;text-align:center}
+.pillar-name{font-size:9px;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:.06em}
+.pillar-label{font-size:13px;font-weight:800;margin-top:6px;letter-spacing:.02em}
+.pillar-label.good{color:var(--success)}.pillar-label.average{color:var(--warning)}.pillar-label.below{color:var(--danger)}
+.well-notif-card{background:rgba(108,77,196,.12);border:1px solid rgba(167,139,250,.25);border-radius:16px;padding:14px 16px;margin-bottom:16px;font-size:13px;line-height:1.5;color:rgba(255,255,255,.88)}
+.well-hol-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.well-hol-cell{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:12px 10px;text-align:center}
+.well-hol-k{font-size:9px;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
+.well-hol-v{font-size:12px;font-weight:800;letter-spacing:.03em}
+.well-hol-v.track{color:var(--success)}.well-hol-v.warn{color:var(--scb-gold-light)}.well-hol-v.bad{color:var(--danger)}
+.well-insight{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:14px;margin-bottom:14px}
+.well-insight p{font-size:13px;line-height:1.55;color:rgba(255,255,255,.85)}
+.well-bar-pair{display:flex;align-items:flex-end;justify-content:center;gap:28px;margin:16px 0 8px;height:120px}
+.well-bar{flex:0 0 56px;border-radius:10px 10px 4px 4px;position:relative}
+.well-bar--you{background:linear-gradient(180deg,rgba(255,255,255,.25),rgba(255,255,255,.08));height:38%}
+.well-bar--bm{background:linear-gradient(180deg,#7b5ea7,#4e2a84);height:100%}
+.well-bar-cap{font-size:10px;font-weight:700;color:rgba(255,255,255,.5);text-align:center;margin-top:6px}
+.well-jarv-row{display:flex;gap:12px;align-items:flex-start;margin:16px 0}
+.well-jarv-orb{width:36px;height:36px;min-width:36px;border-radius:50%;background:radial-gradient(circle at 35% 30%,rgba(180,200,255,.5),rgba(108,77,196,.6) 45%,rgba(78,42,132,.9));box-shadow:0 0 20px rgba(108,77,196,.4)}
+.well-jarv-bubble{flex:1;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:12px 14px;font-size:13px;line-height:1.55;color:rgba(255,255,255,.9)}
+.well-hint-card{border:1px dashed rgba(255,255,255,.22);border-radius:14px;padding:12px 14px;font-size:12px;color:rgba(255,255,255,.55);margin-bottom:16px;text-align:center}
+.well-dim-card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:14px;margin-bottom:10px}
+.well-dim-card .well-dim-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.well-dim-card .well-dim-t{font-size:14px;font-weight:700}
+.well-dim-card p{font-size:12px;line-height:1.5;color:rgba(255,255,255,.65)}
+.well-badge{display:inline-block;font-size:9px;font-weight:800;letter-spacing:.06em;padding:4px 8px;border-radius:8px;text-transform:uppercase}
+.well-badge.ok{background:var(--success-bg);color:var(--success)}
+.well-badge.mid{background:var(--warning-bg);color:var(--warning)}
+.well-badge.no{background:var(--danger-bg);color:var(--danger)}
+.well-ulip-card{background:rgba(255,255,255,.06);border:1px solid rgba(167,139,250,.2);border-radius:18px;padding:16px;margin:12px 0}
+.well-ulip-k{font-size:10px;font-weight:800;letter-spacing:.12em;color:rgba(255,255,255,.45);margin-bottom:6px}
+.well-ulip-title{font-size:16px;font-weight:700;margin-bottom:10px}
+.well-ulip-meta{font-size:12px;color:rgba(255,255,255,.55);margin-bottom:12px}
+.well-ulip-bul{font-size:12px;line-height:1.65;color:rgba(255,255,255,.75);padding-left:16px}
+.well-ulip-bul li{margin-bottom:4px}
+.well-mini-chat{display:flex;align-items:center;gap:8px;margin-top:20px;padding:10px 12px;border-radius:24px;background:rgba(18,10,32,.88);border:1px solid rgba(167,139,250,.2)}
+.well-mini-chat input{flex:1;background:transparent;border:none;color:#fff;font-size:13px;outline:none;min-width:0}
+.well-mini-chat input::placeholder{color:rgba(255,255,255,.28)}
+.well-step-h{font-size:10px;font-weight:800;letter-spacing:.14em;color:rgba(255,255,255,.45);text-align:center;margin:8px 0 14px}
+.well-cta-stack{width:100%;max-width:320px;margin:16px auto 0;display:flex;flex-direction:column;gap:10px}
+
+/* ===== IMMERSIVE AI HOME — hyper-personalized landing (ref: digital twin + nudges) ===== */
+.imm-home{display:flex;flex-direction:column;height:100%;position:relative;overflow:hidden;font-family:var(--font-ui);background:radial-gradient(ellipse 90% 55% at 50% 18%,rgba(78,42,132,.18) 0%,transparent 52%),linear-gradient(180deg,#12081f 0%,var(--app-bg-0) 42%,#06030c 100%)}
+/* Full-screen reference mockup (replaces composed header / hero / shortcuts / offers) */
+.imm-home-mockup{flex:1;min-height:0;overflow:hidden;display:flex;align-items:stretch;padding:0}
+/* Cover + top anchor: bottom of PNG (duplicate Jarvis strip) sits under the real .imm-bottom bar */
+.imm-home-mockup-img{width:100%;height:100%;object-fit:cover;object-position:center top;display:block}
+
+/* ─── Top bar: greeting + balance pill ─── */
+.imm-lp-top{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;padding:50px 18px 0;position:relative;z-index:4;flex-shrink:0}
+.imm-lp-top-left{min-width:0;flex:1;padding-top:2px}
+.imm-lp-brand-row{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.imm-scb-logo{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,rgba(108,77,196,.45),rgba(201,168,76,.2));display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;color:var(--scb-gold);letter-spacing:.02em;flex-shrink:0}
+.imm-lp-profile{width:36px;height:36px;border-radius:50%;border:none;background:rgba(255,255,255,.08);color:rgba(255,255,255,.75);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s,color .2s}
+.imm-lp-profile:hover{background:rgba(255,255,255,.14);color:#fff}
+.imm-lp-greet{font-size:24px;font-weight:500;color:#fff;line-height:1.2;letter-spacing:-.035em;margin:0}
+.imm-lp-greet .imm-name{color:#fff;font-weight:600}
+.imm-lp-metaphor{display:block;margin-top:12px;font-family:var(--font-ui);font-size:14px;font-weight:500;color:rgba(255,255,255,.5);line-height:1.45;letter-spacing:-.015em;text-wrap:balance}
+.imm-lp-top-right{display:flex;flex-direction:column;align-items:flex-end;gap:8px;flex-shrink:0;padding-top:4px}
+.imm-bal-pill{display:flex;flex-direction:column;align-items:flex-end;justify-content:center;gap:3px;padding:8px 12px 8px 14px;border-radius:16px;background:rgba(18,10,34,.75);border:1px solid rgba(167,139,250,.22);box-shadow:0 8px 24px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.06);cursor:pointer;transition:border-color .2s,transform .2s;max-width:min(210px,48vw);text-align:right}
+.imm-bal-pill:hover{border-color:rgba(201,168,76,.35);transform:translateY(-1px)}
+.imm-bal-pill:focus-visible{outline:2px solid rgba(201,168,76,.5);outline-offset:2px}
+.imm-bal-pill-val{font-size:12px;font-weight:700;color:#fff;letter-spacing:.02em;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.imm-bal-pill-sub{font-size:9px;font-weight:600;color:rgba(201,168,76,.75);letter-spacing:.04em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.imm-loot-btn:focus-visible{outline:2px solid rgba(253,230,138,.65);outline-offset:2px}
+.imm-loot-btn{width:40px;height:40px;border-radius:50%;border:1px solid rgba(201,168,76,.28);background:linear-gradient(165deg,rgba(201,168,76,.2),rgba(88,28,135,.35));color:#fde68a;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .2s,box-shadow .2s;box-shadow:0 4px 20px rgba(201,168,76,.15)}
+.imm-loot-btn:hover{transform:scale(1.05);box-shadow:0 6px 24px rgba(201,168,76,.25)}
+
+/* ─── Hero: organic blobs + digital twin ─── */
+.imm-lp-hero{position:relative;flex-shrink:0;height:min(168px,22vh);margin:6px 0 2px;z-index:1}
+.imm-twin-blobs{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}
+.imm-blob{position:absolute;border-radius:40% 60% 70% 30%/55% 45% 55% 45%;filter:blur(1px);mix-blend-mode:normal}
+.imm-blob--1{width:200px;height:200px;left:50%;top:52%;transform:translate(-50%,-50%);background:radial-gradient(ellipse at 35% 28%,rgba(108,77,196,.38),rgba(78,42,132,.32) 48%,transparent 72%);animation:immBlobA 9s ease-in-out infinite;opacity:.55}
+.imm-blob--2{width:160px;height:170px;left:50%;top:50%;transform:translate(-42%,-48%) rotate(-8deg);background:radial-gradient(ellipse at 60% 40%,rgba(201,168,76,.22),rgba(108,77,196,.28) 52%,transparent 72%);animation:immBlobB 11s ease-in-out infinite;opacity:.42}
+.imm-blob--3{width:140px;height:140px;left:50%;top:56%;transform:translate(-58%,-50%);background:radial-gradient(circle at 50% 50%,rgba(201,168,76,.2),rgba(78,42,132,.22) 58%,transparent 72%);animation:immBlobC 7s ease-in-out infinite;opacity:.38}
+@keyframes immBlobA{0%,100%{border-radius:40% 60% 70% 30%/55% 45% 55% 45%;transform:translate(-50%,-50%) scale(1)}50%{border-radius:58% 42% 35% 65%/48% 62% 38% 52%;transform:translate(-50%,-50%) scale(1.06)}}
+@keyframes immBlobB{0%,100%{transform:translate(-42%,-48%) rotate(-8deg) scale(1)}50%{transform:translate(-40%,-52%) rotate(4deg) scale(1.08)}}
+@keyframes immBlobC{0%,100%{transform:translate(-58%,-50%) scale(1)}50%{transform:translate(-54%,-48%) scale(1.12)}}
+.imm-twin-avatar{position:absolute;left:50%;top:54%;transform:translate(-50%,-50%);width:80px;height:80px;border-radius:50%;background:linear-gradient(145deg,rgba(46,26,71,.95) 0%,var(--scb-purple) 48%,rgba(201,168,76,.35) 100%);border:2px solid rgba(255,255,255,.18);box-shadow:0 16px 40px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;z-index:3;animation:immTwinFloat 4.5s ease-in-out infinite}
+.imm-twin-initial{font-size:30px;font-weight:700;color:rgba(255,255,255,.92);letter-spacing:-.04em;line-height:1;font-variant-numeric:tabular-nums}
+@keyframes immTwinFloat{0%,100%{transform:translate(-50%,-50%) translateY(0)}50%{transform:translate(-50%,-50%) translateY(-6px)}}
+
+/* Home — curated cards (morning brief keeps pulse / tasks / market) */
+.imm-lh-wrap{padding:10px 18px 8px;flex-shrink:0}
+.imm-lh-kicker{font-size:10px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.42);margin:0 0 10px}
+#homeScreen .imm-lh-list--precursor{margin-bottom:14px}
+#homeScreen .imm-lh-heading{margin:0 0 10px}
+#homeScreen .imm-lh-heading-title{margin:0;font-size:13px;font-weight:600;color:rgba(255,255,255,.45);letter-spacing:.5px;text-transform:uppercase;line-height:1.2}
+#homeScreen .imm-lh-offers .imm-nudges{margin-top:6px;padding:0 0 4px;display:flex;flex-direction:column;gap:6px}
+.imm-lh-list{display:flex;flex-direction:column;gap:10px}
+.imm-lh-card{display:flex;align-items:center;gap:14px;width:100%;text-align:left;padding:14px 14px 14px 16px;border:none;border-radius:20px;cursor:pointer;font:inherit;color:#fff;background:rgba(22,12,42,.72);border:1px solid rgba(167,139,250,.18);backdrop-filter:blur(22px);box-shadow:0 12px 36px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.05);transition:border-color .2s,transform .2s,box-shadow .2s}
+.imm-lh-card:hover{border-color:rgba(201,168,76,.28);transform:translateY(-1px);box-shadow:0 16px 40px rgba(0,0,0,.34),inset 0 1px 0 rgba(255,255,255,.07)}
+.imm-lh-card:focus-visible{outline:2px solid rgba(201,168,76,.45);outline-offset:2px}
+.imm-lh-ico{width:48px;height:48px;min-width:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;line-height:1;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1)}
+.imm-lh-copy{flex:1;min-width:0}
+.imm-lh-title{font-size:15px;font-weight:600;letter-spacing:-.02em;line-height:1.35;color:#fff}
+.imm-lh-title strong{font-weight:700;color:rgba(255,255,255,.93)}
+.imm-lh-sub{font-size:12px;font-weight:400;color:rgba(255,255,255,.52);line-height:1.4;margin-top:4px;letter-spacing:-.01em}
+.imm-lh-mark{width:36px;height:36px;min-width:36px;border-radius:50%;background:linear-gradient(135deg,rgba(108,77,196,.5),rgba(201,168,76,.28));border:1px solid rgba(201,168,76,.25);display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:800;color:var(--scb-gold);letter-spacing:.06em}
+
+/* Legacy header strip (unused on new home — kept for safety if referenced) */
+.imm-header{padding:52px 20px 0;position:relative;z-index:2;flex-shrink:0}
+.imm-logo-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.imm-header-icons{display:flex;gap:8px}
+.imm-header-icon{width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.06);border:none;color:var(--text3);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.imm-header-icon:hover{background:rgba(255,255,255,.12);color:#fff}
+.imm-greeting{font-size:21px;font-weight:300;color:#fff;line-height:1.3}
+.imm-greeting strong{font-weight:700}
+.imm-bal-strip{display:flex;align-items:center;gap:10px;margin-top:5px}
+.imm-bal{font-size:11px;font-weight:500;color:rgba(255,255,255,.45);letter-spacing:.3px}
+.imm-bal b{color:#fff;font-size:20px;font-weight:800;letter-spacing:-.3px}
+.imm-coins{display:inline-flex;align-items:center;gap:4px;background:rgba(201,168,76,.12);border-radius:10px;padding:3px 10px;font-size:10px;font-weight:700;color:var(--scb-gold);cursor:pointer;transition:all .2s}
+.imm-coins:hover{background:rgba(201,168,76,.2)}
+.imm-sep{width:1px;height:14px;background:rgba(255,255,255,.1)}
+
+/* ─── Quick actions — slim row (buttons for a11y) ─── */
+.imm-actions{display:flex;gap:10px;padding:12px 18px 6px;overflow-x:auto;flex-shrink:0;-webkit-overflow-scrolling:touch;scroll-snap-type:x mandatory}
+#homeScreen .imm-actions{padding-top:8px}
+.imm-actions::-webkit-scrollbar{display:none}
+.imm-act{display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;flex-shrink:0;min-width:56px;scroll-snap-align:start;border:none;background:transparent;padding:4px 2px;font:inherit;color:inherit;border-radius:12px;transition:background .2s}
+.imm-act:focus-visible{outline:2px solid rgba(201,168,76,.45);outline-offset:2px;background:rgba(255,255,255,.04)}
+.imm-act-circle{width:46px;height:46px;border-radius:50%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;font-size:19px;transition:all .2s}
+#homeScreen .imm-act-circle{font-size:0}
+#homeScreen .imm-act-letter{font-size:14px;font-weight:800;color:var(--scb-gold);letter-spacing:-.02em}
+.imm-act:hover .imm-act-circle,.imm-act:focus-visible .imm-act-circle{background:rgba(201,168,76,.1);border-color:rgba(201,168,76,.2)}
+.imm-act-label{font-size:9px;color:rgba(255,255,255,.5);font-weight:600;text-align:center;line-height:1.15;white-space:nowrap}
+
+/* ─── Scrollable body (App home) — match frame D scrollbar ─── */
+.imm-body{
+  flex:1;overflow-y:auto;padding:0 0 calc(176px + env(safe-area-inset-bottom, 0px));-webkit-overflow-scrolling:touch;
+  scrollbar-width:thin;
+  scrollbar-color:rgba(72,48,118,.22) transparent;
+}
+.imm-body::-webkit-scrollbar{width:4px}
+.imm-body::-webkit-scrollbar-thumb{background:rgba(72,48,118,.22);border-radius:4px}
+.imm-body::-webkit-scrollbar-track{background:transparent}
+
+/* ─── Financial context strip ─── */
+.imm-context{display:flex;gap:8px;padding:14px 20px 0}
+.imm-ctx{flex:1;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05);border-radius:12px;padding:10px 12px;text-align:center}
+.imm-ctx-val{font-size:15px;font-weight:800;color:#fff}
+.imm-ctx-label{font-size:9px;color:var(--text3);margin-top:2px;text-transform:uppercase;letter-spacing:.5px}
+
+/* ─── Nudge section label ─── */
+.imm-nudge-header{display:flex;align-items:center;gap:8px;padding:18px 20px 8px}
+.imm-nudge-header-dot{width:6px;height:6px;border-radius:50%;background:var(--scb-gold);flex-shrink:0}
+.imm-nudge-header-text{font-size:11px;font-weight:600;color:rgba(255,255,255,.4);letter-spacing:.5px}
+
+/* ─── Nudge rows ─── */
+.imm-nudges{padding:0 20px 8px;display:flex;flex-direction:column;gap:6px}
+.imm-nudge{background:rgba(26,13,51,.4);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.04);border-radius:14px;padding:12px 14px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:12px;width:100%;text-align:left;font:inherit;color:inherit}
+.imm-nudge:hover{background:rgba(201,168,76,.07);border-color:rgba(201,168,76,.15)}
+.imm-nudge:focus-visible{outline:2px solid rgba(201,168,76,.45);outline-offset:2px}
+.imm-nudge.alert{border-left:3px solid var(--danger);background:rgba(239,68,68,.04)}
+.imm-nudge.alert:hover{background:rgba(239,68,68,.08)}
+.imm-nudge-icon{width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.imm-nudge-body{flex:1;min-width:0}
+.imm-nudge-row1{display:flex;align-items:center;gap:6px;margin-bottom:2px}
+.imm-nudge-badge{display:inline-block;padding:2px 8px;border-radius:6px;font-size:7px;font-weight:800;letter-spacing:.4px}
+.imm-nudge-badge.green{background:rgba(22,163,74,.18);color:var(--success)}
+.imm-nudge-badge.gold{background:rgba(201,168,76,.18);color:var(--scb-gold)}
+.imm-nudge-badge.red{background:rgba(239,68,68,.18);color:var(--danger)}
+.imm-nudge-badge.purple{background:rgba(139,92,246,.18);color:#a78bfa}
+.imm-nudge-text{font-size:12px;color:rgba(255,255,255,.6);line-height:1.35}
+
+/* ─── Bottom Jarvis — wavy fluid + bar (ref) ─── */
+.imm-voice-wave-wrap{position:relative;width:100%;height:38px;margin-bottom:-8px;pointer-events:none;z-index:2;opacity:.92}
+.imm-voice-wave-wrap svg{display:block;width:100%;height:100%}
+.imm-voice-hint{font-size:11px;color:rgba(255,255,255,.38);text-align:center;line-height:1.35;padding:0 24px 8px;margin:0;max-width:100%}
+.imm-voice-hint em{color:rgba(255,255,255,.52);font-style:italic;font-weight:400}
+.imm-bottom{position:absolute;bottom:0;left:0;right:0;padding:0 16px calc(20px + env(safe-area-inset-bottom, 0px));background:linear-gradient(180deg,transparent 0%,rgba(10,6,18,.75) 18%,rgba(8,4,16,.98) 100%);z-index:10;display:flex;flex-direction:column;align-items:stretch;gap:0}
+.imm-bottom .imm-jarvis-bar{margin-top:4px}
+#homeScreen .imm-jarvis-bar{display:flex;align-items:center;gap:8px;width:100%;background:rgba(18,10,32,.88);backdrop-filter:blur(28px);border:1px solid rgba(167,139,250,.2);border-radius:26px;padding:8px 10px 8px 8px;transition:all .25s;box-shadow:0 10px 40px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.05)}
+#homeScreen .imm-jarvis-bar:focus-within{border-color:rgba(201,168,76,.38);background:rgba(22,12,40,.95);box-shadow:0 0 0 3px rgba(201,168,76,.1),0 10px 40px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.06)}
+.imm-jarvis-bar{display:flex;align-items:center;gap:10px;width:100%;background:rgba(26,13,51,.82);backdrop-filter:blur(24px);border:1px solid rgba(201,168,76,.22);border-radius:28px;padding:8px 10px 8px 8px;transition:all .25s;box-shadow:0 8px 32px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.04)}
+.imm-jarvis-bar:focus-within{border-color:rgba(201,168,76,.42);background:rgba(26,13,51,.92);box-shadow:0 8px 36px rgba(201,168,76,.12),inset 0 1px 0 rgba(255,255,255,.06)}
+#homeScreen .imm-jb-field{flex:1;min-width:0;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:18px;padding:3px 6px;transition:border-color .2s,background .2s,box-shadow .2s}
+#homeScreen .imm-jarvis-bar:focus-within .imm-jb-field{border-color:rgba(201,168,76,.45);background:rgba(255,255,255,.1);box-shadow:0 0 0 2px rgba(201,168,76,.12)}
+#homeScreen .imm-jb-input{font-size:15px;line-height:1.4;font-weight:500;letter-spacing:.01em;padding:11px 14px}
+#homeScreen .imm-jb-input::placeholder{color:rgba(255,255,255,.42);font-size:14px}
+.imm-jb-field{flex:1;min-width:0;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.12);border-radius:22px;padding:2px 4px;transition:border-color .2s,background .2s,box-shadow .2s}
+.imm-jarvis-bar:focus-within .imm-jb-field{border-color:rgba(201,168,76,.35);background:rgba(255,255,255,.12);box-shadow:0 0 0 3px rgba(201,168,76,.1)}
+.imm-jb-input{display:block;width:100%;background:transparent;border:none;color:#fff;font-size:14px;font-weight:500;outline:none;min-width:0;padding:10px 12px;caret-color:var(--scb-gold)}
+.imm-jb-input::placeholder{color:rgba(255,255,255,.48);font-weight:400}
+/* Jarvis voice — gold circular mic (home, brief, chat, fullscreen, overlay) */
+.jarvis-mic-btn{width:44px;height:44px;min-width:44px;min-height:44px;padding:0;border-radius:50%;border:none;background:linear-gradient(165deg,#fff566 0%,#facc15 28%,#eab308 52%,#ca8a04 78%,#a16207 100%);box-shadow:0 2px 16px rgba(234,179,8,.5),inset 0 1px 0 rgba(255,255,255,.55);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;color:#422006;transition:transform .2s ease,box-shadow .2s ease}
+.jarvis-mic-btn:hover{transform:scale(1.06);box-shadow:0 4px 24px rgba(250,204,21,.58),inset 0 1px 0 rgba(255,255,255,.65)}
+.jarvis-mic-btn:focus-visible{outline:2px solid rgba(253,230,138,.85);outline-offset:2px}
+.jarvis-mic-btn .jarvis-mic-svg{width:22px;height:22px;display:block;pointer-events:none}
+.imm-hero{position:relative;display:flex;align-items:center;justify-content:center;padding:6px 20px 8px;min-height:148px;flex-shrink:0}
+.imm-hero-orb{width:132px;height:132px;border-radius:50%;background:radial-gradient(ellipse at 35% 30%,rgba(201,168,76,.48),rgba(120,200,255,.22) 42%,rgba(108,77,196,.18) 62%,transparent);box-shadow:0 0 48px rgba(78,42,132,.35),inset 0 0 36px rgba(255,255,255,.06);animation:immOrbFloat 5.5s ease-in-out infinite;position:relative}
+.imm-hero-orb::after{content:'';position:absolute;inset:-4px;border-radius:50%;border:1px solid rgba(201,168,76,.12);animation:immOrbRing 10s linear infinite}
+@keyframes immOrbFloat{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-5px) scale(1.02)}}
+@keyframes immOrbRing{to{transform:rotate(360deg)}}
+.imm-hero-avatar{position:absolute;width:58px;height:58px;border-radius:50%;background:linear-gradient(145deg,#3d2666,#6c4dc4 45%,var(--scb-gold));display:flex;align-items:center;justify-content:center;font-size:26px;border:3px solid rgba(255,255,255,.14);box-shadow:0 12px 40px rgba(0,0,0,.45);z-index:2}
+.imm-beyond-label{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1.1px;padding:18px 20px 8px}
+.imm-beyond{padding:0 20px 8px;display:flex;flex-direction:column;gap:8px}
+.imm-beyond-card{background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.06);border-radius:16px;padding:14px 16px;cursor:pointer;display:flex;gap:14px;align-items:center;transition:all .2s}
+.imm-beyond-card:hover{border-color:rgba(201,168,76,.18);background:rgba(255,255,255,.06)}
+.imm-bb-icon{width:44px;height:44px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+#homeScreen .imm-bb-icon{font-size:0}
+#homeScreen .imm-bb-initial{display:flex;align-items:center;justify-content:center;width:100%;height:100%;font-size:13px;font-weight:800;letter-spacing:.02em;color:rgba(255,255,255,.9)}
+.imm-bb-body{flex:1;min-width:0}
+.imm-bb-tag{font-size:8px;font-weight:800;text-transform:uppercase;letter-spacing:.75px;margin-bottom:3px}
+.imm-bb-title{font-size:14px;font-weight:600;color:#fff;line-height:1.25}
+.imm-bb-sub{font-size:11px;color:var(--text2);margin-top:3px;line-height:1.3}
+.imm-bb-arrow{font-size:14px;color:var(--text3)}
+.brief-jarvis-panel{position:absolute;bottom:0;left:0;right:0;padding:10px 14px calc(22px + env(safe-area-inset-bottom, 0px));background:linear-gradient(180deg,transparent 0%,rgba(15,10,26,.85) 20%,rgba(26,13,51,.98) 100%);z-index:20;display:flex;flex-direction:column;gap:0}
+.brief-jarvis-row{display:flex;align-items:center;gap:8px;width:100%;background:rgba(18,10,32,.88);backdrop-filter:blur(24px);border:1px solid rgba(167,139,250,.2);border-radius:26px;padding:8px 10px 8px 10px;box-shadow:0 8px 28px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.04);transition:border-color .2s,box-shadow .2s}
+.brief-jarvis-row:focus-within{border-color:rgba(201,168,76,.38);box-shadow:0 0 0 3px rgba(201,168,76,.1),0 8px 28px rgba(0,0,0,.38),inset 0 1px 0 rgba(255,255,255,.05)}
+.brief-jarvis-row input{flex:1;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.14);border-radius:22px;padding:11px 14px;font-size:14px;font-weight:500;color:#fff;outline:none;min-width:0;caret-color:var(--scb-gold)}
+.brief-jarvis-row input::placeholder{color:rgba(255,255,255,.45);font-weight:400}
+.brief-jarvis-row:focus-within input{border-color:rgba(201,168,76,.4);box-shadow:0 0 0 3px rgba(201,168,76,.1)}
+.brief-jarvis-row input:focus-visible{border-color:rgba(201,168,76,.45);box-shadow:0 0 0 3px rgba(201,168,76,.12)}
+.hs-icon{width:44px;height:44px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:20px;transition:transform .2s}
+.hs-label{font-size:10px;color:var(--text2);font-weight:600;text-align:center;line-height:1.2}
+
+.home-promo{border-radius:var(--radius);overflow:hidden;margin-bottom:12px;position:relative;cursor:pointer}
+.home-promo img{width:100%;height:auto;display:block}
+.home-promo-card{background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--radius);padding:14px 16px;display:flex;gap:12px;align-items:center}
+.home-promo-card:hover{background:rgba(255,255,255,.12)}
+
+/* Portfolio */
+.port-card{display:flex;justify-content:space-between;align-items:center;padding:14px 16px}
+.port-name{font-size:13px;font-weight:600}.port-type{font-size:11px;color:var(--text2)}
+.port-val{text-align:right}.port-amount{font-size:13px;font-weight:700}.port-return{font-size:11px}
+.port-return.up{color:var(--success)}.port-return.down{color:var(--danger)}
+.port-total{display:flex;justify-content:space-between;padding:16px;background:linear-gradient(135deg,#2d1654,var(--scb-purple));border:1px solid rgba(201,168,76,.2);border-radius:var(--radius);margin-bottom:12px}
+.port-total-label{font-size:11px;color:rgba(255,255,255,.5);font-weight:600;text-transform:uppercase;letter-spacing:.5px}.port-total-val{font-size:24px;font-weight:700}
+
+/* Chat */
+.chat-screen{display:flex;flex-direction:column;height:100%}
+/* Chat Header — matches Jarvis FS header */
+.chat-header{padding:52px 12px 12px;display:grid;grid-template-columns:44px 1fr 44px;align-items:center;gap:6px;background:linear-gradient(180deg,rgba(30,16,48,.97) 0%,rgba(10,6,20,.92) 100%);backdrop-filter:blur(30px);flex-shrink:0;border-bottom:1px solid rgba(167,139,250,.12)}
+.chat-header .ch-back{width:44px;height:44px;min-width:44px;min-height:44px;border-radius:50%;background:rgba(255,255,255,.08);border:none;display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;cursor:pointer;justify-self:center}
+.chat-header .ch-back:focus-visible{outline:2px solid rgba(201,168,76,.45);outline-offset:2px}
+.chat-header .ch-info{flex:1;text-align:center;min-width:0;padding:0 4px}
+.chat-header .ch-name{font-size:15px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chat-header .ch-sub{font-size:10px;color:var(--scb-gold);font-weight:500;letter-spacing:.5px;text-transform:uppercase;margin-top:1px}
+.chat-header .ch-grid{width:44px;height:44px;min-width:44px;min-height:44px;border-radius:50%;background:rgba(255,255,255,.08);border:none;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.75);cursor:pointer;font-size:18px;line-height:1;justify-self:center;padding:0}
+.chat-header .ch-grid:focus-visible{outline:2px solid rgba(201,168,76,.45);outline-offset:2px}
+/* Chat Messages */
+.chat-messages{flex:1;overflow-y:auto;padding:14px 16px calc(118px + env(safe-area-inset-bottom, 0px));display:flex;flex-direction:column;gap:14px;background:linear-gradient(180deg,var(--app-bg-1) 0%,#0d0818 45%,var(--app-bg-0) 100%)}
+.chat-messages::-webkit-scrollbar{display:none}
+.chat-msg-row{display:flex;gap:8px;align-items:flex-start;animation:msgIn .4s ease}
+.chat-msg-row.ai{align-self:flex-start}
+.chat-msg-row.user{align-self:flex-end;flex-direction:row-reverse}
+.chat-msg-orb{width:28px;height:28px;border-radius:50%;background:radial-gradient(ellipse at 40% 40%,rgba(120,200,255,.5),rgba(200,160,255,.4) 40%,rgba(201,168,76,.2) 70%,transparent);box-shadow:0 0 12px rgba(108,77,196,.2);flex-shrink:0;margin-top:4px}
+.chat-msg{max-width:80%;padding:12px 16px;border-radius:16px;font-size:14px;line-height:1.55;animation:msgIn .4s ease}
+@keyframes msgIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.chat-msg.ai{background:rgba(26,16,44,.75);border:1px solid rgba(167,139,250,.2);align-self:flex-start;border-bottom-left-radius:4px;box-shadow:0 8px 28px rgba(0,0,0,.2)}
+.chat-msg.ai .sender{font-size:10px;font-weight:600;color:var(--scb-gold);margin-bottom:4px;letter-spacing:.5px;text-transform:uppercase}
+.chat-msg.user{background:rgba(45,32,72,.55);border:1px solid rgba(139,92,246,.25);align-self:flex-end;border-bottom-right-radius:4px}
+.chat-msg.user .sender{font-size:10px;color:var(--text3);text-align:right;margin-bottom:2px}
+.msg-time{font-size:10px;color:var(--text3);margin-top:4px;text-align:right}
+/* Chat Input — matches Jarvis FS input */
+.chat-input-bar{position:absolute;bottom:0;left:0;right:0;padding:10px 16px calc(26px + env(safe-area-inset-bottom, 0px));background:linear-gradient(180deg,transparent 0%,rgba(15,10,26,.88) 25%,rgba(15,10,26,.98) 100%);display:flex;flex-direction:column;gap:6px;z-index:100}
+.ch-chat-plus{width:40px;height:40px;min-width:40px;border-radius:50%;border:none;background:rgba(255,255,255,.08);color:#fff;font-size:22px;font-weight:300;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s}
+.ch-chat-plus:hover{background:rgba(255,255,255,.14)}
+.ch-chat-plus:focus-visible{outline:2px solid rgba(201,168,76,.45);outline-offset:2px}
+.chat-input-row{display:flex;gap:8px;align-items:center;width:100%;background:rgba(18,10,32,.88);backdrop-filter:blur(24px);border:1px solid rgba(167,139,250,.2);border-radius:26px;padding:6px 10px 6px 8px;transition:border-color .2s,box-shadow .2s}
+.chat-input-row:focus-within{border-color:rgba(201,168,76,.38);box-shadow:0 0 0 3px rgba(201,168,76,.1)}
+.chat-input{flex:1;background:transparent;border:none;border-radius:20px;padding:10px 8px;color:#fff;font-size:14px;font-weight:500;outline:none;caret-color:var(--scb-gold)}
+.chat-input::placeholder{color:rgba(255,255,255,.45);font-weight:400}
+.typing-dots{display:flex;gap:4px;padding:12px 16px;align-self:flex-start}
+.typing-dots span{width:7px;height:7px;border-radius:50%;background:var(--scb-gold);animation:bounce .6s infinite alternate}
+.typing-dots span:nth-child(2){animation-delay:.15s}
+.typing-dots span:nth-child(3){animation-delay:.3s}
+@keyframes bounce{to{transform:translateY(-5px);opacity:.3}}
+
+/* Chat embedded cards */
+.bill-card{background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.1);border-radius:16px;padding:16px;margin:8px 0}
+.bill-amount{font-size:28px;font-weight:800;display:flex;align-items:center;gap:8px}
+.bill-label{font-size:12px;color:var(--text2);margin-top:2px}
+.payment-options{margin-top:16px;display:flex;flex-direction:column;gap:8px}
+.pay-option{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.06);border-radius:14px;cursor:pointer;transition:all .2s}
+.pay-option:hover{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.1)}.pay-option.recommended{background:rgba(22,163,74,.06);border-color:rgba(22,163,74,.15)}
+.pay-option-label{font-size:13px;font-weight:600}
+.pay-option-note{font-size:11px;color:var(--success)}.pay-option-note.interest{color:var(--danger)}
+.pay-option-amount{font-size:15px;font-weight:700}
+.bill-due{font-size:12px;color:var(--text2);margin-top:12px;display:flex;align-items:center;gap:6px}
+/* Chat actions — matches Jarvis FS buttons */
+.chat-actions{display:flex;flex-direction:column;gap:10px;margin-top:12px;align-self:stretch}
+.chat-action-btn{display:flex;justify-content:center;align-items:center;gap:6px;padding:15px 20px;border-radius:16px;border:none;color:#fff;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;letter-spacing:.02em}
+.chat-action-btn:first-child{background:linear-gradient(135deg,var(--scb-gold),#b8933d);color:#1a0d33;box-shadow:0 4px 20px rgba(201,168,76,.25)}
+.chat-action-btn:first-child:hover{transform:translateY(-1px);box-shadow:0 6px 25px rgba(201,168,76,.35)}
+.chat-action-btn:nth-child(n+2){background:transparent;border:1.5px solid rgba(255,255,255,.2);color:#fff}
+.chat-action-btn:nth-child(n+2):hover{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.3)}
+.chat-actions.chat-actions--dual .chat-action-btn{background:rgba(22,16,36,.92)!important;border:1px solid rgba(255,255,255,.12)!important;color:#fff!important;box-shadow:none!important;text-transform:none;font-weight:600}
+.chat-actions.chat-actions--dual .chat-action-btn:hover{background:rgba(36,28,58,.95)!important;border-color:rgba(201,168,76,.25)!important}
+.chat-actions.chat-actions--dual .chat-action-btn:first-child{border-color:rgba(201,168,76,.28)!important}
+/* Embedded cards — consistent with Jarvis FS cards */
+.pay-confirm-card{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:16px;margin:8px 0}
+.pay-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;font-size:13px}
+.pay-row .label{color:var(--text2)}.pay-row .value{font-weight:700}
+.success-card{background:rgba(22,163,74,.06);border:1px solid rgba(22,163,74,.15);border-radius:16px;padding:20px;text-align:center;margin:8px 0}
+.success-icon{width:56px;height:56px;border-radius:50%;background:var(--success);margin:0 auto 12px;display:flex;align-items:center;justify-content:center;font-size:28px}
+.success-title{font-size:18px;font-weight:700;color:var(--success)}
+.success-date{font-size:12px;color:var(--text2);margin-top:4px}
+.success-ref{font-size:11px;color:var(--text3);margin-top:2px}
+.success-details{margin-top:16px;padding-top:16px;border-top:1px solid rgba(255,255,255,.06)}
+
+/* Quick reply chips — matches Jarvis FS style */
+.quick-replies{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;align-self:stretch}
+.quick-reply{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:10px 16px;font-size:12px;color:#fff;cursor:pointer;transition:all .2s;font-weight:500}
+.quick-reply:hover{background:rgba(201,168,76,.1);border-color:rgba(201,168,76,.25);color:var(--scb-gold)}
+
+/* Opportunity Radar */
+.opp-radar{position:relative;height:260px;margin:8px 0 16px;display:flex;align-items:center;justify-content:center}
+.opp-ring{position:absolute;border-radius:50%;border:1px solid rgba(108,77,196,.1)}
+.opp-ring-1{width:240px;height:240px;border-color:rgba(108,77,196,.08)}.opp-ring-2{width:170px;height:170px;border-color:rgba(108,77,196,.12)}.opp-ring-3{width:100px;height:100px;border-color:rgba(201,168,76,.15);background:radial-gradient(circle,rgba(201,168,76,.08),transparent)}
+.opp-glow{position:absolute;width:80px;height:80px;border-radius:50%;background:radial-gradient(circle,rgba(201,168,76,.25),rgba(108,77,196,.1),transparent);z-index:1;animation:radarPulse 3s ease infinite}
+@keyframes radarPulse{0%,100%{transform:scale(1);opacity:.8}50%{transform:scale(1.3);opacity:.4}}
+.opp-avatar{width:56px;height:56px;border-radius:50%;background:var(--scb-gold);display:flex;align-items:center;justify-content:center;font-size:26px;z-index:2;box-shadow:0 0 30px rgba(201,168,76,.3)}
+.opp-bubble{position:absolute;background:rgba(45,22,84,.7);backdrop-filter:blur(16px);border:1px solid rgba(201,168,76,.2);border-radius:12px;padding:8px 12px;font-size:11px;font-weight:600;color:#fff;cursor:pointer;transition:all .3s;white-space:nowrap;z-index:3}
+.opp-bubble::before{content:'';position:absolute;width:6px;height:6px;border-radius:50%;background:var(--scb-gold);box-shadow:0 0 8px rgba(201,168,76,.5)}
+.opp-bubble:nth-child(5)::before{bottom:-3px;left:50%;transform:translateX(-50%)}
+.opp-bubble:nth-child(6)::before{bottom:50%;left:-3px}
+.opp-bubble:nth-child(7)::before{top:-3px;left:50%;transform:translateX(-50%)}
+.opp-bubble:nth-child(8)::before{bottom:50%;right:-3px}
+.opp-bubble:nth-child(9)::before{top:50%;right:-3px}
+.opp-bubble:hover{background:rgba(201,168,76,.25);transform:scale(1.05)!important;border-color:rgba(201,168,76,.3)}
+.opp-bubble{animation:float 4s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+.opp-bubble:nth-child(5){animation-delay:0s}.opp-bubble:nth-child(6){animation-delay:.8s}.opp-bubble:nth-child(7){animation-delay:1.6s}.opp-bubble:nth-child(8){animation-delay:2.4s}.opp-bubble:nth-child(9){animation-delay:3.2s}
+
+/* Lighthouse */
+.lighthouse-card{background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--radius);padding:16px;margin-bottom:8px;display:flex;gap:12px;align-items:center;cursor:pointer;transition:all .2s}
+.lighthouse-card:hover{background:rgba(255,255,255,.12)}
+.lh-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.lh-text{flex:1}.lh-title{font-size:13px;font-weight:600}.lh-sub{font-size:11px;color:var(--text2);margin-top:2px}
+
+/* Approval Gauge */
+.approval-gauge{position:relative;width:120px;height:120px;margin:12px auto}
+.approval-gauge svg{transform:rotate(-90deg)}
+.approval-pct{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.approval-pct .num{font-size:32px;font-weight:800;color:var(--scb-gold)}
+.approval-pct .lbl{font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:.5px}
+
+/* Eligibility checks */
+.elig-check{display:flex;align-items:flex-start;gap:8px;margin:6px 0;font-size:12px}
+.elig-check .elig-icon{width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;font-weight:700}
+.elig-check .elig-icon.pass{background:var(--success-bg);color:var(--success)}
+.elig-check .elig-icon.info{background:rgba(108,77,196,.15);color:var(--scb-purple-light)}
+.elig-label{font-weight:600}.elig-value{color:var(--text2)}
+
+/* Match badge */
+.match-badge{display:inline-block;padding:3px 10px;border-radius:10px;font-size:10px;font-weight:700;background:rgba(22,163,74,.15);color:var(--success)}
+.savings-amt{font-size:20px;font-weight:800;color:var(--success);margin-top:6px}
+
+/* Anomaly alert */
+.anomaly-card{background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.12);border-radius:16px;padding:16px;margin:8px 0}
+.anomaly-header{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.anomaly-icon{width:28px;height:28px;border-radius:4px;background:rgba(202,13,41,.1);color:var(--danger);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700}
+
+/* Swipe hint */
+.swipe-hint{text-align:center;padding:8px;font-size:11px;color:var(--text3);animation:swipeHintAnim 2s ease infinite}
+@keyframes swipeHintAnim{0%,100%{opacity:.3;transform:translateY(0)}50%{opacity:.7;transform:translateY(-4px)}}
+
+/* Voice Overlay */
+.voice-overlay{position:absolute;inset:0;background:linear-gradient(170deg,#2d1654 0%,#1a0d33 60%,#0f0a1a 100%);z-index:900;display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s ease}
+.voice-overlay.active{opacity:1;pointer-events:all}
+.voice-overlay .vo-close{position:absolute;top:60px;right:24px;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.1);border:none;color:#fff;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.voice-overlay .vo-status{font-size:12px;color:var(--scb-gold);text-transform:uppercase;letter-spacing:2px;font-weight:600;margin-bottom:24px}
+.voice-overlay .vo-orb{width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,rgba(201,168,76,.25),rgba(108,77,196,.15),transparent);display:flex;align-items:center;justify-content:center;animation:orbPulse 2s ease infinite;position:relative}
+.voice-overlay .vo-orb::before{content:'';position:absolute;inset:-16px;border-radius:50%;border:1px solid rgba(201,168,76,.1);animation:orbRing 2s ease infinite}
+.voice-overlay .vo-orb::after{content:'';position:absolute;inset:-32px;border-radius:50%;border:1px solid rgba(108,77,196,.06);animation:orbRing 2s ease .4s infinite}
+@keyframes orbPulse{0%,100%{transform:scale(1);box-shadow:0 0 40px rgba(201,168,76,.15)}50%{transform:scale(1.08);box-shadow:0 0 60px rgba(201,168,76,.25)}}
+@keyframes orbRing{0%,100%{transform:scale(1);opacity:.6}50%{transform:scale(1.05);opacity:.2}}
+.voice-overlay .vo-mic-icon{width:64px;height:64px;border-radius:50%;background:linear-gradient(165deg,#fff566 0%,#facc15 30%,#eab308 55%,#a16207 100%);display:flex;align-items:center;justify-content:center;color:#422006;box-shadow:0 4px 32px rgba(234,179,8,.55),inset 0 1px 0 rgba(255,255,255,.55)}
+.voice-overlay .vo-mic-icon .jarvis-mic-svg{width:30px;height:30px}
+.voice-overlay .vo-waves{display:flex;align-items:center;gap:3px;height:40px;margin:24px 0 16px}
+.voice-overlay .vo-waves span{width:4px;border-radius:2px;background:linear-gradient(var(--scb-gold),var(--accent));animation:voWave 1s ease-in-out infinite alternate}
+.voice-overlay .vo-waves span:nth-child(1){height:12px;animation-delay:0s}
+.voice-overlay .vo-waves span:nth-child(2){height:24px;animation-delay:.1s}
+.voice-overlay .vo-waves span:nth-child(3){height:36px;animation-delay:.15s}
+.voice-overlay .vo-waves span:nth-child(4){height:20px;animation-delay:.25s}
+.voice-overlay .vo-waves span:nth-child(5){height:32px;animation-delay:.3s}
+.voice-overlay .vo-waves span:nth-child(6){height:16px;animation-delay:.4s}
+.voice-overlay .vo-waves span:nth-child(7){height:28px;animation-delay:.45s}
+@keyframes voWave{to{height:6px}}
+.voice-overlay .vo-transcript{font-size:18px;font-weight:300;color:#fff;text-align:center;min-height:28px;margin-bottom:32px;padding:0 30px;opacity:0;transition:opacity .4s}
+.voice-overlay .vo-transcript.show{opacity:1}
+.voice-overlay .vo-prompts{display:flex;flex-direction:column;gap:8px;padding:0 30px;width:100%}
+.voice-overlay .vo-prompts-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;text-align:center;margin-bottom:4px}
+.voice-overlay .vo-prompt{background:rgba(255,255,255,.05);border:1px solid rgba(201,168,76,.12);border-radius:14px;padding:12px 16px;font-size:13px;color:rgba(255,255,255,.7);cursor:pointer;transition:all .2s;text-align:center}
+.voice-overlay .vo-prompt:hover{background:rgba(201,168,76,.1);border-color:rgba(201,168,76,.25);color:#fff}
+
+/* Jarvis Fullscreen — Card block flow (see Figma: Conversational AI Components) */
+.jarvis-fs{position:absolute;inset:0;z-index:800;background:linear-gradient(175deg,#1a0d33 0%,#0f0a1a 50%,#1a0d33 80%,rgba(78,42,132,.25) 100%);display:flex;flex-direction:column;opacity:0;pointer-events:none;transition:opacity .4s ease;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.jarvis-fs.active{opacity:1;pointer-events:all}
+.jarvis-fs-header{display:flex;align-items:center;padding:52px 16px 12px;gap:10px;flex-shrink:0}
+.jarvis-fs-header .jfh-back{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.08);border:none;color:#fff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.jarvis-fs-header .jfh-title{flex:1;text-align:center;font-size:14px;font-weight:600;color:#fff}
+.jarvis-fs-header .jfh-menu{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.08);border:none;color:#fff;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.jarvis-fs-body{flex:1;display:flex;flex-direction:column;align-items:center;padding:0 24px 124px;overflow-y:auto}
+.jarvis-fs-orb{width:160px;height:160px;border-radius:50%;margin:16px 0 24px;background:radial-gradient(ellipse at 40% 40%,rgba(120,200,255,.4),rgba(200,160,255,.3) 30%,rgba(201,168,76,.15) 60%,transparent 80%);box-shadow:0 0 60px rgba(108,77,196,.2),0 0 100px rgba(201,168,76,.08);animation:orbFloat 4s ease-in-out infinite;position:relative;flex-shrink:0}
+.jarvis-fs-orb::before{content:'';position:absolute;inset:0;border-radius:50%;background:radial-gradient(ellipse at 60% 30%,rgba(255,255,255,.25),transparent 50%);animation:orbShimmer 3s ease infinite alternate}
+.jarvis-fs-orb::after{content:'';position:absolute;inset:-24px;border-radius:50%;border:1px solid rgba(201,168,76,.08);animation:orbRingFs 3s ease infinite}
+@keyframes orbFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+@keyframes orbShimmer{from{opacity:.5;transform:rotate(0deg)}to{opacity:.9;transform:rotate(20deg)}}
+@keyframes orbRingFs{0%,100%{transform:scale(1);opacity:.4}50%{transform:scale(1.06);opacity:.1}}
+.jarvis-fs-text{font-size:20px;font-weight:500;color:#fff;text-align:center;line-height:1.55;margin-bottom:20px;max-width:320px;animation:fadeUp .6s ease both}
+.jarvis-fs-card{width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:16px;margin:8px 0;animation:fadeUp .5s ease both .2s;opacity:0}
+.jarvis-fs-card .jfc-line{font-size:14px;color:#fff;line-height:1.6}
+.jarvis-fs-card .jfc-sub{font-size:12px;color:var(--text2);margin-top:2px}
+.jarvis-fs-badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;padding:4px 10px;border-radius:8px;margin-top:8px}
+.jarvis-fs-badge.frozen{background:rgba(234,140,0,.15);color:var(--warning)}
+.jarvis-fs-badge.pending{background:rgba(234,140,0,.15);color:var(--warning)}
+.jarvis-fs-badge.verified{background:rgba(22,163,74,.15);color:var(--success)}
+.jarvis-fs-actions{width:100%;display:flex;flex-direction:column;gap:10px;margin-top:20px;animation:fadeUp .5s ease both .4s;opacity:0}
+.jarvis-fs-btn{width:100%;padding:14px;border-radius:14px;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;text-align:center;cursor:pointer;border:none;transition:all .2s}
+.jarvis-fs-btn.primary{background:linear-gradient(135deg,var(--scb-gold),#b8933d);color:#1a0d33;box-shadow:0 4px 20px rgba(201,168,76,.25)}
+.jarvis-fs-btn.primary:hover{transform:translateY(-1px);box-shadow:0 6px 25px rgba(201,168,76,.35)}
+.jarvis-fs-btn.secondary{background:transparent;border:1.5px solid rgba(255,255,255,.2);color:#fff}
+.jarvis-fs-btn.secondary:hover{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.3)}
+/* SCB EASY brand rail (card offer + block-card flows) */
+.jcc-easy-rail-wrap{max-width:340px;margin:14px auto 6px;text-align:center;animation:fadeUp .5s ease both .25s;opacity:0}
+.jcc-easy-rail{display:flex;justify-content:space-between;align-items:center;width:100%;padding:11px 22px 11px 20px;border-radius:999px;background:linear-gradient(105deg,#3d1f6e 0%,#5b3d9a 32%,#7b5ea7 52%,#9a7238 78%,#c9a84c 100%);border:1px solid rgba(255,255,255,.18);box-shadow:0 14px 40px rgba(0,0,0,.38),inset 0 1px 0 rgba(255,255,255,.14);position:relative;overflow:hidden}
+.jcc-easy-rail::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.1) 0%,transparent 42%);pointer-events:none;border-radius:inherit}
+.jcc-ez-left{position:relative;z-index:1;font-size:12px;font-weight:800;letter-spacing:.14em;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.25)}
+.jcc-ez-right{position:relative;z-index:1;font-size:11px;font-weight:700;letter-spacing:.1em;color:rgba(255,255,255,.94);display:inline-flex;align-items:center;gap:7px}
+.jcc-ez-mark{font-size:11px;font-weight:800;color:#f5e6b8;line-height:1;transform:translateY(-0.5px)}
+.jcc-easy-product{position:relative;z-index:0;font-size:15px;font-weight:600;color:rgba(255,255,255,.9);letter-spacing:-.02em;margin:10px 0 4px}
+.jcc-easy-pan{position:relative;z-index:0;font-size:14px;font-weight:500;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;color:rgba(255,255,255,.88);letter-spacing:.12em;margin-top:4px;margin-bottom:2px}
+/* Legacy full-bleed card (unused after rail refresh; kept for reference) */
+.jarvis-fs-creditcard{width:220px;height:138px;border-radius:14px;background:linear-gradient(135deg,#4e2a84 0%,#7b5ea7 30%,#c9a84c 70%,#e8d5a0 100%);margin:16px auto;padding:14px;display:flex;flex-direction:column;justify-content:space-between;box-shadow:0 8px 30px rgba(0,0,0,.3);position:relative;overflow:hidden;animation:fadeUp .5s ease both .3s;opacity:0}
+.jarvis-fs-creditcard::before{content:'';position:absolute;top:0;right:0;width:80px;height:80px;background:radial-gradient(circle,rgba(255,255,255,.15),transparent);border-radius:50%;transform:translate(20px,-20px)}
+.jarvis-fs-creditcard .jcc-brand{display:flex;justify-content:space-between;font-size:11px;font-weight:700;color:rgba(255,255,255,.9);letter-spacing:1px}
+.jarvis-fs-creditcard .jcc-chip{width:32px;height:24px;border-radius:4px;background:linear-gradient(135deg,#e8d5a0,#c9a84c);margin:4px 0}
+.jarvis-fs-creditcard .jcc-number{font-size:13px;font-weight:500;color:#fff;letter-spacing:2px;font-family:monospace}
+.jarvis-fs-creditcard .jcc-bottom{display:flex;justify-content:space-between;align-items:flex-end}
+.jarvis-fs-creditcard .jcc-nfc{font-size:18px;color:rgba(255,255,255,.6)}
+.jarvis-fs-creditcard .jcc-mc{display:flex;gap:-4px}
+.jarvis-fs-creditcard .jcc-mc span{width:20px;height:20px;border-radius:50%}
+.jarvis-fs-creditcard .jcc-mc span:first-child{background:rgba(235,0,27,.8)}
+.jarvis-fs-creditcard .jcc-mc span:last-child{background:rgba(255,159,0,.8);margin-left:-8px}
+.jarvis-fs-verify{width:100%;display:flex;flex-direction:column;gap:10px;margin-top:12px;animation:fadeUp .5s ease both .3s;opacity:0}
+.jarvis-fs-verify label{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);border-radius:12px;font-size:13px;color:#fff;cursor:pointer;transition:all .2s}
+.jarvis-fs-verify label:hover{background:rgba(255,255,255,.06)}
+.jarvis-fs-verify input[type=radio]{accent-color:var(--scb-gold);width:18px;height:18px;flex-shrink:0}
+.jarvis-fs-processing{width:100%;background:linear-gradient(135deg,#1a3a8a,#2563eb);border-radius:16px;padding:24px;text-align:center;margin-top:16px;animation:fadeUp .5s ease both .3s;opacity:0}
+.jarvis-fs-processing .jfp-dots{display:flex;justify-content:center;gap:6px;margin-bottom:12px}
+.jarvis-fs-processing .jfp-dots span{width:10px;height:10px;border-radius:50%;background:var(--scb-gold);animation:procDot 1.2s ease infinite}
+.jarvis-fs-processing .jfp-dots span:nth-child(2){animation-delay:.2s}
+.jarvis-fs-processing .jfp-dots span:nth-child(3){animation-delay:.4s}
+@keyframes procDot{0%,100%{opacity:.3;transform:scale(.8)}50%{opacity:1;transform:scale(1.2)}}
+.jarvis-fs-processing .jfp-text{font-size:14px;font-weight:600;color:#fff}
+.jarvis-fs-success{width:100%;background:linear-gradient(135deg,#065f46,#059669);border-radius:16px;padding:24px;text-align:center;margin-top:16px;animation:fadeUp .5s ease both}
+.jarvis-fs-success .jfs-icon{font-size:36px;margin-bottom:6px}
+.jarvis-fs-success .jfs-text{font-size:14px;font-weight:600;color:#fff}
+.jarvis-fs-notice{display:flex;align-items:flex-start;gap:8px;padding:10px 14px;background:rgba(255,255,255,.04);border-radius:10px;margin-top:8px;font-size:11px;color:var(--text2);line-height:1.5}
+.jarvis-fs-input{position:absolute;bottom:0;left:0;right:0;padding:10px 16px calc(28px + env(safe-area-inset-bottom, 0px));background:linear-gradient(180deg,transparent 0%,rgba(15,10,26,.88) 25%,rgba(15,10,26,.98) 100%);display:flex;flex-direction:column;gap:8px;align-items:stretch}
+.jarvis-fs-input-bar{display:flex;align-items:center;gap:8px;background:rgba(18,10,32,.88);backdrop-filter:blur(24px);border:1px solid rgba(167,139,250,.2);border-radius:26px;padding:8px 10px 8px 8px;box-shadow:0 8px 28px rgba(0,0,0,.35)}
+.jarvis-fs-input-bar .ch-chat-plus{width:38px;height:38px;min-width:38px;font-size:20px}
+.jarvis-fs-input-bar input{flex:1;background:none;border:none;color:#fff;font-size:13px;outline:none;min-width:0}
+.jarvis-fs-input-bar input::placeholder{color:rgba(255,255,255,.32)}
+
+/* Animations */
+.fade-up{animation:fadeUp .5s ease both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.stagger-1{animation-delay:.1s}.stagger-2{animation-delay:.2s}.stagger-3{animation-delay:.3s}.stagger-4{animation-delay:.4s}.stagger-5{animation-delay:.5s}
+
+</style>
+</head>
+<body>
+
+<!-- Phone -->
+<!-- SVG defs for gradient icons -->
+<svg width="0" height="0" style="position:absolute"><defs>
+<linearGradient id="goldGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#c9a84c"/><stop offset="100%" stop-color="#e8d5a0"/></linearGradient>
+</defs></svg>
+<div class="phone">
+  <div class="phone-notch"></div>
+  <div class="status-bar"><span id="statusTime" style="font-weight:600">9:42</span><span style="font-size:11px;color:var(--text2)">&#9679;&#9679;&#9679;</span></div>
+
+  <!-- 1: Lock Screen -->
+  <div class="screen active" id="lockScreen">
+    <div class="lock-screen">
+      <div class="lock-date" id="lockDate">Monday, 13 April</div>
+      <div class="lock-time" id="lockTime">9:42</div>
+      <div class="lock-notif-stack">
+        <div class="notification" onclick="openMorningNotif()" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openMorningNotif();}">
+          <div class="notif-avatar" aria-hidden="true">&#9728;</div>
+          <div class="notif-content">
+            <div class="notif-app-row"><span class="notif-app">SCB Easy</span><span class="notif-time">Now</span></div>
+            <div class="notif-text" id="notifText">Loading...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2: Immersive AI Home — hyper-personalized landing (digital twin + nudges) -->
+  <div class="screen" id="homeScreen">
+    <div class="imm-home">
+
+      <!-- Hidden nodes keep render() persona updates from throwing; home UI is the mockup image below -->
+      <div hidden aria-hidden="true">
+        <span id="immName">Eva</span>
+        <p id="immMetaphor">Light clouds on the financial horizon. Navigate wisely.</p>
+        <span id="immBalPill">&#3647;348,500.00</span>
+        <span id="immPtsLine">PointX · 18,750 pts</span>
+        <span id="immTwinInitial">E</span>
+        <span id="immLhInvestSub">Horizon, risk, and first steps</span>
+        <div id="immNudgeList"></div>
+      </div>
+
+      <div class="imm-home-mockup" role="img" aria-label="My financial forecast — app home">
+        <img src="assets/app-home-mockup.png" alt="" class="imm-home-mockup-img" decoding="async" />
+      </div>
+
+      <!-- Jarvis — wavy strip + conversational entry -->
+      <div class="imm-bottom">
+        <div class="imm-voice-wave-wrap" aria-hidden="true">
+          <svg viewBox="0 0 390 42" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="immWaveFillHome" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="rgba(88,28,135,.55)"/>
+                <stop offset="100%" stop-color="rgba(26,13,51,.35)"/>
+              </linearGradient>
+            </defs>
+            <path fill="url(#immWaveFillHome)" d="M0,28 C48,8 110,38 195,22 C260,10 320,32 390,18 L390,42 L0,42 Z"/>
+            <path fill="none" stroke="rgba(201,168,76,.12)" stroke-width="1" d="M0,26 C52,10 108,36 195,20 C268,6 328,30 390,16"/>
+          </svg>
+        </div>
+        <p class="imm-voice-hint">Ask me anything, like <em>&ldquo;Help me plan my birthday party&rdquo;</em></p>
+        <div class="imm-jarvis-bar">
+          <button type="button" class="ch-chat-plus" title="Attach" aria-label="Add" onclick="event.preventDefault();document.getElementById('homeJarvisInput').focus();">+</button>
+          <div class="imm-jb-field">
+            <input type="text" class="imm-jb-input" id="homeJarvisInput" placeholder="Ask me anything&hellip;" aria-label="Message Jarvis" autocomplete="off" inputmode="text" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter'){event.preventDefault();jarvisFieldEnter('homeJarvisInput');}">
+          </div>
+          <button type="button" class="jarvis-mic-btn" onclick="openVoice()" title="Voice input" aria-label="Voice input"><svg class="jarvis-mic-svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5-3c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg></button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 3: Morning brief — layout inspired by reference (pulse, tasks, market, what’s happening, Jarvis) -->
+  <div class="screen" id="briefingScreen">
+    <div class="briefing-layout">
+      <div class="scr-header mb-brief-header">
+        <div class="mb-brief-topbar">
+          <button type="button" class="menu-btn" onclick="navigate('home')" title="Close" aria-label="Close morning brief">&#10005;</button>
+        </div>
+        <div class="greeting-text" id="greetingText">Good morning, Eva.</div>
+        <div class="greeting-sub" id="greetingSub">Here&rsquo;s your hot macha for the day, and your personal briefing.</div>
+      </div>
+      <div class="scr-body mb-brief-body cx-embed-scroll scroll" id="briefingBody">
+        <div class="mb-sec">Your Pulse</div>
+        <div class="mb-pulse-wrap card-g" id="pulseCardWrap" tabindex="0" role="region" aria-label="Financial health pulse. Tap to expand or collapse details." onclick="onPulseCardPointer(event)" onkeydown="onPulseCardKeydown(event)">
+          <div class="mb-pulse-head">
+            <div class="mb-pulse-left">
+              <div class="mb-pulse-kicker">Financial health</div>
+              <button type="button" class="mb-pulse-score-cta" id="pulseScoreHero" onclick="event.stopPropagation();navigate('chat','improve_score');" aria-label="Improve your financial health score">0</button>
+            </div>
+            <div class="mb-pulse-status-col">
+              <span class="mb-pulse-expand-icon" aria-hidden="true"><span class="mb-pulse-chev">&#9660;</span></span>
+              <div class="mb-pulse-status-label">Status</div>
+              <div class="mb-pulse-status-val" id="pulseStatusVal">Good</div>
+            </div>
+          </div>
+          <div class="mb-pulse-expand-region" id="pulseExpandRegion" aria-hidden="true">
+            <div class="mb-pulse-expand-inner" id="pulseExpandInner"></div>
+          </div>
+        </div>
+
+        <div class="mb-sec">Today&rsquo;s Tasks</div>
+        <div class="mb-task-stack">
+          <div id="tasksContainer"></div>
+        </div>
+
+        <div class="mb-sec">News for you</div>
+        <div id="newsContainer"></div>
+
+        <div class="mb-sec">Offers for you</div>
+        <div id="offersContainer"></div>
+
+        <div class="mb-market-alert card-g" onclick="navigate('chat','morning_market')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();navigate('chat','morning_market');}">
+          <div class="mb-ma-head">
+            <div class="mb-ma-icon" aria-hidden="true"><span style="font-size:22px;line-height:1">&#128200;</span></div>
+            <div>
+              <div class="mb-ma-title">Market Alert</div>
+              <div class="mb-ma-body">Today the market has dipped. Want to understand why? Learn more.</div>
+              <div class="mb-ma-cta">Learn more</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mb-happening card-g mb-wh-compact" onclick="navigate('chat','morning_wh')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();navigate('chat','morning_wh');}">
+          <div class="mb-wh-kicker">What&rsquo;s happening</div>
+          <div class="mb-wh-body">
+            <div class="mb-wh-icon" aria-hidden="true">&#128200;</div>
+            <div class="mb-wh-text">Your tech portfolio is down 3.2% this morning.</div>
+          </div>
+        </div>
+      </div>
+      <div class="brief-jarvis-panel">
+        <div class="brief-jarvis-row">
+          <button type="button" class="ch-chat-plus" title="Attach" aria-label="Add" onclick="event.preventDefault();document.getElementById('briefJarvisInput').focus();">+</button>
+          <input type="text" id="briefJarvisInput" placeholder="Ask Jarvis anything&hellip;" aria-label="Message" autocomplete="off" inputmode="text" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter'){event.preventDefault();jarvisFieldEnter('briefJarvisInput');}">
+          <button type="button" class="jarvis-mic-btn" onclick="openVoice()" title="Voice input" aria-label="Voice input"><svg class="jarvis-mic-svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5-3c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Wellness — multi-step journey (in-modal, matches workshop reference) -->
+  <div class="wellness-modal screen" id="wellnessModal">
+    <div class="scr-header">
+      <div class="scr-nav">
+        <button type="button" class="back-btn" onclick="wellnessBack()" aria-label="Back">&#8592;</button>
+        <span class="scr-title" id="wellnessScrTitle">Financial wellness</span>
+        <button type="button" class="menu-btn" onclick="hideWellness();navigate('chat','insights')" title="Jarvis" aria-label="Open Jarvis chat">&#128172;</button>
+      </div>
+    </div>
+    <div class="wellness-step-scroll">
+      <div class="well-step active" data-step="0">
+        <div class="wellness-title" id="wellTitle">Your Financial Wellness Score</div>
+        <div class="wellness-msg" id="wellMsg">Eva &mdash; you&rsquo;re on track to a financially fit future.</div>
+        <div style="position:relative;width:200px;height:200px;margin:12px auto 8px">
+          <svg width="200" height="200" viewBox="0 0 200 200" aria-hidden="true">
+            <circle cx="100" cy="100" r="85" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="12"/>
+            <circle cx="100" cy="100" r="85" fill="none" stroke="url(#wellGaugeGrad)" stroke-width="12" stroke-linecap="round" stroke-dasharray="534" id="bigGaugeArc" stroke-dashoffset="534" transform="rotate(-90 100 100)"/>
+            <defs>
+              <linearGradient id="wellGaugeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#a78bfa"/><stop offset="55%" stop-color="#6c4dc4"/><stop offset="100%" stop-color="#4e2a84"/>
+              </linearGradient>
+            </defs>
+          </svg>
+          <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center">
+            <div style="font-size:48px;font-weight:800;line-height:1" id="bigScore">0</div>
+            <div style="font-size:13px;color:rgba(255,255,255,.38);margin-top:4px">out of 100</div>
+          </div>
+        </div>
+        <div class="gauge-peer" id="peerText">You are in the top <b>12%</b> of people your age</div>
+        <div class="pillar-grid" id="pillarGrid"></div>
+        <div class="well-cta-wrap">
+          <button type="button" class="well-link-accounts" onclick="hideWellness();navigate('chat','insights')">LINK YOUR ACCOUNTS FOR A BETTER SCORE <span aria-hidden="true">&rarr;</span></button>
+          <button type="button" class="well-cta-gold" onclick="setWellnessStep(1)">UNDERSTAND MY SCORE</button>
+        </div>
+        <div class="well-voice-strip">
+          <button type="button" class="jarvis-mic-btn" onclick="openVoice()" title="Voice input" aria-label="Voice input"><svg class="jarvis-mic-svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5-3c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg></button>
+          <p>Ask me anything, like <em>&ldquo;Help me breakdown my budget&rdquo;</em></p>
+        </div>
+      </div>
+
+      <div class="well-step" data-step="1">
+        <div class="well-notif-card" id="wellHolNotif">Investment score is Below Average. <span class="well-n-name">Eva</span>, your investments are underperforming on <strong>2 of 4</strong> holistic fitness markers.</div>
+        <div class="well-hol-grid">
+          <div class="well-hol-cell"><div class="well-hol-k">Invested rate</div><div class="well-hol-v track">ON TRACK</div></div>
+          <div class="well-hol-cell"><div class="well-hol-k">Asset allocation</div><div class="well-hol-v warn">CAN BE BETTER</div></div>
+          <div class="well-hol-cell"><div class="well-hol-k">Fund selection</div><div class="well-hol-v bad">NEEDS ATTENTION</div></div>
+          <div class="well-hol-cell"><div class="well-hol-k">Product concentration</div><div class="well-hol-v track">ON TRACK</div></div>
+        </div>
+        <div class="well-insight"><p>Missed gains of <strong>400K THB</strong>. Your portfolio grew <strong>7%</strong> vs. a benchmark of <strong>11%</strong> over the same window &mdash; tightening fund selection and allocation would close most of that gap.</p></div>
+        <div class="well-bar-pair" aria-hidden="true">
+          <div><div class="well-bar well-bar--you" style="height:46px"></div><div class="well-bar-cap">You 7%</div></div>
+          <div><div class="well-bar well-bar--bm" style="height:120px"></div><div class="well-bar-cap">Benchmark 11%</div></div>
+        </div>
+        <button type="button" class="well-cta-gold" style="max-width:320px;margin:8px auto 0;display:block" onclick="setWellnessStep(2)">Continue</button>
+        <div class="well-mini-chat"><span class="ch-chat-plus" style="width:34px;height:34px;min-width:34px;border-radius:50%;background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-size:18px;cursor:default">+</span><input type="text" readonly placeholder="Ask Jarvis anything&hellip;" aria-label="Jarvis input (demo)"><button type="button" class="jarvis-mic-btn" onclick="openVoice()" title="Voice" aria-label="Voice"><svg class="jarvis-mic-svg" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5-3c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg></button></div>
+      </div>
+
+      <div class="well-step" data-step="2">
+        <div class="well-bar-pair" style="height:140px;margin-top:8px">
+          <div><div class="well-bar well-bar--you" style="height:56px"></div><div class="well-bar-cap">400K THB</div></div>
+          <div><div class="well-bar well-bar--bm" style="height:140px"></div><div class="well-bar-cap">1,200K THB</div></div>
+        </div>
+        <div class="well-jarv-row">
+          <div class="well-jarv-orb" aria-hidden="true"></div>
+          <div class="well-jarv-bubble"><span class="well-n-name">Eva</span>, you are on track to retire by <strong>60</strong>. However, your savings rate is slightly below peers &mdash; nudging recurring transfers would widen your cushion without changing lifestyle much.</div>
+        </div>
+        <div class="well-hint-card">You can edit your target retirement age or expected expenses here.</div>
+        <button type="button" class="well-cta-gold" style="max-width:320px;margin:0 auto;display:block" onclick="setWellnessStep(3)">DIVE DEEPER</button>
+        <div class="well-mini-chat"><span class="ch-chat-plus" style="width:34px;height:34px;min-width:34px;border-radius:50%;background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-size:18px">+</span><input type="text" readonly placeholder="Ask Jarvis anything&hellip;" aria-label="Jarvis input (demo)"><button type="button" class="jarvis-mic-btn" onclick="openVoice()" aria-label="Voice"><svg class="jarvis-mic-svg" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5-3c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg></button></div>
+      </div>
+
+      <div class="well-step" data-step="3">
+        <div class="well-step-h">LIQUIDITY &mdash; UNDERSTAND SCORE</div>
+        <div class="well-jarv-row">
+          <div class="well-jarv-orb" aria-hidden="true"></div>
+          <div class="well-jarv-bubble">You are behind on <strong>1 of 3</strong> liquidity dimensions. Emergency funding and lifespan outlook look solid; savings velocity is the lever to pull first.</div>
+        </div>
+        <div class="well-dim-card">
+          <div class="well-dim-h"><span class="well-dim-t">Emergency fund</span><span class="well-badge ok">On track</span></div>
+          <p>About <strong>17 months</strong> of essential expenses are funded in liquid accounts.</p>
+        </div>
+        <div class="well-dim-card">
+          <div class="well-dim-h"><span class="well-dim-t">Savings rate</span><span class="well-badge no">Needs attention</span></div>
+          <p>Current rate <strong>19.2%</strong> vs. recommended <strong>20%</strong> for your income band.</p>
+        </div>
+        <div class="well-dim-card">
+          <div class="well-dim-h"><span class="well-dim-t">Financial lifespan</span><span class="well-badge ok">On track</span></div>
+          <p>Trajectory still supports retiring by <strong>60</strong> if contributions hold.</p>
+        </div>
+        <button type="button" class="well-cta-gold" style="max-width:320px;margin:12px auto 0;display:block" onclick="setWellnessStep(4)">See recommended actions</button>
+        <div class="well-mini-chat"><span class="ch-chat-plus" style="width:34px;height:34px;min-width:34px;border-radius:50%;background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-size:18px">+</span><input type="text" readonly placeholder="Ask Jarvis anything&hellip;" aria-label="Jarvis input (demo)"><button type="button" class="jarvis-mic-btn" onclick="openVoice()" aria-label="Voice"><svg class="jarvis-mic-svg" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5-3c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg></button></div>
+      </div>
+
+      <div class="well-step" data-step="4">
+        <div class="well-step-h">REVIEW ACTION &mdash; ORDER VERIFICATION</div>
+        <div class="well-jarv-row">
+          <div class="well-jarv-orb" aria-hidden="true"></div>
+          <div class="well-jarv-bubble"><strong>Action 2:</strong> Invest part of your excess emergency buffer into a <strong>unit-linked plan</strong> to grow market-linked retirement corpus while keeping protection.</div>
+        </div>
+        <div class="well-ulip-card">
+          <div class="well-ulip-k">ONE-TIME PAYMENT &middot; 1 PLAN(S)</div>
+          <div class="well-ulip-title">Unit-linked insurance plan &middot; 400K THB</div>
+          <div class="well-ulip-meta">Illustrative offer for demo storytelling only.</div>
+          <ul class="well-ulip-bul">
+            <li>Secure your family&rsquo;s future with bundled life cover</li>
+            <li>Earn market-linked returns on the invested component</li>
+            <li>Tax benefits may apply under current rules</li>
+          </ul>
+        </div>
+        <div class="well-cta-stack">
+          <button type="button" class="well-cta-gold" onclick="hideWellness();navigate('chat','insights')">Execute strategy</button>
+          <button type="button" class="well-cta-gold outline" onclick="hideWellness();navigate('chat','improve_score')">See other ULIPs <span aria-hidden="true">&rarr;</span></button>
+        </div>
+        <div class="well-mini-chat"><span class="ch-chat-plus" style="width:34px;height:34px;min-width:34px;border-radius:50%;background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-size:18px">+</span><input type="text" readonly placeholder="Ask Jarvis anything&hellip;" aria-label="Jarvis input (demo)"><button type="button" class="jarvis-mic-btn" onclick="openVoice()" aria-label="Voice"><svg class="jarvis-mic-svg" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5-3c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg></button></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4: Portfolio -->
+  <div class="screen" id="portfolioScreen">
+    <div style="display:flex;flex-direction:column;height:100%">
+      <div class="scr-header"><div class="scr-nav"><button class="back-btn" onclick="navigate('home')">&#8592;</button><span class="scr-title">My Portfolio</span><button class="menu-btn" onclick="navigate('chat','portfolio')">&#128172;</button></div></div>
+      <div class="scr-body">
+        <div class="port-total"><div><div class="port-total-label">Total Portfolio Value</div><div class="port-total-val" id="portTotal">&#3647; 265,000</div></div><div style="text-align:right"><div class="port-total-label">Overall Return</div><div style="font-size:16px;font-weight:700;color:var(--success)" id="portReturn">+6.0%</div></div></div>
+        <div class="section-title" style="margin-top:4px">Investments</div>
+        <div id="portList"></div>
+        <div class="section-title">Accounts</div>
+        <div id="acctList"></div>
+        <div class="section-title">Market Snapshot</div>
+        <div id="marketList"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5: Chat -->
+  <div class="screen" id="chatScreen">
+    <div class="chat-screen">
+      <div class="chat-header">
+        <button class="ch-back" onclick="navigate(lastScreen||'home')">&#8592;</button>
+        <div class="ch-info"><div class="ch-name" id="chatTitle">Jarvis</div><div class="ch-sub" id="chatSub">Your AI banking assistant</div></div>
+        <button type="button" class="ch-grid" title="More" aria-label="More options" onclick="startChatFlow('insights')">&#8942;</button>
+      </div>
+      <div class="chat-messages" id="chatMessages"></div>
+      <div class="chat-input-bar">
+        <div class="chat-input-row">
+          <button type="button" class="ch-chat-plus" title="Attach" aria-label="Add" onclick="event.preventDefault();document.getElementById('chatInput').focus();">+</button>
+          <input type="text" class="chat-input" id="chatInput" placeholder="Ask Jarvis anything&hellip;" aria-label="Message" autocomplete="off" inputmode="text" onkeydown="if(event.key==='Enter'){event.preventDefault();handleChatSend();}">
+          <button type="button" class="jarvis-mic-btn" onclick="openVoice()" title="Voice input" aria-label="Voice input"><svg class="jarvis-mic-svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5-3c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6: Profile -->
+  <div class="screen" id="profileScreen">
+    <div style="display:flex;flex-direction:column;height:100%">
+      <div class="scr-header"><div class="scr-nav"><button class="back-btn" onclick="navigate('home')">&#8592;</button><span class="scr-title">Profile</span><button class="menu-btn" onclick="navigate('chat')">&#128172;</button></div></div>
+      <div class="scr-body">
+        <div style="text-align:center;margin:20px 0"><div style="width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,var(--scb-purple),var(--scb-gold));margin:0 auto 12px;display:flex;align-items:center;justify-content:center;font-size:32px">&#128104;</div><div style="font-size:20px;font-weight:700">Khun Eva</div><div style="font-size:13px;color:var(--text2)">SCB EASY Member</div></div>
+        <div class="section-title">Personal Details</div>
+        <div class="card-g" style="cursor:default"><div class="pay-row"><span class="label">Full Name</span><span class="value" style="font-size:12px">Khun Eva</span></div><div class="pay-row"><span class="label">Age</span><span class="value">34</span></div><div class="pay-row"><span class="label">Occupation</span><span class="value" style="font-size:12px">Product Manager</span></div><div class="pay-row"><span class="label">Monthly Income</span><span class="value">&#3647; 85,000</span></div><div class="pay-row"><span class="label">Member Since</span><span class="value" style="font-size:12px">June 2018</span></div><div class="pay-row"><span class="label">PointX Balance</span><span class="value" style="color:var(--scb-gold)">18,750 pts</span></div></div>
+        <div class="section-title">Financial Goals</div>
+        <div id="profileGoals"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Voice Overlay -->
+  <!-- Jarvis Fullscreen — card journey (Figma: Conversational AI Components) -->
+  <div class="jarvis-fs" id="jarvisFs">
+    <div class="jarvis-fs-header">
+      <button class="jfh-back" onclick="closeJarvisFs()">&#8592;</button>
+      <div class="jfh-title" id="jfhTitle">Blocking lost debit card</div>
+    </div>
+    <div class="jarvis-fs-body" id="jfsBody"></div>
+    <div class="jarvis-fs-input">
+      <div class="jarvis-fs-input-bar">
+        <button type="button" class="ch-chat-plus" title="Add" aria-label="Add" onclick="event.preventDefault();document.getElementById('jfsInput').focus();">+</button>
+        <input type="text" id="jfsInput" placeholder="Ask Jarvis anything&hellip;" aria-label="Message" onkeydown="if(event.key==='Enter')handleJfsSend()">
+        <button type="button" class="jarvis-mic-btn" onclick="openVoice()" title="Voice input" aria-label="Voice input"><svg class="jarvis-mic-svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5-3c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="voice-overlay" id="voiceOverlay">
+    <button class="vo-close" onclick="closeVoice()">&#10005;</button>
+    <div class="vo-status" id="voStatus">Listening...</div>
+    <div class="vo-orb"><div class="vo-mic-icon" aria-hidden="true"><svg class="jarvis-mic-svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5-3c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg></div></div>
+    <div class="vo-waves" id="voWaves"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+    <div class="vo-transcript" id="voTranscript"></div>
+    <div class="vo-prompts" id="voPrompts">
+      <div class="vo-prompts-label">Try saying</div>
+      <div class="vo-prompt" onclick="voiceSelect('blockcard')">&#128274; &ldquo;I lost my wallet, block my card&rdquo;</div>
+      <div class="vo-prompt" onclick="voiceSelect('paybills')">&#128196; &ldquo;Pay my electricity bill&rdquo;</div>
+      <div class="vo-prompt" onclick="voiceSelect('transfer')">&#128259; &ldquo;Transfer money to Somchai&rdquo;</div>
+      <div class="vo-prompt" onclick="voiceSelect('balances')">&#128176; &ldquo;Show my account balances&rdquo;</div>
+    </div>
+  </div>
+
+  <!-- Nav bar removed — conversational-first design -->
+</div>
+
+<script>
+function cloneData(o){ return JSON.parse(JSON.stringify(o)); }
+
+/** Baseline = CXO “Young Professional” (Ariya); other personas patch on load via ?persona= */
+const B_TEMPLATE={
+  name:"Ariya",fullName:"Khun Ariya",
+  health:{score:75,label:"Good",peer:12,pillars:{investment:{score:44,label:"Below Average"},borrowing:{score:85,label:"Average"},insurance:{score:55,label:"Average"},liquidity:{score:100,label:"Good"}}},
+  nudges:[{icon:"fitness",text:"You haven't been to Pilates in 2 weeks? ClassPass is offering 30% off!"},{icon:"beauty",text:"Running out of sunscreen? Beautrium is having summer sales — up to 40% off!"},{icon:"travel",text:"Upcoming weekend in Singapore — see which airport lounges are available with your CardX!"},{icon:"wellness",text:"You've been working late 4 nights this week. Here are spa vouchers from PointX just for you!"},{icon:"rewards",text:"You have 18,750 PointX waiting! Redeem for your Singapore trip or convert to airline miles."}],
+  tasks:[{text:"Review Q3 portfolio performance",done:true,flow:'portfolio'},{text:"Rebalance tech allocation",done:false,flow:'portfolio'},{text:"Review insurance coverage",done:false,flow:'insights'}],
+  news:[{title:"Savings & deposit rates moved this week",sub:"If you keep a cash buffer, here’s a two-minute read on what changed for you",flow:'insights'},{title:"Watch out: fake “refund / parcel” links",sub:"We won’t ask for your PIN or OTP by SMS — here’s how to spot the latest scam pattern",flow:'insights'}],
+  offers:[{title:"SCB Wealth Platinum",sub:"You’re pre-approved: lounges, dining rewards, extra PointX on what you already spend",flow:'s2s_card'},{title:"Could your home loan cost less?",sub:"See today’s indicative rate for customers like you — no obligation to apply",flow:'loan_servicing'}],
+  insights:[{icon:"warning",title:"Dining spend up to +8%",sub:"vs last month — you might be overspending",s:"negative"},{icon:"up",title:"Portfolio +3.2% (3M)",sub:"Outperforming benchmark by 1.1%",s:"positive"},{icon:"save",title:"You saved 2,540 THB more this month",sub:"Savings rate now at 22%",s:"positive"}],
+  spending:[{name:"Dining",pct:32,c:"#e74c3c"},{name:"Transport",pct:24,c:"#3498db"},{name:"Shopping",pct:18,c:"#9b59b6"}],
+  saveTip:"Switch to auto-pay to save up to THB 5,000/month to avoid late fees",
+  alert:{card:"CardX",num:"ending 4624",total:22300,due:"April 25, 2026",min:1115,interest:1100,emi:3717,msg:"Your CardX ending 4624 bill is due soon. Paying only the minimum would add up to 1,100 THB in interest."},
+  acct:{name:"SCB Easy Account",num:"XXX-XXX596-3"},
+  investments:[{name:"SCB SET Index Fund",type:"Equity Fund",val:120000,ret:4.8},{name:"S&P500 DCA",type:"Foreign Equity",val:85000,ret:8.2},{name:"SCB Income Plus",type:"Bond Fund",val:45000,ret:3.1},{name:"SCB Gold Fund",type:"Commodity",val:15000,ret:12.4}],
+  accounts:[{name:"SCB Easy Savings",num:"XXX-XXX596-3",bal:185400},{name:"SCB Goal Save",num:"XXX-XXX847-1",bal:163100}],
+  market:{set:1485.16,setChg:0.52,gold:44350,goldChg:1.8,usd:33.85,usdChg:-0.3},
+  goals:[{name:"Emergency Fund",pct:84,current:163100,target:195000},{name:"Japan Trip 2027",pct:40,current:32000,target:80000},{name:"Condo Down Payment",pct:17,current:85000,target:500000}],
+  pointx:18750,
+  home:{metaphor:"Light clouds on the financial horizon. Navigate wisely."}
+};
+
+const PERSONA_PATCH={
+  emerging_family:{
+    name:"Nattapong",fullName:"Khun Nattapong",
+    pointx:28400,
+    home:{metaphor:"Family milestones ahead — steady cash flow is your rudder."},
+    health:{score:78,label:"Good",peer:19,pillars:{investment:{score:52,label:"Average"},borrowing:{score:72,label:"Average"},insurance:{score:68,label:"Good"},liquidity:{score:92,label:"Good"}}},
+    accounts:[{name:"SCB Family Savings",num:"XXX-XXX412-2",bal:428600},{name:"SCB Kids Growth",num:"XXX-XXX903-8",bal:95200}],
+    goals:[{name:"Education fund (children)",pct:62,current:186000,target:300000},{name:"Home upgrade buffer",pct:48,current:720000,target:1500000},{name:"Emergency buffer",pct:91,current:455000,target:500000}],
+    investments:[{name:"SCB SET Index Fund",type:"Equity Fund",val:185000,ret:4.2},{name:"SCB Income Plus",type:"Bond Fund",val:92000,ret:3.4},{name:"SCB Gold Fund",type:"Commodity",val:28000,ret:11.8}],
+    nudges:[{icon:"wellness",text:"School fee season is 6 weeks away — automate the transfer now and earn bonus PointX."},{icon:"rewards",text:"Family dining merchants are 3x PointX this month — perfect for weekend outings."},{icon:"travel",text:"Your multi-city trip is booked — we pre-checked lounge access on your primary card."},{icon:"beauty",text:"Home insurance renewal is coming up; one tap to compare coverage vs. last year."},{icon:"fitness",text:"Kids’ sports club payment is due — set a Jarvis reminder so nothing bounces."}],
+    tasks:[{text:"Confirm education fund auto-debit",done:true,flow:'goals'},{text:"Review family health insurance riders",done:false,flow:'insights'},{text:"Lock in home loan rate review slot",done:false,flow:'loan_servicing'}],
+    news:[{title:"School savings: what changed for 2026",sub:"A short read on tax-advantaged options for families like yours",flow:'insights'},{title:"Phishing spike: “tuition payment” SMS",sub:"We never send payment links by SMS — here’s the latest pattern to avoid",flow:'insights'}],
+    offers:[{title:"Family protection bundle",sub:"Life + critical illness in one journey — see indicative premium for your profile",flow:'insights'},{title:"Refinance check — home loan",sub:"See if today’s indicative rate lowers your monthly outflow with no obligation",flow:'loan_servicing'}],
+    insights:[{icon:"warning",title:"Utilities +5% vs last month",sub:"Seasonal pattern — Jarvis can split bills across cards",s:"negative"},{icon:"up",title:"Education fund +6% (YTD)",sub:"On track vs. your target glide path",s:"positive"},{icon:"save",title:"Auto-debit avoided 2 late fees",sub:"~640 THB saved in Q1",s:"positive"}],
+    spending:[{name:"Family & home",pct:38,c:"#e74c3c"},{name:"Transport",pct:22,c:"#3498db"},{name:"Education",pct:16,c:"#9b59b6"}],
+    saveTip:"Bundle recurring school and club payments on one card to maximize family PointX multipliers."
+  },
+  emerging_affluent:{
+    name:"Siriporn",fullName:"Khun Siriporn",
+    pointx:89200,
+    home:{metaphor:"Clear skies with crosswinds in global markets — advisory is your co-pilot."},
+    health:{score:86,label:"Good",peer:7,pillars:{investment:{score:72,label:"Good"},borrowing:{score:58,label:"Average"},insurance:{score:78,label:"Good"},liquidity:{score:96,label:"Good"}}},
+    accounts:[{name:"SCB Private Wealth Current",num:"XXX-XXX221-9",bal:1840000},{name:"SCB FX Reserve",num:"XXX-XXX884-2",bal:620000}],
+    goals:[{name:"Legacy & estate plan",pct:54,current:4200000,target:7800000},{name:"Philanthropy 2026",pct:33,current:330000,target:1000000},{name:"Tax-efficient drawdown",pct:71,current:710000,target:1000000}],
+    investments:[{name:"SCB Global Equity (Hedged)",type:"Foreign Equity",val:920000,ret:9.1},{name:"SCB Thai Dividend Leaders",type:"Equity Fund",val:540000,ret:5.4},{name:"SCB Ultra Short Bond",type:"Bond Fund",val:310000,ret:3.8},{name:"SCB Gold & Commodities",type:"Commodity",val:125000,ret:13.2},{name:"Private Credit Sleeve",type:"Alternatives",val:280000,ret:7.6}],
+    nudges:[{icon:"rewards",text:"Your concierge slot opens Thursday — FX and cross-border moves in one sitting."},{icon:"wellness",text:"Estate documents were last synced 14 months ago; advisory suggests a light refresh."},{icon:"travel",text:"Bangkok–Singapore–Zurich: lounge and fast-track already matched to your tier."},{icon:"beauty",text:"Philanthropy match window closes in 10 days — deploy idle cash without breaking liquidity rules."},{icon:"fitness",text:"Margin utilisation ticked up — optional hedge ideas are queued in Jarvis."}],
+    tasks:[{text:"Review FX hedge vs. USD receipts",done:true,flow:'portfolio'},{text:"Quarterly advisory readout (Q1)",done:false,flow:'portfolio'},{text:"Sync beneficiary & trust schedules",done:false,flow:'insights'}],
+    news:[{title:"Global rates: what it means for THB portfolios",sub:"A 3-minute brief tuned to your offshore sleeve",flow:'insights'},{title:"Regulatory note: CRS reporting",sub:"No action needed — we surfaced this so you stay ahead of questions",flow:'insights'}],
+    offers:[{title:"SCB Private Wealth — structured sleeve",sub:"Indicative allocation for your risk band; discuss with your banker",flow:'s2s_card'},{title:"Cross-border liquidity line",sub:"See indicative terms for customers with your profile — no obligation",flow:'loan_servicing'}],
+    insights:[{icon:"up",title:"Portfolio +4.1% (3M)",sub:"Defensive tilt helped vs. benchmark in the tech drawdown",s:"positive"},{icon:"warning",title:"FX volatility watch",sub:"USD/THB moved more than your guardrail — optional rebalance",s:"negative"},{icon:"save",title:"Fee drag down 12 bps",sub:"After last quarter’s fund-line optimisation",s:"positive"}],
+    spending:[{name:"Travel & lifestyle",pct:28,c:"#e74c3c"},{name:"Investments & fees",pct:35,c:"#3498db"},{name:"Philanthropy",pct:12,c:"#9b59b6"}],
+    saveTip:"Route large FX flows through your pre-approved channel to preserve spreads and audit trails."
+  }
+};
+
+function resolvePersonaId(){
+  const raw=(new URLSearchParams(location.search).get("persona")||"young_professional").toLowerCase().replace(/[^a-z_]/g,"");
+  return raw==="emerging_family"||raw==="emerging_affluent"?raw:"young_professional";
+}
+function buildPersonaData(){
+  const pid=resolvePersonaId();
+  const b=cloneData(B_TEMPLATE);
+  const patch=PERSONA_PATCH[pid];
+  if(patch) for(const k of Object.keys(patch)) b[k]=cloneData(patch[k]);
+  return b;
+}
+const B=buildPersonaData();
+
+function markJourney(){}
+
+// Navigation
+let lastScreen='home';
+let activeTab='home';
+
+function jarvisFieldEnter(fieldId){
+  const el=document.getElementById(fieldId);
+  const t=(el&&el.value||'').trim();
+  window.pendingJarvisMsg=t||null;
+  if(el)el.value='';
+  navigate('chat');
+}
+function focusJarvisHome(){
+  setTimeout(()=>{
+    const scr=document.getElementById('homeScreen'),el=document.getElementById('homeJarvisInput');
+    if(scr&&scr.classList.contains('active')&&el)try{el.focus();}catch(e){}
+  },220);
+}
+
+function navigate(tab, chatCtx){
+  if(tab==='chat'&&chatCtx==='lighthouse_wellness'){
+    showWellness();
+    return;
+  }
+  if(tab==='home'||tab==='briefing'||tab==='portfolio'||tab==='profile'||tab==='chat'){
+    if(tab!=='chat') lastScreen=tab;
+    activeTab=tab;
+    const screenMap={home:'homeScreen',briefing:'briefingScreen',portfolio:'portfolioScreen',profile:'profileScreen',chat:'chatScreen'};
+    document.querySelectorAll('.phone > .screen').forEach(s=>s.classList.remove('active'));
+    document.getElementById(screenMap[tab]).classList.add('active');
+    markJourney(tab==='briefing'?'briefing':tab==='portfolio'?'portfolio':tab==='chat'?'chat':tab);
+    if(tab==='briefing'){
+      const pw=document.getElementById('pulseCardWrap'),pr=document.getElementById('pulseExpandRegion');
+      if(pw){pw.classList.remove('is-expanded');if(pr)pr.setAttribute('aria-hidden','true');}
+      animatePulse();
+      activateBriefingAgents();
+      setTimeout(()=>{
+        const scr=document.getElementById('briefingScreen'),b=document.getElementById('briefJarvisInput');
+        if(scr&&scr.classList.contains('active')&&b)try{b.focus();}catch(e){}
+      },220);
+    }
+    if(tab==='chat'){
+      if(chatCtx)window.pendingJarvisMsg=null;
+      highlightAgent(7,'Conversational AI active');
+      if(chatCtx) startChatFlow(chatCtx);
+      else{
+        initChat();
+        const p=window.pendingJarvisMsg;
+        window.pendingJarvisMsg=null;
+        const ci=document.getElementById('chatInput');
+        if(p&&ci){ci.value=p;handleChatSend();}
+        else if(ci)setTimeout(()=>{try{ci.focus();}catch(e){}},100);
+      }
+    }
+    if(tab==='home'){highlightAgent(0,'');focusJarvisHome();}
+    if(tab==='portfolio'){highlightAgent(4,'Portfolio analysis');}
+  }
+}
+
+function openMorningNotif(){markJourney('lock');navigate('briefing');}
+let wellnessStep=0;
+function setWellnessStep(n){
+  wellnessStep=Math.max(0,Math.min(4,n|0));
+  var m=document.getElementById('wellnessModal');
+  if(!m)return;
+  var nm=B.name||'You';
+  var st=document.getElementById('wellnessScrTitle');
+  if(st){
+    if(wellnessStep===0){
+      st.textContent='Your Financial Wellness Score';
+      m.classList.add('well-title-soft');
+    }else{
+      m.classList.remove('well-title-soft');
+      var nav=['',nm+"'s financial future",'Retirement outlook','Liquidity — understand score','Review action — order verification'];
+      st.textContent=nav[wellnessStep]||'Financial wellness';
+    }
+  }
+  m.querySelectorAll('.well-step').forEach(function(el){
+    el.classList.toggle('active',parseInt(el.getAttribute('data-step'),10)===wellnessStep);
+  });
+  var sc=m.querySelector('.wellness-step-scroll');
+  if(sc)sc.scrollTop=0;
+  if(wellnessStep===0)setTimeout(function(){animateBigGauge();},80);
+}
+function wellnessBack(){
+  if(wellnessStep>0)setWellnessStep(wellnessStep-1);
+  else hideWellness();
+}
+function showWellness(){
+  document.getElementById('wellnessModal').classList.add('active');
+  setWellnessStep(0);
+  markJourney('wellness');
+}
+function hideWellness(){
+  document.getElementById('wellnessModal').classList.remove('active');
+  wellnessStep=0;
+}
+function onPulseCardPointer(ev){
+  if(ev.target.closest('.mb-pulse-score-cta'))return;
+  if(ev.target.closest('button'))return;
+  if(!ev.target.closest('.mb-pulse-head'))return;
+  togglePulseCard();
+}
+function onPulseCardKeydown(ev){
+  if(ev.target!==ev.currentTarget)return;
+  if(ev.key!=='Enter'&&ev.key!==' ')return;
+  ev.preventDefault();
+  togglePulseCard();
+}
+function togglePulseCard(){
+  const w=document.getElementById('pulseCardWrap');if(!w)return;
+  const next=!w.classList.contains('is-expanded');
+  w.classList.toggle('is-expanded',next);
+  const r=document.getElementById('pulseExpandRegion');
+  if(r)r.setAttribute('aria-hidden',next?'false':'true');
+}
+function openBeyondFitness(){markJourney('bb_fit');showWellness();}
+function openBeyondImproveScore(){markJourney('bb_score');navigate('chat','improve_score');}
+function openBeyondTrip(){navigate('chat','beyond_trip');}
+function openBeyondMba(){navigate('chat','beyond_mba');}
+
+function nudgeFaceIcon(ic){
+  var m={fitness:0x1f3cb,beauty:0x1f484,travel:0x2708,wellness:0x1f486,rewards:0x2b50};
+  var cp=m[ic]||0x2728;
+  try{return String.fromCodePoint(cp);}catch(e){return'\u2728';}
+}
+function immNudgeAct(icon){
+  var i=(icon||'').toLowerCase();
+  if(i==='fitness'){openBeyondFitness();return;}
+  if(i==='rewards'||i==='wellness'){navigate('chat','pointx');return;}
+  navigate('chat','insights');
+}
+
+// Render
+function render(){
+  document.getElementById('notifText').textContent=`Good morning, ${B.name}! Your daily briefing is ready. Markets moved overnight – stay ahead of the day.`;
+
+  // Immersive home — greeting + curated cards (briefing keeps pulse / tasks / market)
+  document.getElementById('immName').textContent=B.name;
+  const immMeta=document.getElementById('immMetaphor');
+  if(immMeta)immMeta.textContent=(B.home&&B.home.metaphor)||'Light clouds on the financial horizon. Navigate wisely.';
+  const lhSub=document.getElementById('immLhInvestSub');
+  if(lhSub)lhSub.textContent='Horizon, risk, and first steps';
+  const totalBal=B.accounts.reduce(function(s,a){return s+(a.bal||0);},0);
+  const immPill=document.getElementById('immBalPill');
+  if(immPill)immPill.textContent='\u0E3F'+totalBal.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+  var immPts=document.getElementById('immPtsLine');
+  if(immPts)immPts.textContent='PointX · '+(B.pointx||0).toLocaleString('en-US')+' pts';
+  var immTwin=document.getElementById('immTwinInitial');
+  if(immTwin){var nm=String(B.name||'E').trim();immTwin.textContent=(nm?nm.charAt(0):'E').toUpperCase();}
+  var nl=document.getElementById('immNudgeList');
+  if(nl&&B.nudges&&B.nudges.length){
+    nl.innerHTML=B.nudges.map(function(n){
+      var ic=(n.icon||'wellness').replace(/[^a-z]/gi,'');
+      var tx=(n.text||'').replace(/&/g,'&amp;').replace(/</g,'&lt;');
+      var face=nudgeFaceIcon(ic);
+      return'<button type="button" class="imm-nudge" role="listitem" onclick="immNudgeAct(\''+ic+'\')">'+
+        '<div class="imm-nudge-icon '+ic+'" style="font-size:17px;line-height:1" aria-hidden="true">'+face+'</div>'+
+        '<div class="imm-nudge-body"><div class="imm-nudge-text">'+tx+'</div></div>'+
+        '</button>';
+    }).join('');
+  }else if(nl)nl.innerHTML='';
+
+  // Briefing screen
+  document.getElementById('greetingText').textContent=`Good morning, ${B.name}.`;
+  const gs=document.getElementById('greetingSub');if(gs)gs.textContent="Here's your hot macha for the day, and your personal briefing.";
+  const psv=document.getElementById('pulseStatusVal');if(psv){psv.textContent=B.health.label;var sfx='';if(B.health.label!=='Good')sfx=(B.health.label&&B.health.label.indexOf('Below')>=0)?' risk':' warn';psv.className='mb-pulse-status-val'+sfx;}
+  const scoreCta=document.getElementById('pulseScoreHero');if(scoreCta)scoreCta.setAttribute('aria-label','Improve your score — currently '+B.health.score+' out of 100');
+  const pe=document.getElementById('pulseExpandInner');
+  if(pe){
+    const pn={investment:'Investment',borrowing:'Borrowing',insurance:'Insurance',liquidity:'Liquidity'};
+    let h=(B.health.msg?'<p class="mb-pulse-peer">'+B.health.msg+'</p>':'')+'<p class="mb-pulse-peer">You are in the top <b>'+B.health.peer+'%</b> of people your age.</p><div class="mb-pulse-mini-grid">';
+    for(const[k,v] of Object.entries(B.health.pillars)){h+='<div class="mb-pulse-mini-cell"><span>'+pn[k]+'</span><strong>'+v.score+'</strong><em>'+v.label+'</em></div>';}
+    h+='</div><div class="mb-pulse-expand-actions">'+
+      '<button type="button" class="mb-pulse-cta-journey" onclick="event.stopPropagation();navigate(\'chat\',\'improve_score\');">Improve score</button></div>';
+    pe.innerHTML=h;
+  }
+  document.getElementById('wellTitle').textContent='Your Financial Wellness Score';
+  document.getElementById('wellMsg').textContent=B.name?B.name+" \u2014 you\u2019re on track to a financially fit future.":"You\u2019re on track to a financially fit future.";
+  document.getElementById('peerText').innerHTML=`You are in the top <b>${B.health.peer}%</b> of people your age`;
+  document.getElementById('chatTitle').textContent='Jarvis';
+  const csub=document.getElementById('chatSub');if(csub)csub.textContent='Your AI banking assistant';
+
+  // Tasks (briefing + home — completed items are not struck through)
+  function fillTaskContainer(el){
+    if(!el)return;
+    el.innerHTML='';
+    B.tasks.forEach(function(t,i){
+      var fl=String(t.flow||'insights').replace(/[^a-z0-9_]/gi,'');
+      var act=t.done?'toggleTask(this)':'navigate(\'chat\',\''+fl+'\')';
+      var safe=String(t.text).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
+      el.innerHTML+='<div class="card-g task-item fade-up stagger-'+(i+1)+'" role="button" tabindex="0" onclick="'+act+'" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();'+act+'}" style="cursor:pointer"><div class="task-check '+(t.done?'done':'')+'">'+(t.done?'&#10003;':'')+'</div><span class="task-text">'+safe+'</span></div>';
+    });
+  }
+  fillTaskContainer(document.getElementById('tasksContainer'));
+
+  const newsEl=document.getElementById('newsContainer');if(newsEl){newsEl.innerHTML='';
+  B.news.forEach((n,i)=>{const newsTone=(n.title&&n.title.indexOf('Watch out')===0)?'negative':'positive';const fl=n.flow||'insights';newsEl.innerHTML+=`<div class="card-g insight-card fade-up stagger-${i+1}" role="button" tabindex="0" onclick="navigate('chat','${fl}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();navigate('chat','${fl}');}" style="cursor:pointer"><div class="insight-icon ${newsTone}" aria-hidden="true">&#128240;</div><div><div class="insight-title">${n.title}</div><div class="insight-sub">${n.sub}</div></div></div>`;});}
+
+  const offersEl=document.getElementById('offersContainer');if(offersEl){offersEl.innerHTML='';
+  B.offers.forEach((o,i)=>{const fl=o.flow||'s2s_card';offersEl.innerHTML+=`<div class="card-g insight-card fade-up stagger-${i+1}" role="button" tabindex="0" onclick="navigate('chat','${fl}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();navigate('chat','${fl}');}" style="cursor:pointer"><div class="insight-icon offer" aria-hidden="true">&#127873;</div><div><div class="insight-title">${o.title}</div><div class="insight-sub">${o.sub}</div></div></div>`;});}
+
+  // Pillars (wellness score step)
+  const pg=document.getElementById('pillarGrid');
+  if(pg){
+    pg.innerHTML='';
+    const pn={investment:'Investment',borrowing:'Borrowing',insurance:'Insurance',liquidity:'Liquidity'};
+    for(const[k,v] of Object.entries(B.health.pillars)){const c=v.label==='Good'?'good':v.label==='Below Average'?'below':'average';pg.innerHTML+=`<div class="pillar-item"><div class="pillar-name">${pn[k]}</div><div class="pillar-label ${c}">${v.label.toUpperCase()}</div></div>`;}
+  }
+  document.querySelectorAll('#wellnessModal .well-n-name').forEach(function(el){el.textContent=B.name;});
+
+  // Profile goals
+  const pGoals=document.getElementById('profileGoals');pGoals.innerHTML='';
+  B.goals.forEach(g=>{pGoals.innerHTML+=`<div class="card-g" style="padding:12px 16px;cursor:pointer" onclick="navigate('chat','goals')"><div style="display:flex;justify-content:space-between;font-size:13px;font-weight:600;margin-bottom:6px"><span>${g.name}</span><span style="color:var(--scb-gold)">${g.pct}%</span></div><div style="height:5px;border-radius:3px;background:rgba(255,255,255,.1)"><div style="height:100%;border-radius:3px;background:linear-gradient(90deg,var(--scb-purple),var(--scb-gold));width:${g.pct}%"></div></div><div style="font-size:11px;color:var(--text2);margin-top:4px">&#3647; ${g.current.toLocaleString()} / &#3647; ${g.target.toLocaleString()}</div></div>`;});
+
+  // Portfolio
+  const pl=document.getElementById('portList');pl.innerHTML='';
+  B.investments.forEach(i=>{pl.innerHTML+=`<div class="card-g port-card" onclick="navigate('chat','portfolio')" style="cursor:pointer"><div><div class="port-name">${i.name}</div><div class="port-type">${i.type}</div></div><div class="port-val"><div class="port-amount">&#3647; ${i.val.toLocaleString()}</div><div class="port-return up">+${i.ret}%</div></div></div>`;});
+  const al=document.getElementById('acctList');al.innerHTML='';
+  B.accounts.forEach(a=>{al.innerHTML+=`<div class="card-g port-card" onclick="navigate('chat','insights')" style="cursor:pointer"><div><div class="port-name">${a.name}</div><div class="port-type">${a.num}</div></div><div class="port-val"><div class="port-amount">&#3647; ${a.bal.toLocaleString()}</div></div></div>`;});
+  const ml=document.getElementById('marketList');ml.innerHTML=`
+    <div class="card-g port-card"><div><div class="port-name">SET Index</div><div class="port-type">Stock Exchange of Thailand</div></div><div class="port-val"><div class="port-amount">${B.market.set.toLocaleString()}</div><div class="port-return up">+${B.market.setChg}%</div></div></div>
+    <div class="card-g port-card"><div><div class="port-name">Gold</div><div class="port-type">THB per Baht weight</div></div><div class="port-val"><div class="port-amount">&#3647; ${B.market.gold.toLocaleString()}</div><div class="port-return up">+${B.market.goldChg}%</div></div></div>
+    <div class="card-g port-card"><div><div class="port-name">USD/THB</div><div class="port-type">Exchange rate</div></div><div class="port-val"><div class="port-amount">&#3647; ${B.market.usd}</div><div class="port-return ${B.market.usdChg<0?'up':'down'}">${B.market.usdChg}%</div></div></div>`;
+}
+
+function toggleTask(el){const c=el.querySelector('.task-check');if(!c)return;c.classList.toggle('done');c.innerHTML=c.classList.contains('done')?'&#10003;':'';}
+
+// Gauges
+function animatePulse(){const s=B.health.score,hero=document.getElementById('pulseScoreHero');if(!hero)return;let c=0;hero.textContent='0';const f=()=>{c+=2;if(c>s)c=s;hero.textContent=c;if(c<s)requestAnimationFrame(f);};setTimeout(f,280);}
+function animateBigGauge(){const s=B.health.score,a=document.getElementById('bigGaugeArc'),e=document.getElementById('bigScore'),C=534;let c=0;a.style.strokeDashoffset=C;e.textContent='0';const f=()=>{c+=1;if(c>s)c=s;e.textContent=c;a.style.strokeDashoffset=C-(c/100)*C;if(c<s)requestAnimationFrame(f);};setTimeout(f,200);}
+
+// Agent panel removed — keep stubs so callers stay safe
+function highlightAgent(idx,desc){
+  for(let i=1;i<=7;i++){const m=document.getElementById('agMod'+i);if(m)m.classList.remove('active-agent');}
+  if(idx>=1&&idx<=7){
+    const el=document.getElementById('agMod'+idx);
+    if(el){el.classList.add('active-agent');const d=document.getElementById('ag'+idx+'Desc');if(d&&desc)d.textContent=desc;}
+  }
+}
+function activateBriefingAgents(){
+  if(!document.getElementById('agMod1'))return;
+  const seq=[[1,`Pulse card: expandable breakdown; improve score chat`],[2,`Home: offers + learning cards + nudges`],[3,`Today's tasks: ${B.tasks.length} items (brief only)`],[4,`News for you (${B.news.length}) + offers (${B.offers.length})`],[5,`Market alert + What's happening to Jarvis`],[6,`Briefing layout sections`],[7,`Alerts: CardX bill + anomaly (home flows)`]];
+  seq.forEach(([i,d],j)=>{setTimeout(()=>{const mod=document.getElementById('agMod'+i),de=document.getElementById('ag'+i+'Desc');if(mod&&de){mod.classList.add('active-agent');de.textContent=d;}},j*400);});
+}
+
+// Chat
+let billPaid=false;
+function fmtTime(d){let h=d.getHours();const m=String(d.getMinutes()).padStart(2,'0'),ap=h>=12?'PM':'AM';if(h>12)h-=12;if(h===0)h=12;return h+':'+m+' '+ap;}
+
+function addMsg(sender,html,delay){
+  return new Promise(resolve=>{
+    const c=document.getElementById('chatMessages');
+    const makeDiv=()=>{
+      const row=document.createElement('div');row.className='chat-msg-row '+sender;
+      const d=document.createElement('div');d.className='chat-msg '+sender;
+      const t=fmtTime(new Date());
+      d.innerHTML=(sender==='ai'?`<div class="sender">Jarvis</div>`:sender==='user'?`<div class="sender">You said</div>`:'')+html+`<div class="msg-time">${t}</div>`;
+      if(sender==='ai'){const orb=document.createElement('div');orb.className='chat-msg-orb';row.appendChild(orb);}
+      row.appendChild(d);c.appendChild(row);c.scrollTop=c.scrollHeight;resolve();
+    };
+    if(delay&&sender==='ai'){const dots=document.createElement('div');dots.className='typing-dots';dots.innerHTML='<span></span><span></span><span></span>';c.appendChild(dots);c.scrollTop=c.scrollHeight;setTimeout(()=>{dots.remove();makeDiv();},delay);}else{makeDiv();}
+  });
+}
+
+function addActions(actions, variant){
+  const c=document.getElementById('chatMessages');
+  const d=document.createElement('div');
+  d.className='chat-actions'+(variant==='dual'?' chat-actions--dual':'');
+  actions.forEach(a=>{d.innerHTML+=`<button type="button" class="chat-action-btn" onclick="chatAction('${a.id}')">${a.label}</button>`;});
+  c.appendChild(d);c.scrollTop=c.scrollHeight;
+}
+
+function addQuickReplies(replies){const c=document.getElementById('chatMessages');const d=document.createElement('div');d.className='quick-replies';replies.forEach(r=>{d.innerHTML+=`<div class="quick-reply" onclick="quickReply('${r.id}','${r.label}')">${r.label}</div>`;});c.appendChild(d);c.scrollTop=c.scrollHeight;}
+
+async function runImproveScoreChat(){
+  const c=document.getElementById('chatMessages');
+  c.innerHTML='';
+  document.getElementById('jarvisFs').classList.remove('active');
+  document.getElementById('chatTitle').textContent='Improve your score';
+  document.getElementById('chatSub').textContent='Jarvis coach';
+  highlightAgent(7,'Health score coach');
+  const s=B.health.score;
+  await addMsg('ai',"<div style=\"font-size:14px;line-height:1.6\">You're at <strong style=\"color:var(--scb-gold)\">"+s+"/100</strong> today. The fastest path into the <strong>low 80s</strong> is lifting your <strong>investment</strong> and <strong>insurance</strong> pillars without taking on uncomfortable risk.</div>",500);
+  await addMsg('ai',"<div style=\"font-size:13px;line-height:1.55;color:rgba(255,255,255,.72)\">Here are three concrete moves we can queue up:</div>",0);
+  const list="<div class=\"mb-chat-rich\" style=\"margin-top:6px\"><div class=\"jfc-line\" style=\"font-size:13px;line-height:1.85\">&#9312; Turn on a <strong>2% auto-invest</strong> sweep from salary<br>&#9313; <strong>Re-run insurance</strong> adequacy (often +4–8 pts)<br>&#9314; Keep <strong>90-day liquidity</strong> — already your strongest pillar</div></div>";
+  await addMsg('ai',list,0);
+  addActions([{id:'imp_invest',label:'START INVEST SWEEP'},{id:'imp_insure',label:'REVIEW INSURANCE'},{id:'imp_well',label:'OPEN WELLNESS'}]);
+}
+
+async function runMorningBriefChat(kind){
+  const c=document.getElementById('chatMessages');
+  c.innerHTML='';
+  document.getElementById('jarvisFs').classList.remove('active');
+  document.getElementById('chatTitle').textContent="What's happening";
+  document.getElementById('chatSub').textContent='';
+  highlightAgent(7,'Morning brief to explain');
+  const uq=kind==='wh'
+    ? "<div style=\"font-size:14px;line-height:1.5\">What's happening? Your tech portfolio is down 3.2% this morning.</div>"
+    : "<div style=\"font-size:14px;line-height:1.5\">Today the market dipped — can you explain why, and what it means for my portfolio?</div>";
+  await addMsg('user',uq,0);
+  await addMsg('ai',"<div style=\"font-size:14px;line-height:1.55\">I've analyzed the situation. There's a clear view of what's happening and why &mdash; and a rebalancing opportunity. Do you want to know more?</div>",900);
+  const card="<div class=\"mb-chat-rich\"><span class=\"mb-chat-live\">LIVE</span><div class=\"mb-chat-rich-title\" style=\"margin-top:10px\">Markets dipped. Your portfolio is affected.</div><div class=\"mb-chat-rich-sub\">Tech sleeve is leading losses; defensive sleeves are relatively steadier.</div><div class=\"mb-chat-rich-asia\">Asian markets are down ~2.3% in the session &mdash; megacap tech names leading the move.</div><div class=\"mb-chat-bars\"><div class=\"mb-chat-bar\"></div><div class=\"mb-chat-bar\"></div><div class=\"mb-chat-bar\"></div><div class=\"mb-chat-bar\"></div><div class=\"mb-chat-bar\"></div></div></div>";
+  const ticks="<div class=\"mb-chat-tickers\"><span class=\"mb-chat-tick\">NVDA<span>-2.9%</span></span><span class=\"mb-chat-tick\">MSFT<span>-3.8%</span></span><span class=\"mb-chat-tick\">GOOGL<span>-2.9%</span></span></div>";
+  await addMsg('ai',card+ticks,500);
+  addActions([{id:'mb_help',label:'HELP ME DECIDE'},{id:'mb_alert',label:'SET AN ALERT'}],'dual');
+}
+
+async function chatAction(id){
+  if(id==='imp_invest'){
+    await addMsg('user',"<div style=\"font-size:14px\">Set up the 2% invest sweep.</div>",0);
+    await addMsg('ai',"<div style=\"font-size:14px;line-height:1.55\">Done in demo mode. In production I'd pre-fill SCB SET Index Fund + S&amp;P500 split and ask you to confirm the debit date.</div>",700);
+    addActions([{id:'imp_insure',label:'NEXT: INSURANCE CHECK'},{id:'imp_done',label:'I\'M GOOD FOR NOW'}]);
+  }
+  else if(id==='imp_insure'){
+    await addMsg('user',"<div style=\"font-size:14px\">Walk me through insurance.</div>",0);
+    await addMsg('ai',"<div style=\"font-size:14px;line-height:1.55\">Your coverage is fine on life, but <strong>critical illness</strong> is light vs peers. A top-up rider often moves the score without big premium jumps.</div>",700);
+    addQuickReplies([{id:'insights',label:'See indicative quotes'}]);
+  }
+  else if(id==='imp_well'){showWellness();}
+  else if(id==='imp_done'){
+    await addMsg('ai',"<div style=\"font-size:13px;color:rgba(255,255,255,.65)\">Whenever you're ready, tap <strong>Your Pulse</strong> on the morning brief again.</div>",0);
+  }
+  else if(id==='mb_help'){
+    await addMsg('user',"<div style=\"font-size:14px;line-height:1.45\">Help me decide.</div>",0);
+    await addMsg('ai',"<div style=\"font-size:14px;line-height:1.55\">Let me walk you through your options based on your risk profile and investment timeline:</div>",800);
+    const loss="<div class=\"mb-chat-loss\"><strong>Unrealised loss detected</strong><p>3 positions are down 3\u20135% this session. Combined unrealised impact: <strong style=\"color:#fb7185\">\u2212\u0E3F4,210</strong> on your tech sleeve.</p></div>";
+    await addMsg('ai',loss,0);
+    const opts="<div class=\"mb-chat-opt\">"+
+      "<div class=\"mb-chat-opt-card\"><div class=\"opt-num\">Option 1</div><div class=\"opt-title\">Hold &amp; tighten alerts</div><div class=\"opt-body\">Keep your core thesis, add band alerts on key names, and review again if the sleeve moves another 2%.</div><div class=\"opt-km\">KNOW MORE</div></div>"+
+      "<div class=\"mb-chat-opt-card\"><div class=\"opt-num\">Option 2</div><div class=\"opt-title\">Rebalance partially</div><div class=\"opt-body\">Reduce tech exposure by 5% and shift to defensive sectors while keeping core positions.</div><div class=\"opt-km\">KNOW MORE</div></div>"+
+      "<div class=\"mb-chat-opt-card\"><div class=\"opt-num\">Option 3</div><div class=\"opt-title\">Dollar-cost average</div><div class=\"opt-body\">This dip could be an opportunity. Add \u0E3F5,000 monthly into your sleeve on autopilot.</div><div class=\"opt-km\">KNOW MORE</div></div></div>";
+    await addMsg('ai',opts,0);
+    await addMsg('ai',"<div style=\"font-size:14px;line-height:1.55;margin-top:4px\">Given your moderate risk tolerance and 5-year timeline, I'd recommend <strong>Option 1</strong> with alerts set. Would you like me to set those up for you?</div>",600);
+    addActions([{id:'mb_setup',label:'SET UP NOW'},{id:'mb_later',label:'REMIND ME LATER'}]);
+  }
+  else if(id==='mb_alert'){
+    await addMsg('ai',"<div style=\"font-size:14px;line-height:1.55\">I can set a band alert on NVDA and your SET sleeve. In production this would open alert capture.</div>",500);
+  }
+  else if(id==='mb_setup'){
+    await addMsg('ai',"<div style=\"font-size:13px;line-height:1.5;color:rgba(255,255,255,.7)\">Noted — this prototype won't place trades. Jarvis would hand off to order capture next.</div>",0);
+  }
+  else if(id==='mb_later'){
+    await addMsg('ai',"<div style=\"font-size:14px;line-height:1.5\">I'll remind you before tomorrow's open.</div>",0);
+  }
+}
+
+function initChat(ctx){
+  if(ctx){startChatFlow(ctx);return;}
+  document.getElementById('jarvisFs').classList.remove('active');
+  document.getElementById('chatTitle').textContent='Jarvis';
+  const csub=document.getElementById('chatSub');if(csub)csub.textContent='Your AI banking assistant';
+  highlightAgent(7,'Conversational AI active');
+  const c=document.getElementById('chatMessages');
+  c.innerHTML='';
+  const row=document.createElement('div');row.className='chat-msg-row ai';
+  const tm=fmtTime(new Date());
+  row.innerHTML='<div class="chat-msg-orb"></div><div class="chat-msg ai"><div class="sender">Jarvis</div><div style="font-size:14px;line-height:1.55">Hi '+B.name+'. I\'m your AI banking assistant. <strong>Type below</strong> or choose a shortcut.</div><div class="msg-time">'+tm+'</div></div>';
+  c.appendChild(row);c.scrollTop=c.scrollHeight;
+  addQuickReplies([{id:'paybills',label:'PAY MY BILLS'},{id:'scanqr',label:'SCAN QR'},{id:'insights',label:'SPEND INSIGHTS'},{id:'anomaly',label:'UNUSUAL TRANSACTION'},{id:'s2s_card',label:'CARD OFFER'}]);
+}
+
+async function quickReply(id){startChatFlow(id);}
+
+// Generic Jarvis Fullscreen renderer — all flows use this
+function jShow(title,text,cardsHTML,btns){
+  document.getElementById('jfhTitle').textContent=title;
+  const body=document.getElementById('jfsBody');
+  let h='<div class="jarvis-fs-orb"></div>';
+  if(text) h+=`<div class="jarvis-fs-text">${text}</div>`;
+  if(cardsHTML) h+=cardsHTML;
+  if(btns&&btns.length){
+    h+='<div class="jarvis-fs-actions">';
+    btns.forEach((b,i)=>{
+      const cls=i===0?'primary':'secondary';
+      h+=`<button class="jarvis-fs-btn ${cls}" onclick="jAction('${b.id}')">${b.label}</button>`;
+    });
+    h+='</div>';
+  }
+  body.innerHTML=h;
+  document.getElementById('jarvisFs').classList.add('active');
+}
+
+function startChatFlow(flow){
+  if(flow==='improve_score'){
+    runImproveScoreChat();
+    return;
+  }
+  if(flow==='morning_wh'||flow==='morning_market'){
+    runMorningBriefChat(flow==='morning_wh'?'wh':'market');
+    return;
+  }
+  if(flow==='lighthouse_spender'){
+    jShow('Offers for you','Merchant perks and savings ideas based on how you already spend, '+B.name+'.',
+      `<div class="jarvis-fs-card"><div class="jfc-line" style="font-size:13px;line-height:1.75">Jarvis matches perks to categories you already use &mdash; so savings land without nudging you to spend more.<br><br><strong>Try:</strong> turn on alerts for dining and travel; we surface card-linked bundles when merchants you like run campaigns.</div></div>
+       <div class="jarvis-fs-notice"><span>&#128161;</span><span>Demo only; production ties to consent, eligibility, and merchant feeds.</span></div>`,
+      [{id:'insights',label:'SPEND INSIGHTS'},{id:'s2s_card',label:'CARD FIT CHECK'},{id:'portfolio',label:'VIEW PORTFOLIO'}]);
+    return;
+  }
+  if(flow==='lighthouse_investing'){
+    jShow('Investing in plain words','A tight read on horizon and risk before you size your first moves, '+B.name+'.',
+      `<div class="jarvis-fs-card"><div class="jfc-line" style="font-size:13px;line-height:1.75">Start with <strong>time horizon</strong> and <strong>liquidity</strong>, then add a simple index or DCA rhythm before chasing themes.<br><br>Risk is what keeps you up at night &mdash; not just volatility. Jarvis can stress-test amounts you are comfortable locking away.</div></div>
+       <div class="jarvis-fs-notice"><span>&#128218;</span><span>Educational content; not personalized investment advice.</span></div>`,
+      [{id:'portfolio',label:'VIEW PORTFOLIO'},{id:'dca',label:'MY DCA PLAN'},{id:'goals',label:'GOALS'}]);
+    return;
+  }
+  if(flow==='lighthouse_wellness'){
+    showWellness();
+    return;
+  }
+  if(flow==='balances'){
+    markJourney('balances');
+    const rows=B.accounts.map(function(a){
+      return'<div class="jarvis-fs-card" style="cursor:default"><div class="jfc-line" style="font-weight:700">'+String(a.name).replace(/&/g,'&amp;').replace(/</g,'&lt;')+'</div><div class="jfc-sub">'+String(a.num).replace(/&/g,'&amp;')+'</div><div style="font-size:17px;font-weight:800;margin-top:8px;color:#fff;font-variant-numeric:tabular-nums">&#3647; '+a.bal.toLocaleString('en-US')+'</div></div>';
+    }).join('');
+    jShow('Accounts & balances',B.name+', here is a quick view of your liquid balances.',
+      rows+'<div class="jarvis-fs-notice"><span>&#128161;</span><span>Liquid cash only here. Funds, ETFs, and allocation stay on the dedicated holdings screen.</span></div>',
+      [{id:'transfer',label:'TRANSFER MONEY'},{id:'home',label:'BACK TO HOME'}]);
+    return;
+  }
+  const d=B.alert;
+  if(flow==='bill'){
+    if(billPaid){
+      jShow('Card Bill','Your '+d.card+' '+d.num+' bill has already been paid this cycle!',
+        '<div class="jarvis-fs-success"><div class="jfs-icon">&#10003;</div><div class="jfs-text">&#3647; '+d.total.toLocaleString()+'.00 — Full payment</div></div>',
+        [{id:'insights',label:'SPEND INSIGHTS'},{id:'s2s_card',label:'CARD OFFER'},{id:'portfolio',label:'PORTFOLIO'}]);
+    } else {
+      jShow('Card Bill',d.msg,
+        `<div class="jarvis-fs-card"><div style="font-size:28px;font-weight:800;text-align:center">&#9888; ${d.total.toLocaleString()} THB</div><div class="jfc-sub" style="text-align:center">Total bill for April 2026 &bull; Due: ${d.due}</div></div>
+         <div class="jarvis-fs-card" onclick="jAction('payMin')" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center"><div><div class="jfc-line">Minimum payment</div><div class="jfc-sub" style="color:var(--danger)">+THB ${d.interest.toLocaleString()} interest</div></div><div style="font-size:15px;font-weight:700">THB ${d.min.toLocaleString()}</div></div>
+         <div class="jarvis-fs-card" onclick="jAction('payFull')" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center;border-color:rgba(22,163,74,.2)"><div><div class="jfc-line">Full payment</div><div class="jfc-sub" style="color:var(--success)">No interest</div></div><div style="font-size:15px;font-weight:700">THB ${d.total.toLocaleString()}</div></div>
+         <div class="jarvis-fs-card" onclick="jAction('payEmi')" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center"><div><div class="jfc-line">6-month installment</div><div class="jfc-sub">0% interest</div></div><div style="font-size:15px;font-weight:700">THB ${d.emi.toLocaleString()}/mo</div></div>`,
+        [{id:'payFull',label:'PAY FULL AMOUNT NOW'},{id:'statements',label:'VIEW STATEMENTS'}]);
+    }
+  }
+  else if(flow==='insights'){
+    markJourney('insights');
+    jShow('Spend Insights','Here are your spending insights for April, '+B.name,
+      `<div class="jarvis-fs-card"><div style="font-size:13px;font-weight:600;margin-bottom:8px">Top spending categories</div><div style="display:flex;gap:6px;height:6px;margin-bottom:8px"><div style="flex:32;background:#e74c3c;border-radius:3px"></div><div style="flex:24;background:#3498db;border-radius:3px"></div><div style="flex:18;background:#9b59b6;border-radius:3px"></div></div><div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text2)"><span>Dining 32%</span><span>Transport 24%</span><span>Shopping 18%</span></div></div>
+       <div class="jarvis-fs-card"><div class="jfc-line" style="font-size:13px;line-height:1.8">&#9888; Dining spend <strong>+8% vs last month</strong><br>&#10003; Savings rate <strong>22%</strong> — top 15% of age group<br>&#128200; Portfolio <strong>+3.2%</strong> — beating SET by 1.1%</div></div>`,
+      [{id:'s2s_card',label:'VIEW CARD OFFERS'},{id:'portfolio',label:'MY PORTFOLIO'},{id:'pointx',label:'USE POINTX'}]);
+  }
+  else if(flow==='transfer'){
+    jShow('Transfer','Who would you like to transfer to, '+B.name+'?',
+      `<div class="jarvis-fs-card" onclick="jAction('transferDone')" style="cursor:pointer;display:flex;gap:12px;align-items:center"><div style="font-size:20px">&#128100;</div><div><div class="jfc-line">Khun Somchai</div><div class="jfc-sub">SCB xxx-4521 &bull; Last: &#3647;5,000</div></div></div>
+       <div class="jarvis-fs-card" onclick="jAction('transferDone')" style="cursor:pointer;display:flex;gap:12px;align-items:center"><div style="font-size:20px">&#128100;</div><div><div class="jfc-line">Khun Nida</div><div class="jfc-sub">KBank xxx-8832 &bull; Last: &#3647;1,500</div></div></div>
+       <div class="jarvis-fs-card" onclick="jAction('transferDone')" style="cursor:pointer;display:flex;gap:12px;align-items:center"><div style="font-size:20px">&#10133;</div><div><div class="jfc-line">New recipient</div><div class="jfc-sub">Enter account number or PromptPay</div></div></div>`,
+      [{id:'paybills',label:'PAY BILLS'},{id:'insights',label:'SPEND INSIGHTS'}]);
+  }
+  else if(flow==='topup'){
+    jShow('Top Up','What would you like to top up, '+B.name+'?',
+      `<div class="jarvis-fs-card" onclick="jAction('topupDone')" style="cursor:pointer;display:flex;gap:12px;align-items:center"><div style="font-size:20px">&#128241;</div><div><div class="jfc-line">AIS Mobile 091-xxx-4567</div><div class="jfc-sub">Last top-up: &#3647;300 on Apr 5</div></div></div>
+       <div class="jarvis-fs-card" onclick="jAction('topupDone')" style="cursor:pointer;display:flex;gap:12px;align-items:center"><div style="font-size:20px">&#128652;</div><div><div class="jfc-line">Rabbit Card</div><div class="jfc-sub">Balance: &#3647;85 — Recommend &#3647;500</div></div></div>
+       <div class="jarvis-fs-card" onclick="jAction('topupDone')" style="cursor:pointer;display:flex;gap:12px;align-items:center"><div style="font-size:20px">&#9889;</div><div><div class="jfc-line">E-Wallet: TrueMoney</div><div class="jfc-sub">Quick top-up from savings</div></div></div>`,
+      [{id:'transfer',label:'TRANSFER MONEY'},{id:'insights',label:'INSIGHTS'}]);
+  }
+  else if(flow==='scanqr'){
+    jShow('Scan & Pay','Point your camera at any PromptPay or Thai QR Payment code',
+      `<div style="width:140px;height:140px;border:2px solid var(--scb-gold);border-radius:16px;margin:0 auto 16px;position:relative"><div style="position:absolute;top:0;left:0;width:24px;height:24px;border-top:3px solid var(--scb-gold);border-left:3px solid var(--scb-gold);border-radius:6px 0 0 0"></div><div style="position:absolute;top:0;right:0;width:24px;height:24px;border-top:3px solid var(--scb-gold);border-right:3px solid var(--scb-gold);border-radius:0 6px 0 0"></div><div style="position:absolute;bottom:0;left:0;width:24px;height:24px;border-bottom:3px solid var(--scb-gold);border-left:3px solid var(--scb-gold);border-radius:0 0 0 6px"></div><div style="position:absolute;bottom:0;right:0;width:24px;height:24px;border-bottom:3px solid var(--scb-gold);border-right:3px solid var(--scb-gold);border-radius:0 0 6px 0"></div></div>
+       <div class="jarvis-fs-card" onclick="jAction('scanqrDone')" style="cursor:pointer;display:flex;gap:12px;align-items:center"><div style="font-size:20px">&#127977;</div><div><div class="jfc-line">7-Eleven Siam Paragon</div><div class="jfc-sub">Last: &#3647;85 &bull; 2 days ago</div></div></div>
+       <div class="jarvis-fs-card" onclick="jAction('scanqrDone')" style="cursor:pointer;display:flex;gap:12px;align-items:center"><div style="font-size:20px">&#9749;</div><div><div class="jfc-line">Cafe Amazon</div><div class="jfc-sub">Last: &#3647;120 &bull; 3 days ago</div></div></div>`,
+      [{id:'transfer',label:'TRANSFER INSTEAD'},{id:'paybills',label:'PAY BILLS'}]);
+  }
+  else if(flow==='paybills'){
+    jShow('Pay Bills','Which bill would you like to pay, '+B.name+'?',
+      `<div class="jarvis-fs-card" onclick="jAction('paybillDone')" style="cursor:pointer;display:flex;gap:10px;align-items:center"><div style="font-size:18px;width:32px;height:32px;border-radius:8px;background:rgba(239,68,68,.15);display:flex;align-items:center;justify-content:center">&#9889;</div><div style="flex:1"><div class="jfc-line">Metropolitan Electricity</div><div class="jfc-sub">Account: 41-xxxx-5892</div></div><div style="text-align:right"><div style="font-weight:700">&#3647;2,340</div><div style="font-size:10px;color:var(--danger)">Due Apr 20</div></div></div>
+       <div class="jarvis-fs-card" onclick="jAction('paybillDone')" style="cursor:pointer;display:flex;gap:10px;align-items:center"><div style="font-size:18px;width:32px;height:32px;border-radius:8px;background:rgba(59,130,246,.15);display:flex;align-items:center;justify-content:center">&#128167;</div><div style="flex:1"><div class="jfc-line">Provincial Waterworks</div><div class="jfc-sub">Account: 23-xxxx-4401</div></div><div style="text-align:right"><div style="font-weight:700">&#3647;580</div><div style="font-size:10px;color:var(--warning)">Due Apr 25</div></div></div>
+       <div class="jarvis-fs-card" onclick="jAction('paybillDone')" style="cursor:pointer;display:flex;gap:10px;align-items:center"><div style="font-size:18px;width:32px;height:32px;border-radius:8px;background:rgba(139,92,246,.15);display:flex;align-items:center;justify-content:center">&#128241;</div><div style="flex:1"><div class="jfc-line">AIS Mobile 091-xxx-4567</div><div class="jfc-sub">Postpaid plan</div></div><div style="text-align:right"><div style="font-weight:700">&#3647;899</div><div style="font-size:10px;color:var(--text2)">Due Apr 28</div></div></div>
+       <div class="jarvis-fs-card" onclick="jAction('paybillDone')" style="cursor:pointer;display:flex;gap:10px;align-items:center"><div style="font-size:18px;width:32px;height:32px;border-radius:8px;background:rgba(234,140,0,.15);display:flex;align-items:center;justify-content:center">&#128187;</div><div style="flex:1"><div class="jfc-line">TRUE Internet</div><div class="jfc-sub">Fiber 1 Gbps plan</div></div><div style="text-align:right"><div style="font-weight:700">&#3647;1,199</div><div style="font-size:10px;color:var(--text2)">Due May 5</div></div></div>`,
+      [{id:'payAllBills',label:'PAY ALL BILLS (&#3647;5,018)'},{id:'scanqr',label:'SCAN QR INSTEAD'}]);
+  }
+  else if(flow==='cardless'){
+    jShow('Cardless ATM','Choose a withdrawal amount, '+B.name,
+      `<div class="jarvis-fs-card" onclick="jAction('cardlessDone')" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center"><div class="jfc-line">&#3647; 1,000</div><div class="jfc-sub">Quick withdraw</div></div>
+       <div class="jarvis-fs-card" onclick="jAction('cardlessDone')" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center"><div class="jfc-line">&#3647; 5,000</div><div class="jfc-sub">Standard</div></div>
+       <div class="jarvis-fs-card" onclick="jAction('cardlessDone')" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center"><div class="jfc-line">&#3647; 10,000</div><div class="jfc-sub">Maximum</div></div>
+       <div class="jarvis-fs-notice"><span>&#128205;</span><span>Nearest ATM: SCB Siam Paragon — 350m</span></div>`,
+      [{id:'transfer',label:'TRANSFER INSTEAD'},{id:'insights',label:'SPEND INSIGHTS'}]);
+  }
+  else if(flow==='goals'){
+    jShow('Financial Goals','Here are your goals, '+B.name,
+      B.goals.map(g=>`<div class="jarvis-fs-card"><div style="display:flex;justify-content:space-between;font-size:14px;font-weight:600;margin-bottom:6px"><span>${g.name}</span><span style="color:var(--scb-gold)">${g.pct}%</span></div><div style="height:5px;border-radius:3px;background:rgba(255,255,255,.1);margin-bottom:4px"><div style="height:100%;border-radius:3px;background:linear-gradient(90deg,var(--scb-purple),var(--scb-gold));width:${g.pct}%"></div></div><div class="jfc-sub">&#3647; ${g.current.toLocaleString()} / &#3647; ${g.target.toLocaleString()}</div></div>`).join('')+
+      '<div class="jarvis-fs-notice"><span>&#128161;</span><span>Increase savings by &#3647;2,000/mo to hit Emergency Fund 3 months sooner</span></div>',
+      [{id:'insights',label:'SPEND INSIGHTS'},{id:'portfolio',label:'MY PORTFOLIO'}]);
+  }
+  else if(flow==='pointx'){
+    jShow('PointX Rewards','You have <span style="color:var(--scb-gold)">18,750 PointX</span>!',
+      `<div class="jarvis-fs-card" onclick="jAction('pointxTravel')" style="cursor:pointer;display:flex;gap:12px;align-items:center"><div style="font-size:22px">&#9992;</div><div><div class="jfc-line">Convert to Airline Miles</div><div class="jfc-sub">18,750 pts = 4,687 miles</div></div></div>
+       <div class="jarvis-fs-card" onclick="jAction('pointxCash')" style="cursor:pointer;display:flex;gap:12px;align-items:center"><div style="font-size:22px">&#128176;</div><div><div class="jfc-line">Cashback to Account</div><div class="jfc-sub">18,750 pts = &#3647;750</div></div></div>
+       <div class="jarvis-fs-card" onclick="jAction('pointxSpa')" style="cursor:pointer;display:flex;gap:12px;align-items:center"><div style="font-size:22px">&#128156;</div><div><div class="jfc-line">Redeem Spa Voucher</div><div class="jfc-sub">Let's Away Spa — 5,000 pts</div></div></div>
+       <div class="jarvis-fs-notice"><span>&#128161;</span><span>You earn 2x PointX on dining. A richer card tier can lift that to 3x when you qualify.</span></div>`,
+      [{id:'s2s_card',label:'VIEW CARD OPTIONS'},{id:'insights',label:'SPEND INSIGHTS'}]);
+  }
+  else if(flow==='portfolio'){
+    markJourney('portfolio');
+    jShow('Portfolio','Here\'s your portfolio snapshot, '+B.name,
+      `<div class="jarvis-fs-card" style="text-align:center"><div class="jfc-sub">Total Portfolio Value</div><div style="font-size:28px;font-weight:800;margin:4px 0">&#3647; 265,000</div><div style="color:var(--success);font-size:14px;font-weight:600">+6.0% overall</div></div>
+       <div class="jarvis-fs-card"><div class="jfc-line" style="font-size:13px;line-height:1.8">&#128200; Best: SCB Gold Fund <strong>+12.4%</strong><br>&#128201; SET Index: 1,485 (+0.52% today)<br>&#128161; Consider increasing monthly contribution</div></div>`,
+      [{id:'dca',label:'DCA INVESTMENT'},{id:'goals',label:'MY GOALS'},{id:'insights',label:'SPEND INSIGHTS'}]);
+  }
+  else if(flow==='dca'){
+    jShow('DCA Investment','Monthly S&P500 DCA summary',
+      `<div class="jarvis-fs-card"><div class="jfc-line" style="font-size:13px;line-height:2">Fund: S&P500 DCA (via SCB)<br>Amount: &#3647; 5,000.00<br>From: ${B.acct.num}<br>Return: <span style="color:var(--success)">+8.2% YTD</span></div></div>`,
+      [{id:'confirmDca',label:'CONFIRM DCA ORDER'},{id:'changeDca',label:'CHANGE AMOUNT'}]);
+  }
+  else if(flow==='anomaly'){
+    jShow('Fraud Alert','I detected an unusual transaction on your account, '+B.name,
+      `<div class="jarvis-fs-card" style="border-color:rgba(239,68,68,.2)">
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px"><span style="font-size:20px">&#9888;</span><div><div class="jfc-line" style="font-weight:700">Unusual Transaction</div><div class="jfc-sub">2 minutes ago</div></div></div>
+        <div style="display:flex;justify-content:space-between;padding:4px 0;font-size:13px"><span style="color:var(--text2)">Merchant</span><span style="font-weight:600">Online Store XYZ</span></div>
+        <div style="display:flex;justify-content:space-between;padding:4px 0;font-size:13px"><span style="color:var(--text2)">Amount</span><span style="font-weight:600;color:var(--danger)">&#3647; 15,800.00</span></div>
+        <div style="display:flex;justify-content:space-between;padding:4px 0;font-size:13px"><span style="color:var(--text2)">Card</span><span style="font-weight:600">CardX ending 4624</span></div>
+        <div style="display:flex;justify-content:space-between;padding:4px 0;font-size:13px"><span style="color:var(--text2)">Location</span><span style="font-weight:600;color:var(--danger)">Lagos, Nigeria</span></div>
+        <div class="jfc-sub" style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,.06)">&#128274; Card temporarily held for your protection</div>
+      </div>`,
+      [{id:'anomalyYes',label:"YES, THAT'S ME"},{id:'anomalyNo',label:'NO — BLOCK CARD'}]);
+  }
+  else if(flow==='s2s_card'){
+    markJourney('s2s');
+    jShow('Card Offer',B.name+', I found the perfect card for you based on your spending patterns',
+      `<div class="jcc-easy-rail-wrap">
+        <div class="jcc-easy-rail" role="img" aria-label="SCB Easy">
+          <span class="jcc-ez-left">SCB EASY</span>
+          <span class="jcc-ez-right">SCB <span class="jcc-ez-mark" aria-hidden="true">&loz;</span></span>
+        </div>
+        <div class="jcc-easy-product">SCB Wealth Platinum</div>
+      </div>
+       <div class="jarvis-fs-card"><div class="jfc-line" style="font-size:13px;line-height:1.9">&#128200; 25% off at hotel restaurants<br>&#127873; First year fee waived<br>&#9992; Free airport lounge access<br>&#11088; 2x PointX on dining &amp; travel<br><br><span style="color:var(--scb-gold);font-weight:700">Save &#3647; 1,240/month</span> <span style="font-size:11px;color:var(--text2)">based on your spend</span></div></div>`,
+      [{id:'seeDetails',label:'SEE ELIGIBILITY DETAILS'},{id:'exploreCards',label:'EXPLORE OTHER OPTIONS'}]);
+  }
+  else if(flow==='loan_servicing'){
+    jShow('Loan servicing (illustrative)',B.name+', first conversational servicing paths we would surface for a home loan.',
+      `<div class="jarvis-fs-card" onclick="jAction('loanStub')" style="cursor:pointer"><div class="jfc-line" style="font-weight:700">Check balance &amp; payment schedule</div><div class="jfc-sub">Principal / interest split and next instalment</div></div>
+       <div class="jarvis-fs-card" onclick="jAction('loanStub')" style="cursor:pointer"><div class="jfc-line" style="font-weight:700">Change payment date</div><div class="jfc-sub">Within policy window</div></div>
+       <div class="jarvis-fs-card" onclick="jAction('loanStub')" style="cursor:pointer"><div class="jfc-line" style="font-weight:700">Request payoff quote</div><div class="jfc-sub">Full or partial early settlement</div></div>
+       <div class="jarvis-fs-notice"><span>&#128161;</span><span>HTML demo only &mdash; no core booking.</span></div>`,
+      [{id:'insights',label:'SPEND INSIGHTS'},{id:'home',label:'BACK TO HOME'}]);
+  }
+  else if(flow==='beyond_trip'){
+    markJourney('bb_trip');
+    jShow('Plan trip to Bali','Beyond banking &mdash; CEO journey: family week this July, budget-first then book &amp; protect.',
+      `<div class="jarvis-fs-card"><div class="jfc-line" style="font-size:13px;line-height:1.85">&#127961; <strong>Bali</strong> &mdash; week-long family beach break (3 adults)<br>&#3647; Indicative all-in: <strong>~฿75,500</strong> (demo anchor from CEO storyline)<br>&#9728; Weather: warm season; add travel cover &amp; lounge perks with CardX<br>&#9992; Next steps in product: <em>Plan, Finance, Protect, Enjoy</em> stepper, live fares &amp; hotel cards</div></div>
+       <div class="jarvis-fs-notice"><span>&#128172;</span><span>This demo links goals, PointX, and Jarvis; full CEO screens ship in the next drop.</span></div>`,
+      [{id:'goals',label:'MY GOALS'},{id:'pointx',label:'POINTX'},{id:'home',label:'BACK TO HOME'}]);
+  }
+  else if(flow==='beyond_mba'){
+    markJourney('bb_mba');
+    jShow('Plan my MBA','Beyond banking &mdash; CEO journey: study abroad arc (fit, deadlines, FX, financing).',
+      `<div class="jarvis-fs-card"><div class="jfc-line" style="font-size:13px;line-height:1.85">&#127891; <strong>Find your fit</strong> &mdash; shortlist, rankings, intake timeline<br>&#3647; Programme cost envelope (~4M THB class of storyline) &amp; FX exposure<br>&#128176; Education-loan pre-check + counsellor hand-off (demo)<br>&#128197; Application checkpoints to Oct deadline</div></div>
+       <div class="jarvis-fs-notice"><span>&#128172;</span><span>Conversational thread ties loans, forex, and goals &mdash; matching CEO flow screens.</span></div>`,
+      [{id:'loan_servicing',label:'LOAN SERVICING (DEMO)'},{id:'insights',label:'INSIGHTS'},{id:'home',label:'BACK TO HOME'}]);
+  }
+  else if(flow==='blockcard'){
+    openJarvisFs();
+  }
+}
+
+// Unified action handler for Jarvis fullscreen
+function jAction(id){
+  const flowIds=['bill','insights','portfolio','paybills','scanqr','transfer','topup','cardless','goals','pointx','s2s_card','dca','anomaly','blockcard','loan_servicing','beyond_trip','beyond_mba','balances'];
+  if(flowIds.includes(id)){startChatFlow(id);return;}
+  const d=B.alert;
+  if(id==='payFull'||id==='payMin'){
+    jShow('Confirm Payment','Confirm your payment, '+B.name,
+      `<div class="jarvis-fs-card"><div style="display:flex;justify-content:space-between;padding:4px 0;font-size:13px"><span style="color:var(--text2)">Amount</span><span style="font-weight:700">${d.total.toLocaleString()}.00 THB</span></div><div style="display:flex;justify-content:space-between;padding:4px 0;font-size:13px"><span style="color:var(--text2)">From</span><span style="font-weight:700">${B.acct.num}</span></div><div style="display:flex;justify-content:space-between;padding:4px 0;font-size:13px"><span style="color:var(--text2)">To</span><span style="font-weight:700">CardX Biller</span></div></div>`,
+      [{id:'confirmPay',label:'CONFIRM PAYMENT'},{id:'bill',label:'CHANGE OPTIONS'}]);
+  }
+  else if(id==='confirmPay'){
+    billPaid=true;markJourney('bill');
+    const ref='20260413D2e46KCou3R0e80';
+    jShow('Payment Successful','Thank you, '+B.name+'!<br>Your credit card payment has been received.',
+      `<div class="jarvis-fs-success"><div class="jfs-icon">&#10003;</div><div class="jfs-text">&#3647; ${d.total.toLocaleString()}.00 paid</div></div>
+       <div class="jarvis-fs-card"><div class="jfc-sub">Reference: ${ref}</div></div>`,
+      [{id:'insights',label:'SPEND INSIGHTS'},{id:'s2s_card',label:'CARD OFFERS'},{id:'home',label:'BACK TO HOME'}]);
+  }
+  else if(id==='payEmi'){
+    jShow('Installment Plan','6-month installment with 0% interest',
+      `<div class="jarvis-fs-card"><div style="display:flex;justify-content:space-between;padding:4px 0;font-size:13px"><span style="color:var(--text2)">Monthly</span><span style="font-weight:700">&#3647; ${d.emi.toLocaleString()}/mo</span></div><div style="display:flex;justify-content:space-between;padding:4px 0;font-size:13px"><span style="color:var(--text2)">Interest</span><span style="font-weight:700;color:var(--success)">0%</span></div><div style="display:flex;justify-content:space-between;padding:4px 0;font-size:13px"><span style="color:var(--text2)">Total</span><span style="font-weight:700">&#3647; ${d.total.toLocaleString()}</span></div></div>`,
+      [{id:'confirmPay',label:'CONFIRM INSTALLMENT'},{id:'bill',label:'BACK TO OPTIONS'}]);
+  }
+  else if(id==='statements'){
+    jShow('Statements','Recent CardX activity, '+B.name,
+      `<div class="jarvis-fs-card"><div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px"><span style="color:var(--text2)">12 Apr — Grab</span><span style="font-weight:600">&#3647; 185</span></div><div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px"><span style="color:var(--text2)">11 Apr — Central Dept</span><span style="font-weight:600">&#3647; 3,450</span></div><div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px"><span style="color:var(--text2)">10 Apr — Siam Paragon F&B</span><span style="font-weight:600">&#3647; 890</span></div><div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px"><span style="color:var(--text2)">9 Apr — Amazon.co.th</span><span style="font-weight:600">&#3647; 1,200</span></div><div style="border-top:1px solid rgba(255,255,255,.06);margin-top:6px;padding-top:6px;display:flex;justify-content:space-between;font-size:13px"><span style="font-weight:600">Total</span><span style="font-weight:700;color:var(--danger)">&#3647; ${d.total.toLocaleString()}</span></div></div>`,
+      [{id:'bill',label:'PAY BILL'},{id:'insights',label:'SPEND INSIGHTS'}]);
+  }
+  else if(id==='seeDetails'){
+    jShow('Eligibility','Great news, '+B.name+'!<br>Based on your profile:',
+      `<div class="jarvis-fs-card" style="text-align:center"><div class="jfc-sub" style="text-transform:uppercase;letter-spacing:1px;color:var(--scb-gold)">Approval Probability</div><div style="font-size:48px;font-weight:800;color:var(--scb-gold);margin:8px 0">80%</div><div class="jfc-sub">Likely approved</div></div>
+       <div class="jarvis-fs-card"><div class="jfc-line" style="font-size:13px;line-height:2">&#10003; Income: THB 65,000/mo verified<br>&#10003; Clean payment history<br>&#10003; Debt-to-income: 28%<br>Expected limit: <span style="color:var(--scb-gold);font-weight:600">THB 250,000–300,000</span></div></div>`,
+      [{id:'applyCard',label:'APPLY NOW'},{id:'exploreCards',label:'EXPLORE OTHER OPTIONS'}]);
+  }
+  else if(id==='exploreCards'){
+    jShow('Compare Cards','Cards that match your profile',
+      `<div class="jarvis-fs-card" onclick="jAction('applyCard')" style="cursor:pointer;border-color:var(--scb-gold)"><div style="display:flex;justify-content:space-between"><div class="jfc-line" style="font-weight:700">SCB Wealth Platinum</div><div class="jarvis-fs-badge" style="background:rgba(201,168,76,.15);color:var(--scb-gold);margin:0">95%</div></div><div class="jfc-sub">2x PointX &bull; Lounge &bull; Save &#3647;1,240/mo</div></div>
+       <div class="jarvis-fs-card" onclick="jAction('applyCard')" style="cursor:pointer"><div style="display:flex;justify-content:space-between"><div class="jfc-line" style="font-weight:700">SCB M Luxe</div><div class="jarvis-fs-badge" style="background:rgba(59,130,246,.12);color:#3498db;margin:0">87%</div></div><div class="jfc-sub">5x PointX dining &bull; Michelin &bull; Save &#3647;980/mo</div></div>
+       <div class="jarvis-fs-card" onclick="jAction('applyCard')" style="cursor:pointer"><div style="display:flex;justify-content:space-between"><div class="jfc-line" style="font-weight:700">SCB Travel Card</div><div class="jarvis-fs-badge" style="background:rgba(234,140,0,.12);color:#ea8c00;margin:0">78%</div></div><div class="jfc-sub">3x miles &bull; 0% FX &bull; Airport fast track</div></div>`,
+      [{id:'seeDetails',label:'SEE ELIGIBILITY'},{id:'insights',label:'SPEND INSIGHTS'}]);
+  }
+  else if(id==='applyCard'){
+    markJourney('s2s');
+    jShow('Card Approved!','Excellent choice, '+B.name+'!<br>Since you\'re pre-approved, it\'s instant.',
+      '<div class="jarvis-fs-success"><div class="jfs-icon">&#10003;</div><div class="jfs-text">Application Approved!<br><span style="font-size:12px;font-weight:400;opacity:.8">SCB Wealth Platinum by CardX</span></div></div><div class="jarvis-fs-notice"><span>&#128230;</span><span>Physical card arrives in 5-7 business days. Virtual card ready now in SCB EASY.</span></div>',
+      [{id:'pointx',label:'USE POINTX'},{id:'insights',label:'SPEND INSIGHTS'},{id:'home',label:'BACK TO HOME'}]);
+  }
+  else if(id==='anomalyNo'){
+    startChatFlow('blockcard');
+  }
+  else if(id==='anomalyYes'){
+    markJourney('anomaly');
+    jShow('Transaction Verified','Got it! I\'ve verified the transaction and released the hold. Your card is fully active again.',
+      '<div class="jarvis-fs-success"><div class="jfs-icon">&#10003;</div><div class="jfs-text">Card Active</div></div><div class="jarvis-fs-notice"><span>&#128161;</span><span>Tip: Add trusted locations in card settings to avoid future holds when you travel.</span></div>',
+      [{id:'insights',label:'SPEND INSIGHTS'},{id:'s2s_card',label:'CARD OFFERS'},{id:'home',label:'BACK TO HOME'}]);
+  }
+  else if(id==='transferDone'){
+    jShow('Transfer Complete','Transfer completed!',
+      '<div class="jarvis-fs-success"><div class="jfs-icon">&#10003;</div><div class="jfs-text">&#3647; 5,000.00 sent<br><span style="font-size:12px;font-weight:400;opacity:.8">From '+B.acct.num+'</span></div></div>',
+      [{id:'paybills',label:'PAY BILLS'},{id:'insights',label:'INSIGHTS'},{id:'home',label:'BACK TO HOME'}]);
+  }
+  else if(id==='topupDone'){
+    jShow('Top-Up Complete','Top-up successful!',
+      '<div class="jarvis-fs-success"><div class="jfs-icon">&#10003;</div><div class="jfs-text">Amount credited<br><span style="font-size:12px;font-weight:400;opacity:.8">From '+B.acct.num+'</span></div></div>',
+      [{id:'transfer',label:'TRANSFER'},{id:'insights',label:'INSIGHTS'},{id:'home',label:'BACK TO HOME'}]);
+  }
+  else if(id==='cardlessDone'){
+    jShow('Withdrawal Ready','Your cardless withdrawal code is ready!',
+      '<div class="jarvis-fs-card" style="text-align:center;padding:20px"><div class="jfc-sub" style="text-transform:uppercase;letter-spacing:1px">Withdrawal Code</div><div style="font-size:36px;font-weight:800;letter-spacing:6px;margin:8px 0;color:var(--scb-gold);font-family:monospace">4829</div><div class="jfc-sub">Valid for 5 minutes &bull; Any SCB ATM</div></div><div class="jarvis-fs-notice"><span>&#128205;</span><span>Nearest: SCB Siam Paragon — 350m</span></div>',
+      [{id:'transfer',label:'TRANSFER'},{id:'insights',label:'INSIGHTS'},{id:'home',label:'BACK TO HOME'}]);
+  }
+  else if(id==='scanqrDone'){
+    jShow('Payment Done','QR Payment confirmed!',
+      '<div class="jarvis-fs-success"><div class="jfs-icon">&#10003;</div><div class="jfs-text">Payment Successful<br><span style="font-size:12px;font-weight:400;opacity:.8">via PromptPay QR</span></div></div>',
+      [{id:'paybills',label:'PAY BILLS'},{id:'transfer',label:'TRANSFER'},{id:'home',label:'BACK TO HOME'}]);
+  }
+  else if(id==='paybillDone'){
+    jShow('Bill Paid','Bill payment successful!',
+      '<div class="jarvis-fs-success"><div class="jfs-icon">&#10003;</div><div class="jfs-text">Bill Paid<br><span style="font-size:12px;font-weight:400;opacity:.8">From '+B.acct.num+'</span></div></div>',
+      [{id:'paybills',label:'PAY MORE BILLS'},{id:'insights',label:'INSIGHTS'},{id:'home',label:'BACK TO HOME'}]);
+  }
+  else if(id==='payAllBills'){
+    jShow('All Bills Paid','All 4 bills paid in one go!',
+      '<div class="jarvis-fs-success"><div class="jfs-icon">&#10003;</div><div class="jfs-text">4 Bills Paid — &#3647;5,018<br><span style="font-size:12px;font-weight:400;opacity:.8">Electricity, Water, AIS, TRUE Internet</span></div></div><div class="jarvis-fs-notice"><span>&#128161;</span><span>All caught up! Next bill due May 5. Want auto-pay?</span></div>',
+      [{id:'insights',label:'INSIGHTS'},{id:'s2s_card',label:'CARD OFFERS'},{id:'home',label:'BACK TO HOME'}]);
+  }
+  else if(id==='confirmDca'){
+    jShow('DCA Confirmed','Your DCA order has been placed!',
+      '<div class="jarvis-fs-success"><div class="jfs-icon">&#10003;</div><div class="jfs-text">DCA Order Confirmed<br><span style="font-size:12px;font-weight:400;opacity:.8">S&P500 — &#3647; 5,000.00</span></div></div>',
+      [{id:'portfolio',label:'MY PORTFOLIO'},{id:'insights',label:'INSIGHTS'},{id:'home',label:'BACK TO HOME'}]);
+  }
+  else if(id==='changeDca'){
+    jShow('Change DCA','Adjust your monthly DCA amount',
+      `<div class="jarvis-fs-card" onclick="jAction('confirmDca')" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center"><div class="jfc-line">&#3647; 3,000/month</div><div class="jfc-sub">Conservative</div></div>
+       <div class="jarvis-fs-card" onclick="jAction('confirmDca')" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center;border-color:var(--scb-gold)"><div class="jfc-line">&#3647; 5,000/month</div><div style="color:var(--success);font-size:12px">Current &#10003;</div></div>
+       <div class="jarvis-fs-card" onclick="jAction('confirmDca')" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center"><div class="jfc-line">&#3647; 8,000/month</div><div style="color:var(--scb-gold);font-size:12px">Recommended</div></div>`,
+      [{id:'portfolio',label:'BACK TO PORTFOLIO'}]);
+  }
+  else if(id==='pointxTravel'||id==='pointxCash'||id==='pointxSpa'){
+    const labels={pointxTravel:'Airline Miles',pointxCash:'Cashback',pointxSpa:'Spa Voucher'};
+    jShow('PointX Redeemed','Your redemption for '+labels[id]+' has been processed!',
+      '<div class="jarvis-fs-success"><div class="jfs-icon">&#10003;</div><div class="jfs-text">'+labels[id]+' Confirmed</div></div>',
+      [{id:'s2s_card',label:'VIEW CARD OPTIONS'},{id:'insights',label:'INSIGHTS'},{id:'home',label:'BACK TO HOME'}]);
+  }
+  else if(id==='loanStub'){
+    jShow('Request noted',B.name+', this tap would hand off to authenticated loan servicing in production.',
+      '<div class="jarvis-fs-notice"><span>&#10003;</span><span>Prototype only &mdash; no data submitted.</span></div>',
+      [{id:'loan_servicing',label:'BACK TO LOAN MENU'},{id:'home',label:'BACK TO HOME'}]);
+  }
+  else if(id==='home'){
+    document.getElementById('jarvisFs').classList.remove('active');
+    navigate('home');
+  }
+  else{
+    jShow('Jarvis','I\'m working on that for you, '+B.name+'.',null,
+      [{id:'insights',label:'SPEND INSIGHTS'},{id:'s2s_card',label:'CARD OFFERS'},{id:'home',label:'BACK TO HOME'}]);
+  }
+}
+
+function handleChatSend(){
+  const inp=document.getElementById('chatInput'),txt=inp.value.trim();if(!txt)return;inp.value='';
+  const l=txt.toLowerCase();
+  if(l.includes('pay')&&l.includes('bill'))startChatFlow('paybills');
+  else if(l.includes('pay')||l.includes('bill'))startChatFlow('bill');
+  else if(l.includes('scan')||l.includes('qr'))startChatFlow('scanqr');
+  else if(l.includes('transfer')||l.includes('send money'))startChatFlow('transfer');
+  else if(l.includes('top up')||l.includes('topup')||l.includes('mobile')||l.includes('rabbit'))startChatFlow('topup');
+  else if(l.includes('cardless')||l.includes('atm')||l.includes('withdraw'))startChatFlow('cardless');
+  else if(l.includes('goal')||l.includes('saving')||l.includes('target'))startChatFlow('goals');
+  else if(l.includes('spend')||l.includes('insight')||l.includes('budget'))startChatFlow('insights');
+  else if(l.includes('balance')&&!l.includes('portfolio')&&!l.includes('invest')&&!l.includes('loan'))startChatFlow('balances');
+  else if(l.includes('dca')||l.includes('invest'))startChatFlow('portfolio');
+  else if(l.includes('point')||l.includes('reward'))startChatFlow('pointx');
+  else if(l.includes('portfolio')||l.includes('fund'))startChatFlow('portfolio');
+  else if(l.includes('block')||l.includes('lost')||l.includes('stolen')||l.includes('freeze'))startChatFlow('blockcard');
+  else if(l.includes('fraud')||l.includes('unusual')||l.includes('anomal')||l.includes('suspicious'))startChatFlow('anomaly');
+  else if(l.includes('card')||l.includes('upgrade')||l.includes('offer'))startChatFlow('s2s_card');
+  else{jShow('Jarvis','I\'d love to help with that, '+B.name+'!<br>Here\'s what I can do:',null,
+    [{id:'paybills',label:'PAY BILLS'},{id:'insights',label:'SPEND INSIGHTS'},{id:'s2s_card',label:'CARD OFFERS'},{id:'balances',label:'ACCOUNT BALANCES'},{id:'anomaly',label:'FRAUD ALERT'}]);}
+}
+
+function handleJfsSend(){
+  const inp=document.getElementById('jfsInput'),txt=inp.value.trim();if(!txt)return;inp.value='';
+  handleChatSend.__txt=txt;
+  const l=txt.toLowerCase();
+  if(l.includes('pay')&&l.includes('bill'))startChatFlow('paybills');
+  else if(l.includes('pay')||l.includes('bill'))startChatFlow('bill');
+  else if(l.includes('scan')||l.includes('qr'))startChatFlow('scanqr');
+  else if(l.includes('transfer')||l.includes('send'))startChatFlow('transfer');
+  else if(l.includes('top up')||l.includes('topup'))startChatFlow('topup');
+  else if(l.includes('cardless')||l.includes('atm'))startChatFlow('cardless');
+  else if(l.includes('goal')||l.includes('saving'))startChatFlow('goals');
+  else if(l.includes('spend')||l.includes('insight'))startChatFlow('insights');
+  else if(l.includes('balance')&&!l.includes('portfolio')&&!l.includes('invest')&&!l.includes('loan'))startChatFlow('balances');
+  else if(l.includes('dca')||l.includes('invest'))startChatFlow('portfolio');
+  else if(l.includes('point')||l.includes('reward'))startChatFlow('pointx');
+  else if(l.includes('portfolio')||l.includes('fund'))startChatFlow('portfolio');
+  else if(l.includes('block')||l.includes('lost')||l.includes('stolen'))startChatFlow('blockcard');
+  else if(l.includes('fraud')||l.includes('unusual'))startChatFlow('anomaly');
+  else if(l.includes('card')||l.includes('upgrade'))startChatFlow('s2s_card');
+  else{jShow('Jarvis','I\'d love to help with that, '+B.name+'!',null,
+    [{id:'paybills',label:'PAY BILLS'},{id:'insights',label:'SPEND INSIGHTS'},{id:'s2s_card',label:'CARD OFFERS'},{id:'balances',label:'ACCOUNT BALANCES'}]);}
+}
+
+// Voice Overlay
+let voiceTimer=null;
+// Jarvis Fullscreen — Card Block Journey
+function openJarvisFs(){
+  document.getElementById('jarvisFs').classList.add('active');
+  blockCardStep(1);
+}
+function closeJarvisFs(){
+  document.getElementById('jarvisFs').classList.remove('active');
+  navigate('home');
+}
+function blockCardStep(step){
+  const body=document.getElementById('jfsBody');
+  const addr='5801 Thanon Asok - Din Daeng, Din Daeng, Bangkok 10400, Thailand';
+  const landmark='Landmark: Behind District Office';
+
+  if(step===1){
+    body.innerHTML=`
+      <div class="jarvis-fs-orb"></div>
+      <div class="jarvis-fs-text">Sorry to hear that, ${B.name}.<br>Don't worry — I have placed a temporary freeze on your card ending in -4624 as of this second. No new transactions can go through.</div>
+    `;
+    setTimeout(()=>blockCardStep(2),2500);
+  }
+  else if(step===2){
+    body.innerHTML=`
+      <div class="jarvis-fs-orb"></div>
+      <div class="jarvis-fs-text">Would you like me to permanently block this card and order a replacement?</div>
+      <div class="jcc-easy-rail-wrap">
+        <div class="jcc-easy-rail" role="img" aria-label="SCB Easy">
+          <span class="jcc-ez-left">SCB EASY</span>
+          <span class="jcc-ez-right">SCB <span class="jcc-ez-mark" aria-hidden="true">&loz;</span></span>
+        </div>
+        <div class="jcc-easy-pan">5577 55&bull;&bull; &bull;&bull;&bull;&bull; 4624</div>
+      </div>
+      <div class="jarvis-fs-actions">
+        <button class="jarvis-fs-btn primary" onclick="blockCardStep(3)">YES, BLOCK CARD AND ORDER REPLACEMENT</button>
+        <button class="jarvis-fs-btn secondary" onclick="blockCardStep('cancel')">CANCEL REQUEST, DO NOTHING</button>
+      </div>
+    `;
+  }
+  else if(step===3){
+    body.innerHTML=`
+      <div class="jarvis-fs-orb"></div>
+      <div class="jarvis-fs-text">Your card is now blocked.<br>I'll place a request for a replacement card now.<br>Can you confirm if this is the correct address?</div>
+      <div class="jarvis-fs-card">
+        <div class="jfc-line">${addr}</div>
+        <div class="jfc-sub">${landmark}</div>
+      </div>
+      <div class="jarvis-fs-actions">
+        <button class="jarvis-fs-btn primary" onclick="blockCardStep(5)">YES, THIS IS MY CORRECT ADDRESS</button>
+        <button class="jarvis-fs-btn secondary" onclick="blockCardStep(4)">ADDRESS IS INCORRECT, UPDATE</button>
+      </div>
+    `;
+  }
+  else if(step===4){
+    body.innerHTML=`
+      <div class="jarvis-fs-orb"></div>
+      <div class="jarvis-fs-text">No Problem, let's quickly update your address on our records.</div>
+      <div class="jarvis-fs-card" style="padding:14px">
+        <div style="display:flex;align-items:center;gap:8px;color:var(--text2);font-size:12px;line-height:1.5">
+          <span style="font-size:16px">&#9432;</span>
+          <span>Start typing your address below and click on the correct one to select</span>
+        </div>
+      </div>
+      <div style="width:100%;margin-top:12px;animation:fadeUp .5s ease both .3s;opacity:0">
+        <div class="jarvis-fs-input-bar" style="position:relative">
+          <input type="text" id="jfsAddrInput" placeholder="Type your address..." oninput="showAddrSuggestions(this.value)" style="flex:1;background:none;border:none;color:#fff;font-size:13px;outline:none">
+        </div>
+        <div id="jfsAddrSuggestions" style="display:none;margin-top:4px;background:rgba(30,20,50,.95);border:1px solid rgba(255,255,255,.08);border-radius:12px;overflow:hidden"></div>
+      </div>
+    `;
+  }
+  else if(step===5){
+    body.innerHTML=`
+      <div class="jarvis-fs-orb"></div>
+      <div class="jarvis-fs-text">Thanks. One last step — we'll now need to verify the below address to save it</div>
+      <div class="jarvis-fs-card">
+        <div class="jfc-line">${addr}</div>
+        <div class="jfc-sub">${landmark}</div>
+      </div>
+      <div class="jarvis-fs-verify">
+        <div style="font-size:14px;font-weight:600;color:#fff;margin-bottom:4px">Select a verification document</div>
+        <label><span>Thai National ID Card</span><input type="radio" name="jfsDoc" value="id" checked></label>
+        <label><span>Utility bills (Electricity, Landline, Water, etc.)</span><input type="radio" name="jfsDoc" value="utility"></label>
+      </div>
+      <div class="jarvis-fs-actions">
+        <button class="jarvis-fs-btn primary" onclick="blockCardStep(6)">PROCEED WITH VERIFICATION</button>
+      </div>
+    `;
+  }
+  else if(step===6){
+    body.innerHTML=`
+      <div class="jarvis-fs-orb"></div>
+      <div class="jarvis-fs-text">We are processing your ID card now, please wait</div>
+      <div class="jarvis-fs-card">
+        <div class="jfc-line">${addr}</div>
+        <div class="jfc-sub">${landmark}</div>
+        <div class="jarvis-fs-badge pending">VERIFICATION PENDING &#9203;</div>
+      </div>
+      <div class="jarvis-fs-processing">
+        <div class="jfp-dots"><span></span><span></span><span></span></div>
+        <div class="jfp-text">Processing your ID card</div>
+      </div>
+      <div class="jarvis-fs-notice"><span>&#128336;</span><span>Give us 2-3 mins to analyse your captured ID card and complete the verification</span></div>
+    `;
+    setTimeout(()=>blockCardStep(7),3000);
+  }
+  else if(step===7){
+    body.innerHTML=`
+      <div class="jarvis-fs-orb"></div>
+      <div class="jarvis-fs-text">Great, your ID card verification is complete and the address has been updated on our systems.</div>
+      <div class="jarvis-fs-card">
+        <div class="jfc-line">${addr}</div>
+        <div class="jfc-sub">${landmark}</div>
+        <div class="jarvis-fs-badge verified">VERIFIED &#10003;</div>
+      </div>
+      <div class="jarvis-fs-success">
+        <div class="jfs-icon">&#128737;</div>
+        <div class="jfs-text">Success! We have verified your ID card</div>
+      </div>
+    `;
+    setTimeout(()=>blockCardStep(8),2500);
+  }
+  else if(step===8){
+    body.innerHTML=`
+      <div class="jarvis-fs-orb"></div>
+      <div class="jarvis-fs-text">Awesome, all done!<br>We'll be dispatching a replacement card soon to the below address</div>
+      <div class="jarvis-fs-card">
+        <div class="jfc-line">${addr}</div>
+        <div class="jfc-sub">${landmark}</div>
+        <div class="jarvis-fs-badge verified">VERIFIED &#10003;</div>
+      </div>
+      <div class="jarvis-fs-actions">
+        <button class="jarvis-fs-btn primary" onclick="jAction('home')">BACK TO HOME</button>
+        <button class="jarvis-fs-btn secondary" onclick="jAction('insights')">SPEND INSIGHTS</button>
+      </div>
+    `;
+    markJourney('anomaly');
+  }
+  else if(step==='cancel'){
+    body.innerHTML=`
+      <div class="jarvis-fs-orb"></div>
+      <div class="jarvis-fs-text">No worries! Your card remains <span style="color:var(--warning)">temporarily frozen</span>. You can unfreeze it anytime from your card settings or just ask me.</div>
+      <div class="jarvis-fs-card">
+        <div class="jfc-line">CardX Visa Platinum ending -4624</div>
+        <div class="jarvis-fs-badge frozen">FROZEN &#10052;&#65039;</div>
+        <div class="jfc-sub" style="margin-top:6px">Say "unfreeze my card" anytime to reactivate</div>
+      </div>
+      <div class="jarvis-fs-actions">
+        <button class="jarvis-fs-btn primary" onclick="blockCardStep(2)">PERMANENTLY BLOCK INSTEAD</button>
+        <button class="jarvis-fs-btn secondary" onclick="closeJarvisFs();navigate('home')">BACK TO HOME</button>
+      </div>
+    `;
+  }
+}
+
+function showAddrSuggestions(val){
+  const box=document.getElementById('jfsAddrSuggestions');
+  if(!val||val.length<3){box.style.display='none';return;}
+  const suggestions=[
+    '5801 Thanon Asok - Din Daeng, Din Da...',
+    '5801 Thankful gardens, London, SW1W 9QQ',
+    '5801 Thayer Lane, Vancouver, BC, V6B 1P1',
+    '5801 Thames Drive Plaza, Iselin, NJ 08830'
+  ];
+  box.style.display='block';
+  box.innerHTML=suggestions.map((s,i)=>`<div onclick="selectAddr(${i})" style="padding:12px 14px;font-size:13px;color:#fff;cursor:pointer;border-bottom:1px solid rgba(255,255,255,.04);transition:background .15s${i===0?';background:rgba(201,168,76,.08)':''}" onmouseenter="this.style.background='rgba(201,168,76,.08)'" onmouseleave="this.style.background='${i===0?'rgba(201,168,76,.08)':'transparent'}'">${s}</div>`).join('');
+}
+function selectAddr(){
+  blockCardStep(5);
+}
+
+function openVoice(){
+  const ov=document.getElementById('voiceOverlay');
+  ov.classList.add('active');
+  document.getElementById('voStatus').textContent='Listening...';
+  document.getElementById('voTranscript').textContent='';
+  document.getElementById('voTranscript').classList.remove('show');
+  document.getElementById('voPrompts').style.display='';
+  document.getElementById('voWaves').style.opacity='1';
+}
+function closeVoice(){
+  document.getElementById('voiceOverlay').classList.remove('active');
+  if(voiceTimer){clearTimeout(voiceTimer);voiceTimer=null;}
+}
+function voiceSelect(flow){
+  const phrases={bill:'Pay my credit card bill',insights:'Show my spending insights',s2s_card:'What card offers do I have?',transfer:'Transfer money to Somchai',portfolio:'Show my portfolio',balances:'Show my account balances',pointx:'Check my PointX balance',anomaly:'Report unusual transaction',goals:'Show my financial goals',blockcard:'I lost my wallet, block my card',paybills:'Pay my electricity bill',scanqr:'Scan QR to pay'};
+  const txt=phrases[flow]||'Help me with my banking';
+  document.getElementById('voPrompts').style.display='none';
+  document.getElementById('voStatus').textContent='Processing...';
+  const tr=document.getElementById('voTranscript');
+  tr.textContent='\u201C'+txt+'\u201D';
+  tr.classList.add('show');
+  voiceTimer=setTimeout(()=>{
+    document.getElementById('voStatus').textContent='Got it!';
+    document.getElementById('voWaves').style.opacity='.2';
+    voiceTimer=setTimeout(()=>{
+      closeVoice();
+      navigate('chat',flow);
+    },800);
+  },1200);
+}
+
+// Time
+function updateTime(){const n=new Date(),h=n.getHours(),m=String(n.getMinutes()).padStart(2,'0'),t=h+':'+m;document.getElementById('statusTime').textContent=t;document.getElementById('lockTime').textContent=t;const d=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],mo=['January','February','March','April','May','June','July','August','September','October','November','December'];document.getElementById('lockDate').textContent=`${d[n.getDay()]}, ${n.getDate()} ${mo[n.getMonth()]}`;}
+
+// Init
+updateTime();setInterval(updateTime,30000);
+render();
+
+// Deep-link screens for Figma / html-to-design capture (?screen= matches Figma frame names where possible)
+// Screens use opacity transitions (~350ms); start deep-links after first paint so Figma hash captures (figmadelay ~2800+, &figmaselector=.phone) see the final UI, not empty frames.
+(function(){
+  const p=new URLSearchParams(window.location.search);
+  const scr=(p.get('screen')||'').toLowerCase().replace(/-/g,'_');
+  if(scr){
+    const start=900,t1=550,t2=650,t3=750;
+    setTimeout(()=>{
+      if(scr==='lock'){document.querySelectorAll('.phone > .screen').forEach(s=>s.classList.remove('active'));document.getElementById('lockScreen').classList.add('active');}
+      else if(scr==='home') navigate('home');
+      else if(scr==='briefing'||scr==='morning_brief'){navigate('home');setTimeout(()=>navigate('briefing'),t1);}
+      else if(scr==='chat'||scr==='jarvis'||scr==='conversational'){navigate('home');setTimeout(()=>navigate('chat'),t1);}
+      else if(scr==='portfolio'){navigate('home');setTimeout(()=>navigate('portfolio'),t1);}
+      else if(scr==='balances'||scr==='account_balances'){navigate('home');setTimeout(()=>navigate('chat','balances'),t2);}
+      else if(scr==='profile'){navigate('home');setTimeout(()=>navigate('profile'),t1);}
+      else if(scr==='wellness'||scr==='financial_wellness'||scr==='wellness_0'){navigate('home');setTimeout(function(){showWellness();},t2);}
+      else if(/^wellness_([1-4])$/.test(scr)){const ws=parseInt(scr.split('_')[1],10);navigate('home');setTimeout(function(){var el=document.getElementById('wellnessModal');if(el){el.classList.add('active');setWellnessStep(ws);}},t2);}
+      else if(scr==='jarvis_fs'||scr==='jarvis_fullscreen'){navigate('home');setTimeout(function(){var fs=document.getElementById('jarvisFs');if(fs){fs.classList.add('active');blockCardStep(2);}},t2);}
+      else if(scr==='beyond_score'||scr==='improve_financial_score'){navigate('home');setTimeout(()=>openBeyondImproveScore(),t2);}
+      else if(scr==='beyond_mba'||scr==='plan_mba'){navigate('home');setTimeout(()=>openBeyondMba(),t2);}
+      else if(scr==='beyond_bali'||scr==='bali_trip'||scr==='plan_bali'){navigate('home');setTimeout(()=>openBeyondTrip(),t2);}
+      else if(scr==='voice'||scr==='voice_input'){navigate('home');setTimeout(()=>openVoice(),t3);}
+    },start);
+  }
+})();
+</script>
+</body>
+</html>

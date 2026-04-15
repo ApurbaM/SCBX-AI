@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Figma capture — all SCB demo screens</title>
+<style>
+  body{font-family:system-ui,sans-serif;max-width:58rem;margin:2rem auto;padding:0 1.25rem;line-height:1.45;color:#111}
+  h1{font-size:1.25rem}
+  h2{font-size:1.05rem;margin-top:1.75rem}
+  p.note{font-size:.9rem;color:#444;margin:0 0 1rem}
+  table{border-collapse:collapse;width:100%;font-size:.82rem;margin:.75rem 0 1.25rem}
+  th,td{border:1px solid #ddd;padding:.45rem .5rem;text-align:left;vertical-align:top}
+  th{background:#f6f6f7}
+  a{word-break:break-all}
+  code{font-size:.78rem;background:#f4f4f5;padding:.1rem .35rem;border-radius:4px}
+  ol{padding-left:1.15rem}
+  li{margin:.55rem 0}
+</style>
+</head>
+<body>
+  <h1>SCB Morning Brief demo — every <code>?screen=</code> + Figma capture</h1>
+  <p class="note">From repo: <code>npx serve -l 5173</code>. Open this page at <code>http://localhost:5173/Figma_capture_links.html</code>. Use <strong>Chrome</strong>. For each row, click <strong>Capture</strong> once and wait until the import finishes in Figma (~5s after load). <strong>Do not skip order</strong> if you want to track progress easily. Each <code>captureId</code> is <strong>single-use</strong>.</p>
+  <p class="note">Figma file: <a href="https://www.figma.com/design/KuzJ7s3Sw6MxublhEc0y5o?node-id=0-1">SCBX demo — all screens</a> (file key <code>KuzJ7s3Sw6MxublhEc0y5o</code>).</p>
+
+  <h2>A. All deep-link screens (from <code>SCB_Morning_Briefing_Demo.html</code>)</h2>
+  <p class="note">Hyphens in URLs become underscores in code (e.g. <code>morning-brief</code> → <code>morning_brief</code>).</p>
+  <table>
+    <thead><tr><th>#</th><th>Screen</th><th><code>?screen=</code> (primary)</th><th>Aliases</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>Lock + morning notification</td><td><code>lock</code></td><td>—</td></tr>
+      <tr><td>2</td><td>Immersive home</td><td><code>home</code></td><td>—</td></tr>
+      <tr><td>3</td><td>Morning brief</td><td><code>briefing</code></td><td><code>morning_brief</code></td></tr>
+      <tr><td>4</td><td>Jarvis chat (default)</td><td><code>chat</code></td><td><code>jarvis</code>, <code>conversational</code></td></tr>
+      <tr><td>5</td><td>My portfolio</td><td><code>portfolio</code></td><td>—</td></tr>
+      <tr><td>6</td><td>Chat — account balances</td><td><code>balances</code></td><td><code>account_balances</code></td></tr>
+      <tr><td>7</td><td>Profile</td><td><code>profile</code></td><td>—</td></tr>
+      <tr><td>8</td><td>Wellness step 0 (score)</td><td><code>wellness</code>, <code>wellness_0</code></td><td><code>financial_wellness</code></td></tr>
+      <tr><td>9</td><td>Wellness step 1</td><td><code>wellness_1</code></td><td>—</td></tr>
+      <tr><td>10</td><td>Wellness step 2</td><td><code>wellness_2</code></td><td>—</td></tr>
+      <tr><td>11</td><td>Wellness step 3</td><td><code>wellness_3</code></td><td>—</td></tr>
+      <tr><td>12</td><td>Wellness step 4</td><td><code>wellness_4</code></td><td>—</td></tr>
+      <tr><td>13</td><td>Jarvis fullscreen (block card, step 2)</td><td><code>jarvis_fs</code></td><td><code>jarvis_fullscreen</code></td></tr>
+      <tr><td>14</td><td>Voice overlay</td><td><code>voice</code></td><td><code>voice_input</code></td></tr>
+      <tr><td>15</td><td>Beyond — improve financial score</td><td><code>beyond_score</code></td><td><code>improve_financial_score</code></td></tr>
+      <tr><td>16</td><td>Beyond — plan MBA</td><td><code>beyond_mba</code></td><td><code>plan_mba</code></td></tr>
+      <tr><td>17</td><td>Beyond — Bali trip</td><td><code>beyond_bali</code></td><td><code>bali_trip</code>, <code>plan_bali</code></td></tr>
+    </tbody>
+  </table>
+
+  <h2>B. Captures into your 13 Figma &ldquo;Phone chrome&rdquo; slots (<code>nodeId</code> set)</h2>
+  <p class="note">These map to inner frames <code>4:2</code> … <code>4:26</code> on <strong>SCBX demo — all screens</strong>. Opens demo + hash with <code>figmadelay=4000</code> and <code>figmaselector=.phone</code>.</p>
+  <ol>
+    <li><strong>01 Lock</strong> <code>4:2</code> — <a href="http://localhost:5173/SCB_Morning_Briefing_Demo.html?screen=lock#figmacapture=1524ecf8-e12d-4d93-bd38-148760a898eb&amp;figmaendpoint=https%3A%2F%2Fmcp.figma.com%2Fmcp%2Fcapture%2F1524ecf8-e12d-4d93-bd38-148760a898eb%2Fsubmit&amp;figmadelay=4000&amp;figmaselector=.phone">Capture</a></li>
+    <li><strong>02 Home</strong> <code>4:4</code> — <a href="http://localhost:5173/SCB_Morning_Briefing_Demo.html?screen=home#figmacapture=89935a2d-6678-437d-84d3-2504761b1636&amp;figmaendpoint=https%3A%2F%2Fmcp.figma.com%2Fmcp%2Fcapture%2F89935a2d-6678-437d-84d3-2504761b1636%2Fsubmit&amp;figmadelay=4000&amp;figmaselector=.phone">Capture</a></li>
+    <li><strong>03 Morning brief</strong> <code>4:6</code> — <a href="http://localhost:5173/SCB_Morning_Briefing_Demo.html?screen=briefing#figmacapture=797b1eb6-bd7d-4951-b17a-a024e852b49a&amp;figmaendpoint=https%3A%2F%2Fmcp.figma.com%2Fmcp%2Fcapture%2F797b1eb6-bd7d-4951-b17a-a024e852b49a%2Fsubmit&amp;figmadelay=4000&amp;figmaselector=.phone">Capture</a></li>
+    <li><strong>04 Wellness score</strong> <code>4:8</code> — <a href="http://localhost:5173/SCB_Morning_Briefing_Demo.html?screen=wellness_0#figmacapture=59f9a58f-df44-4ed9-baf6-5347917caebd&amp;figmaendpoint=https%3A%2F%2Fmcp.figma.com%2Fmcp%2Fcapture%2F59f9a58f-df44-4ed9-baf6-5347917caebd%2Fsubmit&amp;figmadelay=4000&amp;figmaselector=.phone">Capture</a></li>
+    <li><strong>05 Wellness holistic</strong> <code>4:10</code> — <a href="http://localhost:5173/SCB_Morning_Briefing_Demo.html?screen=wellness_1#figmacapture=3b753215-7126-420c-b408-a5df014c1504&amp;figmaendpoint=https%3A%2F%2Fmcp.figma.com%2Fmcp%2Fcapture%2F3b753215-7126-420c-b408-a5df014c1504%2Fsubmit&amp;figmadelay=4000&amp;figmaselector=.phone">Capture</a></li>
+    <li><strong>06 Wellness retirement</strong> <code>4:12</code> — <a href="http://localhost:5173/SCB_Morning_Briefing_Demo.html?screen=wellness_2#figmacapture=e6914e98-df94-44fd-9e1d-731b5f0f9883&amp;figmaendpoint=https%3A%2F%2Fmcp.figma.com%2Fmcp%2Fcapture%2Fe6914e98-df94-44fd-9e1d-731b5f0f9883%2Fsubmit&amp;figmadelay=4000&amp;figmaselector=.phone">Capture</a></li>
+    <li><strong>07 Wellness liquidity</strong> <code>4:14</code> — <a href="http://localhost:5173/SCB_Morning_Briefing_Demo.html?screen=wellness_3#figmacapture=534b3c99-a93f-4f9b-bda2-167914f382fc&amp;figmaendpoint=https%3A%2F%2Fmcp.figma.com%2Fmcp%2Fcapture%2F534b3c99-a93f-4f9b-bda2-167914f382fc%2Fsubmit&amp;figmadelay=4000&amp;figmaselector=.phone">Capture</a></li>
+    <li><strong>08 Wellness review</strong> <code>4:16</code> — <a href="http://localhost:5173/SCB_Morning_Briefing_Demo.html?screen=wellness_4#figmacapture=75fc51fa-158c-4d7b-a963-1e0504e30891&amp;figmaendpoint=https%3A%2F%2Fmcp.figma.com%2Fmcp%2Fcapture%2F75fc51fa-158c-4d7b-a963-1e0504e30891%2Fsubmit&amp;figmadelay=4000&amp;figmaselector=.phone">Capture</a></li>
+    <li><strong>09 My portfolio</strong> <code>4:18</code> — <a href="http://localhost:5173/SCB_Morning_Briefing_Demo.html?screen=portfolio#figmacapture=c711e2f9-784e-48bf-be86-e5246c147aeb&amp;figmaendpoint=https%3A%2F%2Fmcp.figma.com%2Fmcp%2Fcapture%2Fc711e2f9-784e-48bf-be86-e5246c147aeb%2Fsubmit&amp;figmadelay=4000&amp;figmaselector=.phone">Capture</a></li>
+    <li><strong>10 Jarvis chat</strong> <code>4:20</code> — <a href="http://localhost:5173/SCB_Morning_Briefing_Demo.html?screen=chat#figmacapture=a785911e-c2c8-4644-833c-1816c18ab4e5&amp;figmaendpoint=https%3A%2F%2Fmcp.figma.com%2Fmcp%2Fcapture%2Fa785911e-c2c8-4644-833c-1816c18ab4e5%2Fsubmit&amp;figmadelay=4000&amp;figmaselector=.phone">Capture</a></li>
+    <li><strong>11 Profile</strong> <code>4:22</code> — <a href="http://localhost:5173/SCB_Morning_Briefing_Demo.html?screen=profile#figmacapture=873438c4-1657-41b6-a132-6a1060a42bae&amp;figmaendpoint=https%3A%2F%2Fmcp.figma.com%2Fmcp%2Fcapture%2F873438c4-1657-41b6-a132-6a1060a42bae%2Fsubmit&amp;figmadelay=4000&amp;figmaselector=.phone">Capture</a></li>
+    <li><strong>12 Jarvis fullscreen</strong> <code>4:24</code> — <a href="http://localhost:5173/SCB_Morning_Briefing_Demo.html?screen=jarvis_fs#figmacapture=46331e25-fe95-43cd-8879-5d37860a1417&amp;figmaendpoint=https%3A%2F%2Fmcp.figma.com%2Fmcp%2Fcapture%2F46331e25-fe95-43cd-8879-5d37860a1417%2Fsubmit&amp;figmadelay=4000&amp;figmaselector=.phone">Capture</a></li>
+    <li><strong>13 Voice overlay</strong> <code>4:26</code> — <a href="http://localhost:5173/SCB_Morning_Briefing_Demo.html?screen=voice#figmacapture=8dbdc0c7-ac25-47d7-897e-987d214996d4&amp;figmaendpoint=https%3A%2F%2Fmcp.figma.com%2Fmcp%2Fcapture%2F8dbdc0c7-ac25-47d7-897e-987d214996d4%2Fsubmit&amp;figmadelay=4000&amp;figmaselector=.phone">Capture</a></li>
+  </ol>
+
+  <h2>C. Extra demo flows (no fixed Figma slot — import appears on canvas)</h2>
+  <p class="note">Your 13 artboards do not include separate slots for <strong>balances</strong> or the three <strong>Beyond</strong> journeys. These captures use a fresh session without <code>nodeId</code>; in Figma, move the resulting group next to your matrix or into a new frame.</p>
+  <ol start="14">
+    <li><strong>Chat — balances</strong> — <a href="http://localhost:5173/SCB_Morning_Briefing_Demo.html?screen=balances#figmacapture=e50818c4-27f0-40a0-8192-2960dc04c190&amp;figmaendpoint=https%3A%2F%2Fmcp.figma.com%2Fmcp%2Fcapture%2Fe50818c4-27f0-40a0-8192-2960dc04c190%2Fsubmit&amp;figmadelay=4000&amp;figmaselector=.phone">Capture</a></li>
+    <li><strong>Beyond — improve score</strong> — <a href="http://localhost:5173/SCB_Morning_Briefing_Demo.html?screen=beyond_score#figmacapture=8fdb2441-5e17-4176-838b-5f1dbdd5c965&amp;figmaendpoint=https%3A%2F%2Fmcp.figma.com%2Fmcp%2Fcapture%2F8fdb2441-5e17-4176-838b-5f1dbdd5c965%2Fsubmit&amp;figmadelay=4000&amp;figmaselector=.phone">Capture</a></li>
+    <li><strong>Beyond — MBA</strong> — <a href="http://localhost:5173/SCB_Morning_Briefing_Demo.html?screen=beyond_mba#figmacapture=b82d626c-1398-4c6d-b09a-e5b32c224340&amp;figmaendpoint=https%3A%2F%2Fmcp.figma.com%2Fmcp%2Fcapture%2Fb82d626c-1398-4c6d-b09a-e5b32c224340%2Fsubmit&amp;figmadelay=4000&amp;figmaselector=.phone">Capture</a></li>
+    <li><strong>Beyond — Bali</strong> — <a href="http://localhost:5173/SCB_Morning_Briefing_Demo.html?screen=beyond_bali#figmacapture=f5a4838b-f0c3-40bf-9d1c-e22eb2ac0535&amp;figmaendpoint=https%3A%2F%2Fmcp.figma.com%2Fmcp%2Fcapture%2Ff5a4838b-f0c3-40bf-9d1c-e22eb2ac0535%2Fsubmit&amp;figmadelay=4000&amp;figmaselector=.phone">Capture</a></li>
+  </ol>
+
+  <h2>D. Per-screen checklist (what you do)</h2>
+  <ol>
+    <li>Terminal in SCBX folder: <code>npx serve -l 5173</code></li>
+    <li>Chrome: open <code>http://localhost:5173/Figma_capture_links.html</code></li>
+    <li>Figma: open the same file in the browser or app so you can see imports arrive</li>
+    <li>For items <strong>B.1–B.13</strong> then <strong>C.14–C.17</strong>: click <strong>Capture</strong>, wait until the page sits ~4s and capture completes, confirm in Figma, then the next link</li>
+    <li>If a capture looks empty: increase delay in the URL to <code>figmadelay=5500</code> and ask Cursor for a <strong>new</strong> capture ID for that screen only (old ID is burned)</li>
+  </ol>
+</body>
+</html>
