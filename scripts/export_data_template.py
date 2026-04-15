@@ -10,6 +10,7 @@ Output:
 """
 from __future__ import annotations
 
+import argparse
 import json
 import re
 from collections import defaultdict
@@ -35,14 +36,15 @@ def _norm(s: object) -> str:
     return str(s).strip()
 
 
-def load_workbook_safe():
-    if not XLSX.exists():
-        raise FileNotFoundError(str(XLSX))
-    return openpyxl.load_workbook(XLSX, data_only=True)
+def load_workbook_safe(xlsx: Path):
+    if not xlsx.exists():
+        raise FileNotFoundError(str(xlsx))
+    return openpyxl.load_workbook(xlsx, data_only=True)
 
 
-def export() -> dict:
-    wb = load_workbook_safe()
+def export(xlsx: Path | None = None) -> dict:
+    xlsx_path = xlsx if xlsx is not None else XLSX
+    wb = load_workbook_safe(xlsx_path)
     if "Metadata - Data Set" not in wb.sheetnames or "Metadata - Column" not in wb.sheetnames:
         raise RuntimeError(f"Unexpected sheets: {wb.sheetnames}")
 
@@ -159,7 +161,7 @@ def export() -> dict:
 
     payload = {
         "generatedAt": datetime.now(timezone.utc).isoformat(),
-        "sourceFile": str(XLSX.name),
+        "sourceFile": str(xlsx_path.name),
         "dataSets": ds_records,
         "columnsByDataSet": {k: cols_by_ds[k] for k in allowed_ordered if k in cols_by_ds},
         "columnExport": {
@@ -186,8 +188,17 @@ def export() -> dict:
 
 
 def main():
+    p = argparse.ArgumentParser(description="Export Data Template xlsx to data/scb_data_catalog.json")
+    p.add_argument(
+        "--xlsx",
+        type=Path,
+        default=None,
+        help=f"Path to Excel template (default: {XLSX})",
+    )
+    args = p.parse_args()
+    xlsx = args.xlsx
     OUT.parent.mkdir(parents=True, exist_ok=True)
-    data = export()
+    data = export(xlsx)
     OUT.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
     print(f"Wrote {OUT} ({OUT.stat().st_size} bytes)")
 

@@ -1,0 +1,2 @@
+# Optional: only needed to run scripts/export_data_template.py (Excel → JSON).
+openpyxl>=3.1.0
