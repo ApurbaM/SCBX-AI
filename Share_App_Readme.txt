@@ -36,8 +36,8 @@ Open the same HTML file, then add to the address bar after the file name:
   ?screen=beyond_mba
   ?screen=beyond_bali
 
-Example (if the file is opened via a local server):
-  http://localhost:8080/SCB_Morning_Briefing_Demo.html?screen=briefing
+Example (if the file is opened via a local server; use the port printed by serve-demo):
+  http://localhost:8844/SCB_Morning_Briefing_Demo.html?screen=briefing
 
 Notes
 -----
@@ -46,13 +46,15 @@ Notes
 
 Local server (only if double-click does not work)
 -------------------------------------------------
-From inside this folder, in Terminal / PowerShell:
+From inside this folder, in Terminal / PowerShell (8844 avoids Docker, which often binds 8080):
 
-  python -m http.server 8080
+  python -m http.server 8844
+
+Or double-click serve-demo.bat (Windows) / ./serve-demo.sh (Mac/Linux).
 
 Then in the browser open:
 
-  http://localhost:8080/SCB_Morning_Briefing_Demo.html
+  http://localhost:8844/SCB_Morning_Briefing_Demo.html
 
 (If you do not have Python, install it from python.org or use another static server you already use.)
 
@@ -64,3 +66,9 @@ The file `SCB_CXO_Board_Dashboard.html` loads `data/scb_data_catalog.json`, whic
   python scripts/export_data_template.py
 
 Re-run that script whenever the Excel template changes, then refresh the dashboard.
+
+Share this folder with teammates (CXO board + ontology + demos)
+-----------------------------------------------------------
+See:
+  PACKAGE_FOR_TEAM.md          (short steps + how to build a zip)
+  docs/RUN_LOCALLY_FOR_TEAM.md (full local run + optional API)

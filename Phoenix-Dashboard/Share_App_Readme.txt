@@ -36,8 +36,8 @@ Open the same HTML file, then add to the address bar after the file name:
   ?screen=beyond_mba
   ?screen=beyond_bali
 
-Example (if the file is opened via a local server):
-  http://localhost:8080/SCB_Morning_Briefing_Demo.html?screen=briefing
+Example (if the file is opened via a local server; use the port from serve-demo):
+  http://localhost:8844/SCB_Morning_Briefing_Demo.html?screen=briefing
 
 Notes
 -----
@@ -46,13 +46,13 @@ Notes
 
 Local server (only if double-click does not work)
 -------------------------------------------------
-From inside this folder, in Terminal / PowerShell:
+From inside this folder, in Terminal / PowerShell (8844 avoids Docker on 8080):
 
-  python -m http.server 8080
+  python -m http.server 8844
 
 Then in the browser open:
 
-  http://localhost:8080/SCB_Morning_Briefing_Demo.html
+  http://localhost:8844/SCB_Morning_Briefing_Demo.html
 
 (If you do not have Python, install it from python.org or use another static server you already use.)
 
