@@ -68,6 +68,16 @@ def vera_discovery_payload(port: int) -> dict:
 def ensure_db():
     if not DB_PATH.is_file():
         subprocess.check_call([sys.executable, str(SEED_SCRIPT)], cwd=str(ROOT))
+    else:
+        # Older DBs may lack newer persona columns (e.g. product_holdings_json).
+        from seed import migrate_persona_profile_columns
+
+        conn = sqlite3.connect(str(DB_PATH))
+        try:
+            migrate_persona_profile_columns(conn)
+            conn.commit()
+        finally:
+            conn.close()
 
 
 def connect():
@@ -131,17 +141,45 @@ class Handler(BaseHTTPRequestHandler):
             conn = connect_row()
             try:
                 rows = conn.execute(
-                    "SELECT persona_id, display_name, short_desc, avatar_url, defaults_json FROM persona ORDER BY persona_id"
+                    """
+                    SELECT p.persona_id, p.display_name, p.short_desc, p.avatar_url,
+                           p.customer_ref, p.full_name, p.line_of_work, p.product_holdings_json,
+                           p.journey_metrics_json, p.defaults_json, t.state_json AS twin_json
+                    FROM persona p
+                    LEFT JOIN persona_twin t ON t.persona_id = p.persona_id
+                    ORDER BY p.persona_id
+                    """
                 ).fetchall()
                 out = []
                 for r in rows:
+                    twin = json.loads(r["twin_json"] or r["defaults_json"])
+                    ph_raw = r["product_holdings_json"]
+                    try:
+                        product_holdings = json.loads(ph_raw) if ph_raw else []
+                    except json.JSONDecodeError:
+                        product_holdings = []
+                    if not isinstance(product_holdings, list):
+                        product_holdings = []
+                    jm_raw = r["journey_metrics_json"]
+                    try:
+                        journey_metrics = json.loads(jm_raw) if jm_raw else {}
+                    except json.JSONDecodeError:
+                        journey_metrics = {}
+                    if not isinstance(journey_metrics, dict):
+                        journey_metrics = {}
                     out.append(
                         {
                             "personaId": r["persona_id"],
                             "name": r["display_name"],
                             "short": r["short_desc"],
                             "avatar": r["avatar_url"],
+                            "customerRef": r["customer_ref"] or "",
+                            "fullName": r["full_name"] or "",
+                            "lineOfWork": r["line_of_work"] or "",
+                            "productHoldings": product_holdings,
+                            "journeyMetrics": journey_metrics,
                             "defaults": json.loads(r["defaults_json"]),
+                            "twin": twin,
                         }
                     )
                 return send_json(self, 200, {"personas": out})
@@ -166,12 +204,24 @@ class Handler(BaseHTTPRequestHandler):
             conn = connect_row()
             try:
                 row = conn.execute(
-                    "SELECT state_json FROM persona_twin WHERE persona_id = ?", (pid,)
+                    """
+                    SELECT t.state_json, p.journey_metrics_json
+                    FROM persona_twin t
+                    JOIN persona p ON p.persona_id = t.persona_id
+                    WHERE t.persona_id = ?
+                    """,
+                    (pid,),
                 ).fetchone()
                 if not row:
                     return send_json(self, 404, {"error": "unknown personaId"})
                 twin = json.loads(row["state_json"])
-                payload = compute_board_metrics(twin)
+                try:
+                    jm = json.loads(row["journey_metrics_json"]) if row["journey_metrics_json"] else {}
+                except json.JSONDecodeError:
+                    jm = {}
+                if not isinstance(jm, dict):
+                    jm = {}
+                payload = compute_board_metrics(twin, journey_metrics=jm)
                 payload["personaId"] = pid
                 payload["horizon"] = (qs.get("horizon") or ["month"])[0]
                 return send_json(self, 200, payload)

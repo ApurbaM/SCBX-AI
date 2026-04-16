@@ -1,0 +1,24 @@
+SCBx — shareable demo (CXO dashboard + prototypes)
+====================================================
+
+1. Unzip this folder to any location on your computer.
+
+2. Start the local web server (Python 3.10+ required):
+   • Windows: double-click  serve-demo.bat
+   • Mac/Linux:  chmod +x serve-demo.sh  &&  ./serve-demo.sh
+   • Any OS:     py -3 serve_local.py   or   python3 serve_local.py
+
+3. Open the CXO Board Dashboard in your browser (default port 8844):
+   http://127.0.0.1:8844/SCB_CXO_Board_Dashboard.html
+   If the terminal shows a different port, use that number instead of 8844.
+
+4. Hub page (links to all demos):
+   http://127.0.0.1:8844/index.html
+
+5. Optional local API + SQLite: see docs/RUN_LOCALLY_FOR_TEAM.md
+
+To rebuild this zip from source:  python scripts/make_share_zip.py
+Output file:  dist/SCBX-local-demo.zip
+
+(The zip script omits large .pptx/.mp4 and other bulky files so the package stays easy to email;
+everything needed to run the HTML dashboard and optional Python API is included.)

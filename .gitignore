@@ -7,3 +7,7 @@ __pycache__/
 *.zip
 cc_frames/
 Figma make design system template/
+
+# Local SQLite built by server/seed.py
+server/cxo_dashboard.db
+dist/

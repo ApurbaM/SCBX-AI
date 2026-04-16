@@ -8,6 +8,11 @@ CREATE TABLE IF NOT EXISTS persona (
   display_name TEXT NOT NULL,
   short_desc TEXT,
   avatar_url TEXT,
+  customer_ref TEXT,
+  full_name TEXT,
+  line_of_work TEXT,
+  product_holdings_json TEXT,
+  journey_metrics_json TEXT,
   defaults_json TEXT NOT NULL
 );
 

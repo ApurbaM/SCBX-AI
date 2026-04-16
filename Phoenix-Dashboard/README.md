@@ -8,9 +8,10 @@ Self-contained HTML prototype pack for the **Phoenix / CXO journey board**, pers
 2. From this folder, either:
    - **Windows:** double-click `run-demo.bat`, or  
    - **Terminal:** `python -m http.server 8889` (change the port if busy).
-3. Open in the browser (HTTP, not `file://`):
+3. Open in the browser (HTTP, not `file://`). `run-demo.bat` serves the **repository root** so the canonical dashboard path is:
    - **Dashboard:** http://127.0.0.1:8889/SCB_CXO_Board_Dashboard.html  
-   - **Hub:** http://127.0.0.1:8889/index.html  
+   - **Hub (repo):** http://127.0.0.1:8889/index.html  
+   - **This folder’s hub:** http://127.0.0.1:8889/Phoenix-Dashboard/index.html  
 
 Hard refresh (Ctrl+F5) after pulling updates so CSS and HTML are not cached from an older folder.
 
@@ -18,7 +19,7 @@ Hard refresh (Ctrl+F5) after pulling updates so CSS and HTML are not cached from
 
 | Area | Role |
 |------|------|
-| `SCB_CXO_Board_Dashboard.html` | Phoenix journey board (Journeys 1 & 2, A–D frames, LHS profile) |
+| `../SCB_CXO_Board_Dashboard.html` (repo root) | Phoenix journey board — **one** HTML file; not duplicated in this folder |
 | `SCB_Morning_Briefing_Demo.html` | Morning brief iframe target |
 | `SCB_Loan_Servicing_Jarvis_Flow.html` | Loan / Jarvis servicing iframe target |
 | `assets/` | PNG references used by the board (including post-servicing Jarvis capture) |

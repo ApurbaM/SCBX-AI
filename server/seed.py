@@ -26,6 +26,27 @@ PERSONAS = [
         "name": "Young Professional",
         "short": "Early career · mobile-first · starter products",
         "avatar": "https://api.dicebear.com/7.x/micah/svg?seed=AriyaKlaimongkol&backgroundColor=4e2a84&radius=18",
+        "customerRef": "EASY-2847193",
+        "fullName": "Ms. Ariya Klaimongkol",
+        "lineOfWork": "Digital marketing associate · Pathum Wan, Bangkok",
+        "productHoldings": [
+            {"name": "SCB Easy savings", "detail": "฿42,180 · THB"},
+            {"name": "SCB Cashback credit card", "detail": "฿35,000 limit · active"},
+            {"name": "Short-term fixed deposit", "detail": "฿100,000 · 6 mo"},
+            {"name": "Starter unit trust", "detail": "฿8,400 balance"},
+        ],
+        "journeyMetrics": {
+            "a_ctr": 10.8,
+            "a_time": 3.4,
+            "b_logins": 5,
+            "b_logins_baseline": 4,
+            "b_nba_ctr": 12.4,
+            "c_csat": 82,
+            "c_res_no_hum": 81.2,
+            "d_offer_ctr": 10.9,
+            "d_monthly_leads": 412,
+            "d_monthly_leads_ref": 380,
+        },
         "defaults": {
             "age": 26,
             "incomeTHB": 28000,
@@ -34,6 +55,8 @@ PERSONAS = [
             "risk": "moderate",
             "contextCompleteness": 62,
             "goalTags": ["ease_of_banking", "borrow"],
+            "language": "EN",
+            "interests": ["fashion"],
         },
     },
     {
@@ -41,6 +64,27 @@ PERSONAS = [
         "name": "Emerging Family",
         "short": "Mid-life builder · omnichannel · protection & goals",
         "avatar": "https://api.dicebear.com/7.x/micah/svg?seed=NattapongSrisawat&backgroundColor=2d1654&radius=18",
+        "customerRef": "EASY-4110287",
+        "fullName": "Mr. Nattapong Srisawat",
+        "lineOfWork": "Operations supervisor · Bang Na, Bangkok",
+        "productHoldings": [
+            {"name": "Home loan (SCB)", "detail": "฿4.2M outstanding · fixed 2.89%"},
+            {"name": "Term life protection", "detail": "฿2M sum assured"},
+            {"name": "Kids savings (junior)", "detail": "฿186,000"},
+            {"name": "Payroll current account", "detail": "฿28,400"},
+        ],
+        "journeyMetrics": {
+            "a_ctr": 9.9,
+            "a_time": 4.1,
+            "b_logins": 5,
+            "b_logins_baseline": 4,
+            "b_nba_ctr": 13.5,
+            "c_csat": 84,
+            "c_res_no_hum": 82.0,
+            "d_offer_ctr": 11.0,
+            "d_monthly_leads": 521,
+            "d_monthly_leads_ref": 480,
+        },
         "defaults": {
             "age": 38,
             "incomeTHB": 52000,
@@ -49,6 +93,8 @@ PERSONAS = [
             "risk": "moderate",
             "contextCompleteness": 78,
             "goalTags": ["ease_of_banking", "save"],
+            "language": "TH",
+            "interests": ["food"],
         },
     },
     {
@@ -56,6 +102,27 @@ PERSONAS = [
         "name": "Emerging Affluent",
         "short": "Wealth builder · advisory-led · complex needs",
         "avatar": "https://api.dicebear.com/7.x/micah/svg?seed=SiripornVejchapinan&backgroundColor=c9a84c&radius=18",
+        "customerRef": "EASY-9021844",
+        "fullName": "Ms. Siriporn Wejchapinan",
+        "lineOfWork": "Regional sales lead · Wireless Rd, Bangkok",
+        "productHoldings": [
+            {"name": "Premier banking · investment portfolio", "detail": "฿3.8M AUM"},
+            {"name": "FX multicurrency account", "detail": "USD / THB · hedged"},
+            {"name": "Structured note (note-linked)", "detail": "฿1.2M notional"},
+            {"name": "Private wealth credit facility", "detail": "฿800,000 available"},
+        ],
+        "journeyMetrics": {
+            "a_ctr": 11.8,
+            "a_time": 3.1,
+            "b_logins": 5,
+            "b_logins_baseline": 4,
+            "b_nba_ctr": 15.2,
+            "c_csat": 88,
+            "c_res_no_hum": 86.1,
+            "d_offer_ctr": 12.6,
+            "d_monthly_leads": 687,
+            "d_monthly_leads_ref": 520,
+        },
         "defaults": {
             "age": 46,
             "incomeTHB": 180000,
@@ -64,6 +131,8 @@ PERSONAS = [
             "risk": "high",
             "contextCompleteness": 88,
             "goalTags": ["invest", "ease_of_banking"],
+            "language": "EN",
+            "interests": ["travel"],
         },
     },
 ]
@@ -135,16 +204,47 @@ def run_schema(conn: sqlite3.Connection) -> None:
     conn.executescript(sql)
 
 
+def migrate_persona_profile_columns(conn: sqlite3.Connection) -> None:
+    """Add anchored customer profile columns on older DBs (CREATE IF NOT EXISTS skipped them)."""
+    cols = {row[1] for row in conn.execute("PRAGMA table_info(persona)").fetchall()}
+    if "customer_ref" not in cols:
+        conn.execute("ALTER TABLE persona ADD COLUMN customer_ref TEXT")
+    if "full_name" not in cols:
+        conn.execute("ALTER TABLE persona ADD COLUMN full_name TEXT")
+    if "line_of_work" not in cols:
+        conn.execute("ALTER TABLE persona ADD COLUMN line_of_work TEXT")
+    if "product_holdings_json" not in cols:
+        conn.execute("ALTER TABLE persona ADD COLUMN product_holdings_json TEXT")
+    if "journey_metrics_json" not in cols:
+        conn.execute("ALTER TABLE persona ADD COLUMN journey_metrics_json TEXT")
+
+
 def seed_personas(conn: sqlite3.Connection) -> None:
     for p in PERSONAS:
         pid = p["personaId"]
         defaults = hydrate_twin(p["defaults"])
+        holdings = json.dumps(p.get("productHoldings") or [], ensure_ascii=False)
+        jmetrics = json.dumps(p.get("journeyMetrics") or {}, ensure_ascii=False)
         conn.execute(
             """
-            INSERT OR REPLACE INTO persona (persona_id, display_name, short_desc, avatar_url, defaults_json)
-            VALUES (?, ?, ?, ?, ?)
+            INSERT OR REPLACE INTO persona (
+              persona_id, display_name, short_desc, avatar_url,
+              customer_ref, full_name, line_of_work, product_holdings_json, journey_metrics_json, defaults_json
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
-            (pid, p["name"], p["short"], p["avatar"], json.dumps(defaults)),
+            (
+                pid,
+                p["name"],
+                p["short"],
+                p["avatar"],
+                p.get("customerRef"),
+                p.get("fullName"),
+                p.get("lineOfWork"),
+                holdings,
+                jmetrics,
+                json.dumps(defaults, ensure_ascii=False),
+            ),
         )
         conn.execute(
             """
@@ -263,6 +363,7 @@ def main():
     conn = sqlite3.connect(str(DB_PATH))
     try:
         run_schema(conn)
+        migrate_persona_profile_columns(conn)
         seed_personas(conn)
         seed_catalog(conn)
         seed_ontology_from_catalog(conn)
