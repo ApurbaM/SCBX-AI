@@ -20,25 +20,28 @@
       --warn:#fbbf24;
       --r:18px;
       --font: Arial, "Helvetica Neue", Helvetica, sans-serif;
-      /* Single text size for the whole board (9px). */
-      --board-font:9px;
+      /* Single text size for the whole board.
+         Responsive scale: stays compact on small screens, larger on typical laptops/monitors. */
+      --board-font: clamp(11px, 1.05vw, 15px);
       --board-lh:1.35;
       --board-ls:.1em;
       /* A–D journey phones: one aspect + max size; embed uses “cover” fill inside clip (tuned per ABC vs static D). */
       --journey-frame-ar-w:9;
       --journey-frame-ar-h:14.9;
-      --journey-frame-max-h:min(32cqh,228px);
+      /* Let the phone frames expand to fill their slots (avoid black “dead space” below). */
+      --journey-frame-max-h:min(100cqh,440px);
       /* Phone clip max width (non–double-height frames); tall A–D frames use slot cq units only. */
       --journey-frame-max-w:520px;
       /* A–D: one slot height + cap/metrics bands so purple frames + metric rows line up across all four. */
-      --journey-phone-slot-min-h:min(400px,calc(42dvh - 36px));
+      /* Keep slot min-height closer to the frame’s usable max height. */
+      --journey-phone-slot-min-h:min(320px,calc(36dvh - 28px));
       --journey-cap-h:3.35em;
       /* Room for long labels (e.g. C) at 9px without inner scroll. */
       --journey-metrics-band-h:calc(3 * (1em * 1.35) + 36px);
       /* Figma embed shell is larger than the phone art — higher scale + taller slice = less blank frame. */
-      --journey-figma-embed-scale:1.52;
-      --journey-figma-embed-top:-42%;
-      --journey-figma-embed-height:168%;
+      --journey-figma-embed-scale:1.75;
+      --journey-figma-embed-top:-52%;
+      --journey-figma-embed-height:190%;
     }
     *{box-sizing:border-box}
     html{font-family:var(--font);font-size:var(--board-font);-webkit-font-smoothing:antialiased;height:100%;max-height:100%;overflow:hidden;overscroll-behavior:none}
@@ -49,7 +52,7 @@
       linear-gradient(185deg,#0b0618,var(--bg) 55%,#020108);}
     a{color:var(--gold)}
     /* Minimal gutter: feed width to purple journey columns + grey Figma holders. */
-    .app{width:100%;max-width:none;margin:0;padding:10px 4px 0;box-sizing:border-box;display:grid;grid-template-columns:minmax(175px,min(28vw,300px)) minmax(0,1fr);grid-template-rows:minmax(0,1fr);gap:0;align-items:stretch;align-content:stretch;height:100vh;height:100dvh;max-height:100vh;max-height:100dvh;min-height:0;overflow:hidden}
+    .app{width:100%;max-width:none;margin:0;padding:10px 4px 0;box-sizing:border-box;display:grid;grid-template-columns:minmax(220px,min(34vw,380px)) minmax(0,1fr);grid-template-rows:minmax(0,1fr);gap:0;align-items:stretch;align-content:stretch;height:100vh;height:100dvh;max-height:100vh;max-height:100dvh;min-height:0;overflow:hidden}
     .app > .panel{min-height:0;min-width:0}
     /* Stack below 1040px but keep a single viewport — no document scroll */
     @media(max-width:1040px){
@@ -127,9 +130,8 @@
     }
     .panel.app-left .persona-block{flex-shrink:0;min-height:0}
 
-    /* LHS: same 9px as board; sliders stay interactive (see range rules below). */
+    /* LHS: keep typography consistent with the board. */
     .panel.app-left{
-      --board-font:9px;
       --board-lh:1.28;
     }
     .panel.app-left .app-panel-head{padding:2px 5px 2px}
@@ -301,7 +303,7 @@
       justify-content:flex-start;
       gap:clamp(8px, 1.8dvh, 20px);
       overflow-x:hidden;
-      overflow-y:auto;
+      overflow-y:hidden;
       -webkit-overflow-scrolling:touch;
       scrollbar-width:thin;
       scrollbar-color:rgba(201,168,76,.25) transparent;
@@ -760,7 +762,7 @@
       box-sizing:border-box;
     }
     .exec-panel .kpirow-exec .kpi .k{
-      font-size:9px;
+      font-size:var(--board-font);
       letter-spacing:.06em;
       color:rgba(255,255,255,.55);
       min-height:2.5em;
@@ -776,13 +778,13 @@
       flex:1 1 auto;
       align-items:center;
       min-height:2.1rem;
-      font-size:9px;
+      font-size:var(--board-font);
       font-weight:900;
       letter-spacing:-.02em;
       line-height:1.08;
       word-break:break-word;
     }
-    .exec-panel .kpirow-exec .kpi .v span{font-size:9px!important;font-weight:800!important;color:rgba(255,255,255,.62)!important}
+    .exec-panel .kpirow-exec .kpi .v span{font-size:var(--board-font)!important;font-weight:800!important;color:rgba(255,255,255,.62)!important}
     .exec-panel .kpirow-exec .kpi--board .d{display:none}
     .exec-panel .kpirow-exec .kpi--journey .v{align-items:flex-end;padding-bottom:2px}
     .kpirow-more{
@@ -892,15 +894,15 @@
     .panel.exec-panel.app-right{min-height:0}
     .dash-top{display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:space-between;gap:6px;padding:8px 6px 6px;border-bottom:1px solid rgba(255,255,255,.08);background:rgba(0,0,0,.14)}
     .dash-top select{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:#fff;border-radius:12px;padding:8px 10px;font-size:var(--board-font);flex-shrink:0}
-    .kpi .kpi-mom{margin-top:4px;padding-top:2px;font-size:9px;font-weight:800;letter-spacing:.02em;display:flex;align-items:center;gap:4px;line-height:1.2}
+    .kpi .kpi-mom{margin-top:4px;padding-top:2px;font-size:var(--board-font);font-weight:800;letter-spacing:.02em;display:flex;align-items:center;gap:4px;line-height:1.2}
     .kpi .kpi-mom.good{color:var(--good)}
     .kpi .kpi-mom.bad{color:#fca5a5}
     /* Two journey panels (J1 | J2); gutter between purple-bordered columns. */
     .dash-journeys{
       display:grid;
       grid-template-columns:1fr 1fr;
-      gap:5px;
-      padding:4px 0 6px;
+      gap:4px;
+      padding:2px 0 4px;
       flex:1 1 0;
       min-height:0;
       align-items:stretch;
@@ -944,7 +946,7 @@
     .dash-journey-pair{
       display:grid;
       grid-template-columns:1fr 1fr;
-      gap:5px;
+      gap:4px;
       flex:1;
       min-height:0;
       align-items:stretch;
@@ -1146,13 +1148,13 @@
     .journey-block-footer .journey-cap-metrics.journey-metrics-foot{
       flex-shrink:0;
       box-sizing:border-box;
-      --jm-fs:9px;
+      --jm-fs:var(--board-font);
       --jm-lh:1.35;
       min-height:var(--journey-metrics-band-h);
       height:auto;
       overflow:visible;
       padding:6px 6px 7px;
-      font-size:9px;
+      font-size:var(--board-font);
       border-top:1px solid rgba(255,255,255,.12);
       background:rgba(0,0,0,.58);
     }
@@ -1160,7 +1162,7 @@
       display:block;
       text-align:center;
       padding:4px 6px 5px;
-      font-size:9px;
+      font-size:var(--board-font);
       font-weight:800;
       letter-spacing:.08em;
       text-transform:uppercase;
@@ -1212,7 +1214,7 @@
     }
     .journey-metric-delta{
       font-weight:800;
-      font-size:9px;
+      font-size:var(--board-font);
       letter-spacing:.02em;
       color:rgba(201,168,76,.92);
       margin-left:3px;
@@ -1236,8 +1238,8 @@
       display:grid;
       grid-template-columns:minmax(0,1fr);
       grid-template-rows:1fr;
-      justify-items:center;
-      align-items:start;
+      justify-items:stretch;
+      align-items:stretch;
       padding:0;
       overflow:hidden;
       container-type:size;
@@ -1247,12 +1249,12 @@
     .journey-block .frame{
       position:relative;
       flex:0 0 auto;
-      width:min(100cqw, calc(100cqh * var(--journey-frame-ar-w) / var(--journey-frame-ar-h)), var(--journey-frame-max-w));
       aspect-ratio:var(--journey-frame-ar-w) / var(--journey-frame-ar-h);
-      height:auto;
+      width:100%;
       max-width:100%;
-      max-height:var(--journey-frame-max-h);
-      margin-inline:auto;
+      height:100%;
+      max-height:100%;
+      margin-inline:0;
       min-width:0;
       min-height:0;
       background:var(--deep);
@@ -1310,53 +1312,32 @@
       background:var(--deep);
       z-index:0;
     }
-    /* Figma: scale + vertical nudge so device art fills the clip (same footprint as D image). */
+    /* Figma: full-bleed embed (fit to available clip). */
     .journey-block .frame.journey-frame--figma .journey-figma-clip iframe.journey-figma-embed{
       position:absolute;
-      left:50%;
-      top:var(--journey-figma-embed-top);
+      inset:0;
       width:100%;
-      min-width:100%;
-      height:var(--journey-figma-embed-height);
-      min-height:var(--journey-figma-embed-height);
-      max-width:none;
+      height:100%;
       margin:0;
       border:0;
       background:var(--deep);
-      transform:translate(-50%,0) scale(var(--journey-figma-embed-scale));
-      transform-origin:top center;
       pointer-events:auto;
       z-index:1;
-    }
-    /* A–D: max zoom into device / proto (embed chrome cropped by .journey-figma-clip; frame bg matches clip). */
-    .journey-block .frame.journey-frame--figma.journey-frame--figma-abc{
-      --journey-figma-embed-top:-64%;
-      --journey-figma-embed-scale:2.08;
-      --journey-figma-embed-height:235%;
-    }
-    .journey-block .frame.journey-frame--figma.journey-frame--figma-abc .journey-figma-clip iframe.journey-figma-embed{
-      width:122%;
-      min-width:122%;
     }
     /* Tall phone clip (A–D): width-led sizing (reliable); slightly wider cap than 100% column-only. */
     .journey-block .frame.journey-frame--a-double-height{
       width:min(100%,100cqw,min(528px,var(--journey-frame-max-w)));
       max-width:min(100cqw,100%);
       margin-inline:auto;
-      aspect-ratio:9 / 29.8;
+      aspect-ratio:9 / 34;
       height:auto;
-      max-height:min(calc(100cqh - 12px),440px);
-      min-height:min(120px,calc(100cqw * 29.8 / 9));
+      max-height:min(calc(100cqh - 12px),620px);
+      min-height:min(120px,calc(100cqw * 34 / 9));
       flex-shrink:0;
       align-self:start;
       justify-self:center;
     }
-    .journey-block .frame.journey-frame--figma.journey-frame--figma-abc.journey-frame--a-double-height{
-      /* Gentler crop so Figma canvas stays in view; huge scale + negative top often blanks the embed. */
-      --journey-figma-embed-top:-22%;
-      --journey-figma-embed-scale:1.18;
-      --journey-figma-embed-height:128%;
-    }
+    .journey-block .frame.journey-frame--figma.journey-frame--figma-abc.journey-frame--a-double-height{ }
     .journey-block .frame.journey-frame--figma.journey-frame--figma-abc.journey-frame--a-double-height .journey-figma-clip iframe.journey-figma-embed{
       width:100%;
       min-width:100%;
@@ -1376,7 +1357,7 @@
       object-position:center center;
       pointer-events:none;
     }
-    .journey-block .note{flex-shrink:0;padding:5px 6px;font-size:var(--board-font);color:rgba(244,240,255,.62);border-top:1px solid rgba(255,255,255,.06);line-height:var(--board-lh)}
+    .journey-block .note{flex-shrink:0;padding:4px 6px;font-size:var(--board-font);color:rgba(244,240,255,.62);border-top:1px solid rgba(255,255,255,.06);line-height:var(--board-lh)}
 
     .offers-grid{display:grid;grid-template-columns:1fr;gap:10px;padding:12px;flex:1;min-height:0;overflow:auto}
     .offer{
